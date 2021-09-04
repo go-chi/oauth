@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"time"
@@ -9,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+
 	"github.com/go-chi/oauth"
 )
 
@@ -63,7 +63,7 @@ func main() {
 }
 
 func registerAPI(r *chi.Mux) {
-	s := oauth.NewOAuthBearerServer(
+	s := oauth.NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
@@ -77,36 +77,38 @@ type TestUserVerifier struct {
 }
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
-func (*TestUserVerifier) ValidateUser(username, password, scope string, req *http.Request) error {
+func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
 	if username == "user01" && password == "12345" {
 		return nil
 	}
-	return errors.New("Wrong user")
+
+	return errors.New("wrong user")
 }
 
 // ValidateClient validates clientId and secret returning an error if the client credentials are wrong
-func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, req *http.Request) error {
+func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *http.Request) error {
 	if clientID == "abcdef" && clientSecret == "12345" {
 		return nil
 	}
-	return errors.New("Wrong client")
+
+	return errors.New("wrong client")
+}
+
+// ValidateCode validates token ID
+func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error) {
+	return "", nil
 }
 
 // AddClaims provides additional claims to the token
-func (*TestUserVerifier) AddClaims(ctx context.Context, tokenType oauth.TokenType, credential, tokenID, scope string) (map[string]string, error) {
+func (*TestUserVerifier) AddClaims(tokenType oauth.TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	claims := make(map[string]string)
-	claims["customerId"] = "1001"
+	claims["customerID"] = "1001"
 	claims["customerData"] = `{"OrderDate":"2016-12-14","OrderId":"9999"}`
 	return claims, nil
 }
 
-// StoreTokenId saves the token id generated for the user
-func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
-	return nil
-}
-
 // AddProperties provides additional information to the token response
-func (*TestUserVerifier) AddProperties(ctx context.Context, tokenType oauth.TokenType, credential, tokenID, scope string) (map[string]string, error) {
+func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	props := make(map[string]string)
 	props["customerName"] = "Gopher"
 	return props, nil
@@ -117,7 +119,8 @@ func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, 
 	return nil
 }
 
-// ValidateCode validates token ID
-func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI string, req *http.Request) (string, error) {
-	return "", nil
+// StoreTokenId saves the token id generated for the user
+func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
+	return nil
 }
+

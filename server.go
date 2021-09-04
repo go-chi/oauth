@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,53 +20,48 @@ const (
 // CredentialsVerifier defines the interface of the user and client credentials verifier.
 type CredentialsVerifier interface {
 	// Validate username and password returning an error if the user credentials are wrong
-	ValidateUser(username, password, scope string, req *http.Request) error
+	ValidateUser(username, password, scope string, r *http.Request) error
 	// Validate clientID and secret returning an error if the client credentials are wrong
-	ValidateClient(clientID, clientSecret, scope string, req *http.Request) error
+	ValidateClient(clientID, clientSecret, scope string, r *http.Request) error
 	// Provide additional claims to the token
-	AddClaims(ctx context.Context, tokenType TokenType, credential, tokenID, scope string) (map[string]string, error)
-	// Optionally store the tokenID generated for the user
-	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
+	AddClaims(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Provide additional information to the authorization server response
-	AddProperties(ctx context.Context, tokenType TokenType, credential, tokenID, scope string) (map[string]string, error)
+	AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Optionally validate previously stored tokenID during refresh request
 	ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
+	// Optionally store the tokenID generated for the user
+	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
 type AuthorizationCodeVerifier interface {
 	// ValidateCode checks the authorization code and returns the user credential
-	ValidateCode(clientID, clientSecret, code, redirectURI string, req *http.Request) (string, error)
+	ValidateCode(clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error)
 }
 
-// OAuthBearerServer is the OAuth 2 Bearer Server implementation.
-type OAuthBearerServer struct {
+// BearerServer is the OAuth 2 bearer server implementation.
+type BearerServer struct {
 	secretKey string
 	TokenTTL  time.Duration
 	verifier  CredentialsVerifier
 	provider  *TokenProvider
 }
 
-// NewOAuthBearerServer creates new OAuth 2 Bearer Server
-func NewOAuthBearerServer(secretKey string,
-	ttl time.Duration,
-	verifier CredentialsVerifier,
-	formatter TokenSecureFormatter) *OAuthBearerServer {
+// NewBearerServer creates new OAuth 2 bearer server
+func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
 	if formatter == nil {
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
 	}
-	obs := &OAuthBearerServer{
+	return &BearerServer{
 		secretKey: secretKey,
 		TokenTTL:  ttl,
 		verifier:  verifier,
 		provider:  NewTokenProvider(formatter)}
-	return obs
 }
 
 // UserCredentials manages password grant type requests
-func (s *OAuthBearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) {
+func (bs *BearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
-	// grant_type password variables
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	scope := r.FormValue("scope")
@@ -79,14 +74,14 @@ func (s *OAuthBearerServer) UserCredentials(w http.ResponseWriter, r *http.Reque
 			return
 		}
 	}
-	// grant_type refresh_token
+
 	refreshToken := r.FormValue("refresh_token")
-	resp, statusCode := s.generateTokenResponse(GrantType(grantType), username, password, refreshToken, scope, "", "", r)
+	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), username, password, refreshToken, scope, "", "", r)
 	renderJSON(w, resp, statusCode)
 }
 
 // ClientCredentials manages client credentials grant type requests
-func (s *OAuthBearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request) {
+func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
 	// grant_type client_credentials variables
 	clientID := r.FormValue("client_id")
@@ -102,12 +97,12 @@ func (s *OAuthBearerServer) ClientCredentials(w http.ResponseWriter, r *http.Req
 	}
 	scope := r.FormValue("scope")
 	refreshToken := r.FormValue("refresh_token")
-	resp, statusCode := s.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
+	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
 	renderJSON(w, resp, statusCode)
 }
 
 // AuthorizationCode manages authorization code grant type requests for the phase two of the authorization process
-func (s *OAuthBearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request) {
+func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
 	// grant_type client_credentials variables
 	clientID := r.FormValue("client_id")
@@ -116,7 +111,6 @@ func (s *OAuthBearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Req
 	redirectURI := r.FormValue("redirect_uri") // not mandatory
 	scope := r.FormValue("scope")              // not mandatory
 	if clientID == "" {
-		// get clientID and secret from basic authorization header
 		var err error
 		clientID, clientSecret, err = GetBasicAuthentication(r)
 		if err != nil {
@@ -124,93 +118,93 @@ func (s *OAuthBearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Req
 			return
 		}
 	}
-	resp, status := s.generateTokenResponse(GrantType(grantType), clientID, clientSecret, "", scope, code, redirectURI, r)
+	resp, status := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, "", scope, code, redirectURI, r)
 	renderJSON(w, resp, status)
 }
 
 // Generate token response
-func (s *OAuthBearerServer) generateTokenResponse(grantType GrantType, credential, secret, refreshToken, scope, code, redirectURI string, req *http.Request) (interface{}, int) {
+func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, r *http.Request) (interface{}, int) {
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
-		if err := s.verifier.ValidateUser(credential, secret, scope, req); err != nil {
+		if err := bs.verifier.ValidateUser(credential, secret, scope, r); err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, err := s.generateTokens(UserToken, credential, scope)
+		token, refresh, err := bs.generateTokens(UserToken, credential, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		if err = s.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
-		if resp, err = s.cryptTokens(token, refresh); err != nil {
+		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case ClientCredentialsGrant:
-		if err := s.verifier.ValidateClient(credential, secret, scope, req); err != nil {
+		if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, err := s.generateTokens(ClientToken, credential, scope)
+		token, refresh, err := bs.generateTokens(ClientToken, credential, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		if err = s.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
-		if resp, err = s.cryptTokens(token, refresh); err != nil {
+		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case AuthCodeGrant:
-		codeVerifier, ok := s.verifier.(AuthorizationCodeVerifier)
+		codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized
 		}
 
-		user, err := codeVerifier.ValidateCode(credential, secret, code, redirectURI, req)
+		user, err := codeVerifier.ValidateCode(credential, secret, code, redirectURI, r)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, err := s.generateTokens(AuthToken, user, scope)
+		token, refresh, err := bs.generateTokens(AuthToken, user, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		err = s.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
+		err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
-		if resp, err = s.cryptTokens(token, refresh); err != nil {
+		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case RefreshTokenGrant:
-		refresh, err := s.provider.DecryptRefreshTokens(refreshToken)
+		refresh, err := bs.provider.DecryptRefreshTokens(refreshToken)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		if err = s.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
+		if err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
 			return "Not authorized invalid token", http.StatusUnauthorized
 		}
 
-		token, refresh, err := s.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope)
+		token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
 		if err != nil {
 			return "Token generation failed", http.StatusInternalServerError
 		}
 
-		err = s.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
+		err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
-		if resp, err = s.cryptTokens(token, refresh); err != nil {
+		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
 			return "Token generation failed", http.StatusInternalServerError
 		}
 	default:
@@ -220,42 +214,40 @@ func (s *OAuthBearerServer) generateTokenResponse(grantType GrantType, credentia
 	return resp, http.StatusOK
 }
 
-func (s *OAuthBearerServer) generateTokens(tokenType TokenType, username, scope string) (token *Token, refresh *RefreshToken, err error) {
-	token = &Token{Credential: username, ExpiresIn: s.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
-	// generate token ID
-	token.ID = uuid.Must(uuid.NewV4()).String()
-	if s.verifier != nil {
-		claims, err := s.verifier.AddClaims(context.TODO(), token.TokenType, username, token.ID, token.Scope)
+func (bs *BearerServer) generateTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, error) {
+	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
+	if bs.verifier != nil {
+		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
 		if err != nil {
-			// claims error
 			return nil, nil, err
 		}
+		fmt.Printf("CLAIMS: %+v", claims)
 		token.Claims = claims
 	}
-	// create refresh token
-	refresh = &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: token.ID, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
 
-	return token, refresh, nil
+	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: token.ID, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
+
+	return token, refreshToken, nil
 }
 
-func (s *OAuthBearerServer) cryptTokens(token *Token, refresh *RefreshToken) (resp *TokenResponse, err error) {
-	ctoken, err := s.provider.CryptToken(token)
+func (bs *BearerServer) cryptTokens(token *Token, refresh *RefreshToken, r *http.Request) (*TokenResponse, error) {
+	cToken, err := bs.provider.CryptToken(token)
 	if err != nil {
 		return nil, err
 	}
-	crefresh, err := s.provider.CryptRefreshToken(refresh)
+	cRefreshToken, err := bs.provider.CryptRefreshToken(refresh)
 	if err != nil {
 		return nil, err
 	}
-	resp = &TokenResponse{Token: ctoken, RefreshToken: crefresh, TokenType: BearerToken, ExpiresIn: (int64)(s.TokenTTL / time.Second)}
 
-	if s.verifier != nil {
-		// add properties
-		props, err := s.verifier.AddProperties(context.TODO(), token.TokenType, token.Credential, token.ID, token.Scope)
+	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second)}
+
+	if bs.verifier != nil {
+		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
 		if err != nil {
 			return nil, err
 		}
-		resp.Properties = props
+		tokenResponse.Properties = props
 	}
-	return resp, nil
+	return tokenResponse, nil
 }
