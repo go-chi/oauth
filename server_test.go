@@ -55,8 +55,8 @@ func (TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *
 // Provide additional claims to the token
 func (TestUserVerifier) AddClaims(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	claims := make(map[string]string)
-	claims["customerID"] = "1001"
-	claims["customerData"] = `{"order_date":"2016-12-14","order_id":"9999"}`
+	claims["customer_id"] = "1001"
+	claims["customer_data"] = `{"order_date":"2016-12-14","order_id":"9999"}`
 
 	// Get value from request context, and add it to our claims.
 	test := r.Context().Value("oauth.claims.test")
@@ -69,7 +69,7 @@ func (TestUserVerifier) AddClaims(tokenType TokenType, credential, tokenID, scop
 // Provide additional information to the token response
 func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	props := make(map[string]string)
-	props["customerName"] = "Gopher"
+	props["customer_name"] = "Gopher"
 
 	// Get value from request context, and add it to our props.
 	test := r.Context().Value("oauth.props.test")

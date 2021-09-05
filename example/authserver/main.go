@@ -100,15 +100,15 @@ func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI 
 // AddClaims provides additional claims to the token
 func (*TestUserVerifier) AddClaims(tokenType oauth.TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	claims := make(map[string]string)
-	claims["customerID"] = "1001"
-	claims["customerData"] = `{"order_date":"2016-12-14","order_id":"9999"}`
+	claims["customer_id"] = "1001"
+	claims["customer_data"] = `{"order_date":"2016-12-14","order_id":"9999"}`
 	return claims, nil
 }
 
 // AddProperties provides additional information to the token response
 func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	props := make(map[string]string)
-	props["customerName"] = "Gopher"
+	props["customer_name"] = "Gopher"
 	return props, nil
 }
 

@@ -79,8 +79,8 @@ func GetCustomers(w http.ResponseWriter, _ *http.Request) {
 	renderJSON(w, `{
 		"Status":        "verified",
 		"Customer":      "test001",
-		"CustomerName":  "Max",
-		"CustomerEmail": "test@test.com",
+		"Customer_name":  "Max",
+		"Customer_email": "test@test.com",
 	}`, http.StatusOK)
 }
 
