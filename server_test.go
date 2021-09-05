@@ -38,15 +38,15 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	}
 }
 
-// Validate clientId and secret returning an error if the client credentials are wrong
-func (TestUserVerifier) ValidateClient(clientId, clientSecret, scope string, r *http.Request) error {
+// Validate clientID and secret returning an error if the client credentials are wrong
+func (TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *http.Request) error {
 	// Add something to the request context, so we can access it in the claims and props funcs.
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "oauth.claims.test", "test")
 	ctx = context.WithValue(ctx, "oauth.props.test", "test")
 	*r = *r.Clone(ctx)
 
-	if clientId == "abcdef" && clientSecret == "12345" {
+	if clientID == "abcdef" && clientSecret == "12345" {
 		return nil
 	}
 	return errors.New("wrong client")
@@ -56,12 +56,12 @@ func (TestUserVerifier) ValidateClient(clientId, clientSecret, scope string, r *
 func (TestUserVerifier) AddClaims(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	claims := make(map[string]string)
 	claims["customerID"] = "1001"
-	claims["customerData"] = `{"OrderDate":"2016-12-14","OrderId":"9999"}`
+	claims["customerData"] = `{"order_date":"2016-12-14","order_id":"9999"}`
 
 	// Get value from request context, and add it to our claims.
 	test := r.Context().Value("oauth.claims.test")
 	if test != nil {
-		claims["ctxValue"] = test.(string)
+		claims["ctx_value"] = test.(string)
 	}
 	return claims, nil
 }
@@ -74,7 +74,7 @@ func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, 
 	// Get value from request context, and add it to our props.
 	test := r.Context().Value("oauth.props.test")
 	if test != nil {
-		props["ctxValue"] = test.(string)
+		props["ctx_value"] = test.(string)
 	}
 	return props, nil
 }
@@ -149,8 +149,8 @@ func TestGenerateToken4Password(t *testing.T) {
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
-	if resp.(*TokenResponse).Properties["ctxValue"] != "test" {
-		t.Fatalf("Error ctxValue invalid = %s", resp.(*TokenResponse).Properties["ctxValue"])
+	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
+		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
 	t.Logf("Token response: %v", resp)
 }
@@ -168,8 +168,8 @@ func TestGenerateToken4ClientCredentials(t *testing.T) {
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
-	if resp.(*TokenResponse).Properties["ctxValue"] != "test" {
-		t.Fatalf("Error ctxValue invalid = %s", resp.(*TokenResponse).Properties["ctxValue"])
+	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
+		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
 	t.Logf("Token response: %v", resp)
 }
@@ -180,8 +180,8 @@ func TestRefreshToken4ClientCredentials(t *testing.T) {
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
-	if resp.(*TokenResponse).Properties["ctxValue"] != "test" {
-		t.Fatalf("Error ctxValue invalid = %s", resp.(*TokenResponse).Properties["ctxValue"])
+	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
+		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
 	t.Logf("Token Response: %v", resp)
 	resp2, code2 := _sut.generateTokenResponse(RefreshTokenGrant, "", "", resp.(*TokenResponse).RefreshToken, "", "", "", r)

@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-
 	"github.com/go-chi/oauth"
 )
 
@@ -25,7 +24,7 @@ import (
 
 		grant_type=password&username=user01&password=12345
 
-	Generate Token using clientId & secret
+	Generate Token using clientID & secret
 
     	POST http://localhost:3000/auth
 		User-Agent: Fiddler
@@ -44,7 +43,6 @@ import (
 		Content-Type: application/x-www-form-urlencoded
 
 		grant_type=refresh_token&refresh_token={the refresh_token obtained in the previous response}
-
 */
 func main() {
 	r := chi.NewRouter()
@@ -85,7 +83,7 @@ func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.
 	return errors.New("wrong user")
 }
 
-// ValidateClient validates clientId and secret returning an error if the client credentials are wrong
+// ValidateClient validates clientID and secret returning an error if the client credentials are wrong
 func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *http.Request) error {
 	if clientID == "abcdef" && clientSecret == "12345" {
 		return nil
@@ -103,7 +101,7 @@ func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI 
 func (*TestUserVerifier) AddClaims(tokenType oauth.TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error) {
 	claims := make(map[string]string)
 	claims["customerID"] = "1001"
-	claims["customerData"] = `{"OrderDate":"2016-12-14","OrderId":"9999"}`
+	claims["customerData"] = `{"order_date":"2016-12-14","order_id":"9999"}`
 	return claims, nil
 }
 
@@ -114,12 +112,12 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 	return props, nil
 }
 
-// ValidateTokenId validates token ID
+// ValidateTokenID validates token ID
 func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
 
-// StoreTokenId saves the token id generated for the user
+// StoreTokenID saves the token id generated for the user
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
