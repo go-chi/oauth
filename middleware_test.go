@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -13,7 +14,8 @@ func init() {
 }
 
 func TestAuthorizationHeader(t *testing.T) {
-	resp, code := _sut.generateTokenResponse("password", "user111", "password111", "", "", "", "", nil)
+	r := new(http.Request)
+	resp, code := _sut.generateTokenResponse("password", "user111", "password111", "", "", "", "", r)
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}

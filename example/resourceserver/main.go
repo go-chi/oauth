@@ -79,16 +79,16 @@ func GetCustomers(w http.ResponseWriter, _ *http.Request) {
 	renderJSON(w, `{
 		"Status":        "verified",
 		"Customer":      "test001",
-		"CustomerName":  "Max",
-		"CustomerEmail": "test@test.com",
+		"Customer_name":  "Max",
+		"Customer_email": "test@test.com",
 	}`, http.StatusOK)
 }
 
 func GetOrders(w http.ResponseWriter, _ *http.Request) {
 	renderJSON(w, `{
-		"status":          "sent",
-		"customer":        c.Param("id"),
-		"OrderId":         "100234",
-		"TotalOrderItems": "199",
+		"status":            "sent",
+		"customer":          "test001",
+		"order_id":          "100234",
+		"total_order_items": "199",
 	}`, http.StatusOK)
 }
