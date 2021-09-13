@@ -47,18 +47,18 @@ func (ba *BearerAuthentication) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
 		token, err := ba.checkAuthorizationHeader(auth)
-		ctx := r.Context()
 		if err != nil {
 			renderJSON(w, "Not authorized: "+err.Error(), http.StatusUnauthorized)
 			return
-		} else {
-			context.WithValue(ctx, credential, token.Credential)
-			context.WithValue(ctx, claims, token.Claims)
-			context.WithValue(ctx, scope, token.Scope)
-			context.WithValue(ctx, tokenType, token.TokenType)
-			context.WithValue(ctx, accessToken, auth[7:])
-			next.ServeHTTP(w, r.WithContext(ctx))
 		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, credential, token.Credential)
+		ctx = context.WithValue(ctx, claims, token.Claims)
+		ctx = context.WithValue(ctx, scope, token.Scope)
+		ctx = context.WithValue(ctx, tokenType, token.TokenType)
+		ctx = context.WithValue(ctx, accessToken, auth[7:])
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
