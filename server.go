@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -221,7 +220,6 @@ func (bs *BearerServer) generateTokens(tokenType TokenType, username, scope stri
 		if err != nil {
 			return nil, nil, err
 		}
-		fmt.Printf("CLAIMS: %+v", claims)
 		token.Claims = claims
 	}
 

@@ -11,11 +11,11 @@ import (
 type contextKey string
 
 const (
-	credential  contextKey = "oauth.credential"
-	claims      contextKey = "oauth.claims"
-	scope       contextKey = "oauth.scope"
-	tokenType   contextKey = "oauth.tokentype"
-	accessToken contextKey = "oauth.accesstoken"
+	CredentialContext  contextKey = "oauth.credential"
+	ClaimsContext      contextKey = "oauth.claims"
+	ScopeContext       contextKey = "oauth.scope"
+	TokenTypeContext   contextKey = "oauth.tokentype"
+	AccessTokenContext contextKey = "oauth.accesstoken"
 )
 
 // BearerAuthentication middleware for go-chi
@@ -47,18 +47,18 @@ func (ba *BearerAuthentication) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
 		token, err := ba.checkAuthorizationHeader(auth)
-		ctx := r.Context()
 		if err != nil {
 			renderJSON(w, "Not authorized: "+err.Error(), http.StatusUnauthorized)
 			return
-		} else {
-			context.WithValue(ctx, credential, token.Credential)
-			context.WithValue(ctx, claims, token.Claims)
-			context.WithValue(ctx, scope, token.Scope)
-			context.WithValue(ctx, tokenType, token.TokenType)
-			context.WithValue(ctx, accessToken, auth[7:])
-			next.ServeHTTP(w, r.WithContext(ctx))
 		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, CredentialContext, token.Credential)
+		ctx = context.WithValue(ctx, ClaimsContext, token.Claims)
+		ctx = context.WithValue(ctx, ScopeContext, token.Scope)
+		ctx = context.WithValue(ctx, TokenTypeContext, token.TokenType)
+		ctx = context.WithValue(ctx, AccessTokenContext, auth[7:])
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
