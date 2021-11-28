@@ -67,7 +67,7 @@ func main() {
     http.ListenAndServe(":8080", r)
 }
 ```
-See [/test/authserver/main.go](https://github.com/go-chi/oauth/blob/master/test/authserver/main.go) for the full example.
+See [/example/authserver/main.go](https://github.com/go-chi/oauth/blob/master/example/authserver/main.go) for the full example.
 
 ## Authorization Middleware usage example
 This snippet shows how to use the middleware
@@ -80,7 +80,7 @@ This snippet shows how to use the middleware
 	r.Get("/customers/{id}/orders", GetOrders)
     }
 ```
-See [/test/resourceserver/main.go](https://github.com/go-chi/oauth/blob/master/test/resourceserver/main.go) for the full example.
+See [/example/resourceserver/main.go](https://github.com/go-chi/oauth/blob/master/example/resourceserver/main.go) for the full example.
 
 Note that the authorization server and the authorization middleware are both using the same token formatter and the same secret key for encryption/decryption.
 
