@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/christhirst/oauth"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/oauth"
 )
 
 /*
@@ -121,4 +121,3 @@ func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, 
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
-

@@ -7,7 +7,7 @@ This library offers an OAuth 2.0 Authorization Server based on go-chi and an Aut
 
 
 ## Build status
-[![Build Status](https://app.travis-ci.com/go-chi/oauth.svg?branch=master)](https://app.travis-ci.com/github/go-chi/oauth)
+[![Build Status](https://app.travis-ci.com/christhirst/oauth.svg?branch=master)](https://app.travis-ci.com/github/christhirst/oauth)
 
 ## Authorization Server
 The Authorization Server is implemented by the struct _OAuthBearerServer_ that manages two grant types of authorizations (password and client_credentials). 
@@ -67,7 +67,7 @@ func main() {
     http.ListenAndServe(":8080", r)
 }
 ```
-See [/test/authserver/main.go](https://github.com/go-chi/oauth/blob/master/test/authserver/main.go) for the full example.
+See [/test/authserver/main.go](https://github.com/christhirst/oauth/blob/master/test/authserver/main.go) for the full example.
 
 ## Authorization Middleware usage example
 This snippet shows how to use the middleware
@@ -80,7 +80,7 @@ This snippet shows how to use the middleware
 	r.Get("/customers/{id}/orders", GetOrders)
     }
 ```
-See [/test/resourceserver/main.go](https://github.com/go-chi/oauth/blob/master/test/resourceserver/main.go) for the full example.
+See [/test/resourceserver/main.go](https://github.com/christhirst/oauth/blob/master/test/resourceserver/main.go) for the full example.
 
 Note that the authorization server and the authorization middleware are both using the same token formatter and the same secret key for encryption/decryption.
 
@@ -89,4 +89,4 @@ Note that the authorization server and the authorization middleware are both usi
 - [OAuth 2.0 Bearer Token Usage RFC](https://tools.ietf.org/html/rfc6750)
 
 ## License
-[MIT](https://github.com/go-chi/oauth/blob/master/LICENSE)
+[MIT](https://github.com/christhirst/oauth/blob/master/LICENSE)

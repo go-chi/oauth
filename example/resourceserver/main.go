@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	"github.com/go-chi/oauth"
+	"github.com/christhirst/oauth"
 )
 
 /*
