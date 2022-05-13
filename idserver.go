@@ -140,3 +140,23 @@ func (bs *BearerServer) generateidTokens(tokenType TokenType, username, scope st
 
 	return token, refreshToken, ss, nil
 }
+
+func (bs *BearerServer) ClientIdCredentials(w http.ResponseWriter, r *http.Request) {
+	grantType := r.FormValue("grant_type")
+	// grant_type client_credentials variables
+	clientID := r.FormValue("client_id")
+	clientSecret := r.FormValue("client_secret")
+	if clientID == "" || clientSecret == "" {
+		// get clientID and secret from basic authorization header
+		var err error
+		clientID, clientSecret, err = GetBasicAuthentication(r)
+		if err != nil {
+			renderJSON(w, "Not authorized", http.StatusUnauthorized)
+			return
+		}
+	}
+	scope := r.FormValue("scope")
+	refreshToken := r.FormValue("refresh_token")
+	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
+	renderJSON(w, resp, statusCode)
+}

@@ -34,3 +34,7 @@ func TestGenerateIdToken4Password(t *testing.T) {
 	t.Logf("Token response: %v", resp)
 	t.Error()
 }
+
+func TestClientIdCredentials(t *testing.T) {
+
+}
