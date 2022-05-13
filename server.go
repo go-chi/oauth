@@ -30,6 +30,8 @@ type CredentialsVerifier interface {
 	ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
+	// Provide additional claims to the idtoken
+	AddIdClaims() (map[string]string, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
@@ -230,6 +232,7 @@ func (bs *BearerServer) generateTokens(tokenType TokenType, username, scope stri
 
 func (bs *BearerServer) cryptTokens(token *Token, refresh *RefreshToken, r *http.Request) (*TokenResponse, error) {
 	cToken, err := bs.provider.CryptToken(token)
+
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +241,7 @@ func (bs *BearerServer) cryptTokens(token *Token, refresh *RefreshToken, r *http
 		return nil, err
 	}
 
-	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second)}
+	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: "sss"}
 
 	if bs.verifier != nil {
 		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)

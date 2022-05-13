@@ -68,6 +68,7 @@ func registerAPI(r *chi.Mux) {
 		nil)
 	r.Post("/token", s.UserCredentials)
 	r.Post("/auth", s.ClientCredentials)
+	r.Post("/userinfo", s.ClientCredentials)
 }
 
 // TestUserVerifier provides user credentials verifier for testing.

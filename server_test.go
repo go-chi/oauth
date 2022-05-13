@@ -18,6 +18,10 @@ var _sut = NewBearerServer(
 type TestUserVerifier struct {
 }
 
+func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
+	return map[string]string{}, nil
+}
+
 // Validate username and password returning an error if the user credentials are wrong
 func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
 	// Add something to the request context, so we can access it in the claims and props funcs.
@@ -102,7 +106,7 @@ func TestGenerateTokensByUsername(t *testing.T) {
 
 func TestCryptTokens(t *testing.T) {
 	r := new(http.Request)
-	token, refresh, err := _sut.generateTokens(UserToken, "user222","", r)
+	token, refresh, err := _sut.generateTokens(UserToken, "user222", "", r)
 	if err == nil {
 		t.Logf("Token: %v", token)
 		t.Logf("Refresh Token: %v", refresh)
@@ -120,7 +124,7 @@ func TestCryptTokens(t *testing.T) {
 
 func TestDecryptRefreshTokens(t *testing.T) {
 	r := new(http.Request)
-	token, refresh, err := _sut.generateTokens(UserToken,"user333","", r)
+	token, refresh, err := _sut.generateTokens(UserToken, "user333", "", r)
 	if err == nil {
 		t.Logf("Token: %v", token)
 		t.Logf("Refresh Token: %v", refresh)
