@@ -18,8 +18,8 @@ const (
 // TokenResponse is the authorization server response
 type TokenResponse struct {
 	Token        string            `json:"access_token"`
-	RefreshToken string            `json:"refresh_token"`
 	TokenType    TokenType         `json:"token_type"` // bearer
+	RefreshToken string            `json:"refresh_token"`
 	ExpiresIn    int64             `json:"expires_in"` // secs
 	Properties   map[string]string `json:"properties"`
 	IDtoken      string            `json:"id_token"`

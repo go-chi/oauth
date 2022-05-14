@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,7 +18,7 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, err := bs.generateTokens(UserToken, credential, scope, r)
+		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
@@ -26,7 +27,7 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
-		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
+		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case ClientCredentialsGrant:
@@ -100,7 +101,7 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 	return resp, http.StatusOK
 }
 
-func (bs *BearerServer) generateidTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
+func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
 	mySigningKey := []byte("AllYourBase")
 
 	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
@@ -126,7 +127,7 @@ func (bs *BearerServer) generateidTokens(tokenType TokenType, username, scope st
 	}
 
 	tokens := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, _ := tokens.SignedString(mySigningKey)
+	idtoken, _ := tokens.SignedString(mySigningKey)
 
 	if bs.verifier != nil {
 		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
@@ -138,7 +139,7 @@ func (bs *BearerServer) generateidTokens(tokenType TokenType, username, scope st
 
 	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: token.ID, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
 
-	return token, refreshToken, ss, nil
+	return token, refreshToken, idtoken, nil
 }
 
 func (bs *BearerServer) ClientIdCredentials(w http.ResponseWriter, r *http.Request) {
@@ -157,6 +158,117 @@ func (bs *BearerServer) ClientIdCredentials(w http.ResponseWriter, r *http.Reque
 	}
 	scope := r.FormValue("scope")
 	refreshToken := r.FormValue("refresh_token")
-	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
+	resp, statusCode := bs.generateIdTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
 	renderJSON(w, resp, statusCode)
+}
+
+func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
+	id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
+	response_type := r.URL.Query()["response_type"][0]
+	fmt.Println(response_type)
+	//client_id := r.URL.Query()["client_id"][0]
+	redirect_uri := r.URL.Query()["redirect_uri"][0]
+	//scope := r.URL.Query()["scope"][0]
+	//nonce := r.URL.Query()["nonce"][0]
+	state := r.URL.Query()["state"][0]
+	access_token := "access_token"
+	token_type := "token_type"
+	code := "sss"
+	switch response_type {
+	case "id_token":
+		location := redirect_uri + "&id_token=" + id_token + "&state=" + state
+		w.Header().Add("Location", location)
+
+	case "code":
+		state = "af0ifjsldkj"
+		code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
+		location := redirect_uri + "&code=" + code + "&state=" + state
+		w.Header().Add("Location", location)
+	case "id_token token":
+
+		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
+		w.Header().Add("Location", location)
+	case "code id_token":
+		location := redirect_uri + "&code=" + code + "&id_token=" + id_token + "&state=" + state
+		w.Header().Add("Location", location)
+	case "code token":
+		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&state=" + state
+		w.Header().Add("Location", location)
+
+	case "code id_token token":
+		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
+		w.Header().Add("Location", location)
+	default:
+
+	}
+
+	//http.Redirect(w, r, locationPram, 302)
+}
+
+/*
+HTTP/1.1 302 Found
+  Location: https://client.example.org/cb?
+    error=invalid_request
+    &error_description=
+      Unsupported%20response_type%20value
+    &state=af0ifjsldkj
+*/
+
+/* HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+ "access_token": "SlAV32hkKG",
+ "token_type": "Bearer",
+ "refresh_token": "8xLOxBtZp8",
+ "expires_in": 3600,
+ "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc
+   yI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5
+   NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZ
+   fV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5Nz
+   AKfQ.ggW8hZ1EuVLuxNuuIJKX_V8a_OMXzR0EHR9R6jgdqrOOF4daGU96Sr_P6q
+   Jp6IcmD3HP99Obi1PRs-cwh3LO-p146waJ8IhehcwL7F09JdijmBqkvPeB2T9CJ
+   NqeGpe-gccMg4vfKjkM8FcGvnzZUN4_KSP0aAp1tOJ1zZwgjxqGByKHiOtX7Tpd
+   QyHE5lcMiKPXfEIQILVq0pc_E2DzL7emopWoaoZTF_m0_N0YzFC6g6EJbOEoRoS
+   K5hoDalrcvRYLSrQAZZKflyuVCyixEoV9GfNQC3_osjzw2PAithfubEEBLuVVk4
+   XUVrWOLrLl0nx7RkKU8NXNHq-rvKMzqg"
+} */
+
+/* HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+ "error": "invalid_request"
+}
+*/
+
+func (bs *BearerServer) cryptIdTokens(token *Token, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
+	cToken, err := bs.provider.CryptToken(token)
+
+	if err != nil {
+		return nil, err
+	}
+	cRefreshToken, err := bs.provider.CryptRefreshToken(refresh)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: idToken}
+
+	if bs.verifier != nil {
+		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
+		if err != nil {
+			return nil, err
+		}
+		tokenResponse.Properties = props
+	}
+	return tokenResponse, nil
+}
+
+func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
+
 }

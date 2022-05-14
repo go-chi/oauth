@@ -68,7 +68,8 @@ func registerAPI(r *chi.Mux) {
 		nil)
 	r.Post("/token", s.UserCredentials)
 	r.Post("/auth", s.ClientCredentials)
-	r.Post("/userinfo", s.ClientCredentials)
+	r.Get("/authorize", s.GetRedirect)
+	r.Post("/userinfo", s.UserInfo)
 }
 
 // TestUserVerifier provides user credentials verifier for testing.
@@ -81,7 +82,7 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
-	if username == "user01" && password == "12345" {
+	if username == "Aaliyah" && password == "12345" {
 		return nil
 	}
 

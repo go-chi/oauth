@@ -8,7 +8,7 @@ import (
 
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	r := new(http.Request)
-	token, refresh, idtoken, err := _sut.generateidTokens(UserToken, "user111", "openid", r)
+	token, refresh, idtoken, err := _sut.generateIdTokens(UserToken, "user111", "openid", r)
 
 	if idtoken == "nil" {
 		fmt.Println(idtoken)
@@ -21,6 +21,7 @@ func TestGenerateIdTokensByUsername(t *testing.T) {
 	} else {
 		t.Fatalf("Error %s", err.Error())
 	}
+	t.Error()
 }
 func TestGenerateIdToken4Password(t *testing.T) {
 
@@ -32,6 +33,7 @@ func TestGenerateIdToken4Password(t *testing.T) {
 		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
 	t.Logf("Token response: %v", resp)
+
 	t.Error()
 }
 
