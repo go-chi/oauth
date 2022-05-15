@@ -3,8 +3,12 @@ package oauth
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -61,6 +65,7 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 		}
 
 		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
+		idtoken, err = CreateJWT("RS256", CreateClaims())
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
@@ -120,7 +125,7 @@ func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope st
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "test",
+			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io",
 			Subject:   "somebody",
 			ID:        "1",
 			Audience:  []string{"somebody_else"},
@@ -141,6 +146,39 @@ func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope st
 	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: token.ID, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
 
 	return token, refreshToken, idtoken, nil
+}
+
+func CreateClaims() MyCustomClaims {
+	claims := MyCustomClaims{
+		"bar",
+		jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io",
+			Subject:   "somebody",
+			ID:        "1",
+			Audience:  []string{"222"},
+		},
+	}
+
+	return claims
+
+}
+
+func CreateJWT(method string, claims jwt.Claims) (string, error) {
+	switch method {
+	case "RS256":
+		privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+		fmt.Println(x509.MarshalPKCS1PrivateKey(privatekey))
+		rt := jwt.GetSigningMethod(method)
+		tokens := jwt.NewWithClaims(rt, claims)
+		return tokens.SignedString(privatekey)
+	default:
+		return "", errors.New("Failed creating jwt")
+	}
+
 }
 
 // UserCredentials manages password grant type requests
@@ -169,33 +207,40 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Cannot generate RSA key\n")
 	}
-	//privatekey := &privatekey.PublicKey
-
-	//var privateKeyBytes []byte = x509.MarshalPKCS1PrivateKey(privatekey)
-	//publicKeyBytes, err := x509.MarshalPKIXPublicKey(publickey)
-	//fmt.Println(publicKeyBytes)
-	claims := MyCustomClaims{
-		"bar",
-		jwt.RegisteredClaims{
-			// A usual scenario is to set the expiration time relative to the current time
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "test",
-			Subject:   "somebody",
-			ID:        "1",
-			Audience:  []string{"somebody_else"},
-		},
-	}
-	rt := jwt.SigningMethodRS256
-	tokens := jwt.NewWithClaims(rt, claims)
 	fmt.Println(err)
-	ff, err := tokens.SignedString(privatekey)
-	fmt.Println("###")
-	fmt.Println(tokens)
-	fmt.Println(ff)
 
 	renderJSON(w, resp, 200)
+}
+
+type Keys struct {
+	Keys map[string]string `json:"keys"`
+}
+
+/* "keys": [
+   {
+     "alg": "RS256",
+     "e": "AQAB",
+     "n": "iKqiD4cr7FZKm6f05K4r-GQOvjRqjOeFmOho9V7SAXYwCyJluaGBLVvDWO1XlduPLOrsG_Wgs67SOG5qeLPR8T1zDK4bfJAo1Tvbw
+           YeTwVSfd_0mzRq8WaVc_2JtEK7J-4Z0MdVm_dJmcMHVfDziCRohSZthN__WM2NwGnbewWnla0wpEsU3QMZ05_OxvbBdQZaDUsNSx4
+           6is29eCdYwhkAfFd_cFRq3DixLEYUsRwmOqwABwwDjBTNvgZOomrtD8BRFWSTlwsbrNZtJMYU33wuLO9ynFkZnY6qRKVHr3YToIrq
+           NBXw0RWCheTouQ-snfAB6wcE2WDN3N5z760ejqQ",
+     "kid": "U5R8cHbGw445Qbq8zVO1PcCpXL8yG6IcovVa3laCoxM",
+     "kty": "RSA",
+     "use": "sig"
+   }, */
+// UserCredentials manages password grant type requests
+func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
+	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	fmt.Printf("%x", privatekey.D.Bytes())
+	//dd := string(privatekey.D.Bytes())
+	sEnc := base64.StdEncoding.EncodeToString(privatekey.N.Bytes())
+	fmt.Println(sEnc)
+	eEnc := base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(privatekey.E)))
+	fmt.Println(eEnc)
+
+	hh := Keys{map[string]string{"alg": "RS256", "n": sEnc, "e": eEnc}}
+
+	renderJSON(w, hh, 200)
 }
 
 //client_id:[222] nonce:[N-0.5202118080109033] redirect_uri:[http://localhost:8080/session/callback] response_type:[code] scope:[openid] state:[93c174ac-0d06-46a8-9253-e3b947f40153]

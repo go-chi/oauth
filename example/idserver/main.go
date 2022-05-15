@@ -68,6 +68,7 @@ func registerAPI(r *chi.Mux) {
 		nil)
 	r.Get("/users/sign_in", s.SignIn)
 	r.Post("/token", s.TokenEndpoint)
+	r.Get("/keys", s.ReturnKeys)
 	r.Post("/auth", s.ClientCredentials)
 	r.Get("/authorize", s.GetRedirect)
 	r.Get("/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
