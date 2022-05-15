@@ -15,6 +15,31 @@ const (
 	ClientToken TokenType = "C"
 )
 
+type OpenidConfig struct {
+	Issuer                                        string   `json:"issuer"`
+	Authorization_endpoint                        string   `json:"authorization_endpoint"`
+	Token_endpoint                                string   `json:"token_endpoint"`
+	Userinfo_endpoint                             string   `json:"userinfo_endpoint"`
+	Registration_endpoint                         string   `json:"registration_endpoint"`
+	Jwks_uri                                      string   `json:"jwks_uri"`
+	Response_types_supported                      []string `json:"response_types_supported"`
+	Response_modes_supported                      []string `json:"response_modes_supported"`
+	Grant_types_supported                         []string `json:"grant_types_supported"`
+	Subject_types_supported                       []string `json:"subject_types_supported"`
+	Id_token_signing_alg_values_supported         []string `json:"id_token_signing_alg_values_supported"`
+	Scopes_supported                              []string `json:"scopes_supported"`
+	Token_endpoint_auth_methods_supported         []string `json:"token_endpoint_auth_methods_supported"`
+	Claims_supported                              []string `json:"claims_supported"`
+	Code_challenge_methods_supported              []string `json:"code_challenge_methods_supported"`
+	Introspection_endpoint                        string   `json:"introspection_endpoint"`
+	Introspection_endpoint_auth_methods_supported []string `json:"introspection_endpoint_auth_methods_supported"`
+	Revocation_endpoint                           string   `json:"revocation_endpoint"`
+	Revocation_endpoint_auth_methods_supported    []string `json:"revocation_endpoint_auth_methods_supported"`
+	End_session_endpoint                          string   `json:"end_session_endpoint"`
+	Request_parameter_supported                   bool     `json:"request_parameter_supported"`
+	Request_object_signing_alg_values_supported   []string `json:"request_object_signing_alg_values_supported"`
+}
+
 // TokenResponse is the authorization server response
 type TokenResponse struct {
 	Token        string            `json:"access_token"`

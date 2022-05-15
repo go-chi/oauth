@@ -1,0 +1,6 @@
+POST https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/token HTTP/1.1
+    Host: 8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io 
+    Content-Type: application/x-www-form-urlencoded
+    Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+  &grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb

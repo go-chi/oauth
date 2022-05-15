@@ -1,0 +1,3 @@
+GET https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/.well-known/openid-configuration?
+Host: 8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io
+

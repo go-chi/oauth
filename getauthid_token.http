@@ -1,3 +1,5 @@
+
+    https://christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize
 GET https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize?
     &response_type=id_token%20token
   &client_id=s6BhdRkqt3

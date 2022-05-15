@@ -66,10 +66,13 @@ func registerAPI(r *chi.Mux) {
 		time.Second*120,
 		&TestUserVerifier{},
 		nil)
-	r.Post("/token", s.UserCredentials)
+	r.Get("/users/sign_in", s.SignIn)
+	r.Post("/token", s.TokenEndpoint)
 	r.Post("/auth", s.ClientCredentials)
 	r.Get("/authorize", s.GetRedirect)
+	r.Get("/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
 	r.Post("/userinfo", s.UserInfo)
+	r.Get("/.well-known/openid-configuration", s.OpenidConfig)
 }
 
 // TestUserVerifier provides user credentials verifier for testing.
