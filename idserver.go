@@ -231,7 +231,6 @@ type Keys struct {
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	fmt.Printf("%x", privatekey.D.Bytes())
 	//dd := string(privatekey.D.Bytes())
 	sEnc := base64.StdEncoding.EncodeToString(privatekey.N.Bytes())
 	fmt.Println(sEnc)
