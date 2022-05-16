@@ -8,4 +8,7 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 )
 
-require github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
+require (
+	github.com/MicahParks/keyfunc v1.1.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
+)

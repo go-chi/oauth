@@ -1,14 +1,13 @@
 package oauth
 
 import (
-	"crypto/rand"
+	"bytes"
 	"crypto/rsa"
-	"crypto/x509"
 	"encoding/base64"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -65,7 +64,7 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 		}
 
 		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
-		idtoken, err = CreateJWT("RS256", CreateClaims())
+		idtoken, err = CreateJWT("RS256", CreateClaims(), bs.pKey)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
@@ -167,13 +166,12 @@ func CreateClaims() MyCustomClaims {
 
 }
 
-func CreateJWT(method string, claims jwt.Claims) (string, error) {
+func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey) (string, error) {
 	switch method {
 	case "RS256":
-		privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-		fmt.Println(x509.MarshalPKCS1PrivateKey(privatekey))
 		rt := jwt.GetSigningMethod(method)
 		tokens := jwt.NewWithClaims(rt, claims)
+		tokens.Header["kid"] = "web"
 		return tokens.SignedString(privatekey)
 	default:
 		return "", errors.New("Failed creating jwt")
@@ -201,19 +199,15 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("######")
 	resp, _ := bs.generateIdTokenResponse(grant_type, "", "", "", "", "", "", r)
 	// generate key
-	privatekey, err := rsa.GenerateKey(rand.Reader, 2048)
-	publickey := privatekey.Public()
+
+	publickey := bs.pKey.Public()
 	fmt.Println(publickey)
-	if err != nil {
-		fmt.Printf("Cannot generate RSA key\n")
-	}
-	fmt.Println(err)
 
 	renderJSON(w, resp, 200)
 }
 
 type Keys struct {
-	Keys map[string]string `json:"keys"`
+	Keys []map[string]string `json:"keys"`
 }
 
 /* "keys": [
@@ -230,14 +224,26 @@ type Keys struct {
    }, */
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	//dd := string(privatekey.D.Bytes())
-	sEnc := base64.StdEncoding.EncodeToString(privatekey.N.Bytes())
-	fmt.Println(sEnc)
-	eEnc := base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(privatekey.E)))
-	fmt.Println(eEnc)
 
-	hh := Keys{map[string]string{"alg": "RS256", "n": sEnc, "e": eEnc}}
+	//dd := string(privatekey.D.Bytes())
+	sEnc := base64.StdEncoding.EncodeToString(bs.pKey.N.Bytes())
+	fmt.Println(sEnc)
+
+	buf := new(bytes.Buffer)
+	var num int = bs.pKey.E
+	err := binary.Write(buf, binary.LittleEndian, num)
+	if err != nil {
+		fmt.Println("binary.Write failed:", err)
+	}
+	fmt.Printf("% x", buf.Bytes())
+	bss := make([]byte, 4)
+	binary.LittleEndian.PutUint32(bss, uint32(bs.pKey.E))
+	eEnc := base64.StdEncoding.EncodeToString(bss)
+	fmt.Println(eEnc[:len(eEnc)-2])
+	//oo := map[string]string{"alg": "PS256"}
+	hh := Keys{[]map[string]string{map[string]string{"alg": "RS256", "kid": "web", "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+
+	//{"alg": "PS256", "kid": "1", "n": sEnc, "e": eEnc}}
 
 	renderJSON(w, hh, 200)
 }
@@ -281,24 +287,22 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	case "id_token":
 		location := redirect_uri + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
-
 	case "code":
 		code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
 		location := redirect_uri + "code=" + code + "&state=" + state
 		w.Header().Add("Location", location)
 		http.Redirect(w, r, location, 302)
-	case "id_token token":
-
+	case "id_token token": //insecure
 		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code id_token":
 		location := redirect_uri + "&code=" + code + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
-	case "code token":
+	case "code token": //insecure
 		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&state=" + state
 		w.Header().Add("Location", location)
 		//"code id_token token"
-	case "code token id_token":
+	case "code token id_token": //insecure
 		fmt.Println("ssss")
 		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)

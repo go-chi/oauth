@@ -1,6 +1,8 @@
 package oauth
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"net/http"
 	"time"
 
@@ -46,18 +48,22 @@ type BearerServer struct {
 	TokenTTL  time.Duration
 	verifier  CredentialsVerifier
 	provider  *TokenProvider
+	pKey      *rsa.PrivateKey
 }
 
 // NewBearerServer creates new OAuth 2 bearer server
-func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
+func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter, pk *rsa.PrivateKey) *BearerServer {
 	if formatter == nil {
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
 	}
+	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	return &BearerServer{
 		secretKey: secretKey,
-		TokenTTL:  ttl,
-		verifier:  verifier,
-		provider:  NewTokenProvider(formatter)}
+
+		TokenTTL: ttl,
+		verifier: verifier,
+		provider: NewTokenProvider(formatter),
+		pKey:     privatekey}
 }
 
 // UserCredentials manages password grant type requests
