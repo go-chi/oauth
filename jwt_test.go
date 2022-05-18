@@ -10,15 +10,21 @@ import (
 
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
+
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	sss "github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 func re(pKey *rsa.PrivateKey) (interface{}, error) {
+
 	return pKey.PublicKey, nil
 }
 
 func TestJwtValidate(t *testing.T) {
 
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	pubkey, err := jwk.PublicKeyOf(privatekey)
 	bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
@@ -33,7 +39,9 @@ func TestJwtValidate(t *testing.T) {
 	}
 
 	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/keys", keyfunc.Options{})
-
+	verifiedToken, err := sss.Parse([]byte(jw), sss.WithKey(jwa.RS256, pubkey))
+	fmt.Println(verifiedToken)
+	fmt.Println(err)
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}

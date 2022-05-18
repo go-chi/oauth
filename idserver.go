@@ -1,15 +1,17 @@
 package oauth
 
 import (
-	"bytes"
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/MicahParks/keyfunc"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -172,7 +174,49 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey) (st
 		rt := jwt.GetSigningMethod(method)
 		tokens := jwt.NewWithClaims(rt, claims)
 		tokens.Header["kid"] = "web"
-		return tokens.SignedString(privatekey)
+		signedToken, err := tokens.SignedString(privatekey)
+		fmt.Println("###!###")
+		fmt.Println(privatekey.E)
+		ddd := &privatekey.PublicKey
+		jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/keys", keyfunc.Options{})
+		if err != nil {
+			log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
+		}
+		fmt.Println("###$###")
+		fmt.Println(jwks)
+		fmt.Println(ddd)
+		token, err := jwt.Parse(signedToken, jwks.Keyfunc)
+		fmt.Println(err)
+		fmt.Println(token.Valid)
+		if err != nil {
+			fmt.Errorf("failed to parse token: %w", err)
+		}
+		nEnc := base64.URLEncoding.EncodeToString(privatekey.N.Bytes())
+		bss := make([]byte, 4)
+		binary.LittleEndian.PutUint32(bss, uint32(privatekey.E))
+		eEnc := base64.URLEncoding.EncodeToString(bss)
+		fmt.Println(bss)
+		var jwksJSON = json.RawMessage(`{"keys":[{"kid":"web","kty":"RSA","alg":"RS256","use":"sig","n":"` + nEnc + `","e":"` + eEnc + `"}]}`)
+
+		// Create the JWKS from the resource at the given URL.
+		jwkss, err := keyfunc.NewJSON(jwksJSON)
+		oo := jwkss.ReadOnlyKeys()
+		fmt.Println(oo["web"])
+		fmt.Println("zzzzzzz")
+		tokenw, err := jwt.Parse(signedToken, jwkss.Keyfunc)
+		fmt.Println(tokenw.Valid)
+
+		if err != nil {
+			log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
+		}
+
+		tt, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
+			return ddd, nil
+		})
+		fmt.Println(tt.Valid)
+		fmt.Println("token.Signature")
+		fmt.Println(tt.Valid)
+		return signedToken, err
 	default:
 		return "", errors.New("Failed creating jwt")
 	}
@@ -226,22 +270,15 @@ type Keys struct {
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 
 	//dd := string(privatekey.D.Bytes())
-	sEnc := base64.StdEncoding.EncodeToString(bs.pKey.N.Bytes())
+	sEnc := base64.URLEncoding.EncodeToString(bs.pKey.N.Bytes())
 	fmt.Println(sEnc)
 
-	buf := new(bytes.Buffer)
-	var num int = bs.pKey.E
-	err := binary.Write(buf, binary.LittleEndian, num)
-	if err != nil {
-		fmt.Println("binary.Write failed:", err)
-	}
-	fmt.Printf("% x", buf.Bytes())
 	bss := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bss, uint32(bs.pKey.E))
-	eEnc := base64.StdEncoding.EncodeToString(bss)
-	fmt.Println(eEnc[:len(eEnc)-2])
+	eEnc := base64.URLEncoding.EncodeToString(bss)
+	fmt.Println(eEnc)
 	//oo := map[string]string{"alg": "PS256"}
-	hh := Keys{[]map[string]string{map[string]string{"alg": "RS256", "kid": "web", "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+	hh := Keys{[]map[string]string{map[string]string{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": "web", "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
 
 	//{"alg": "PS256", "kid": "1", "n": sEnc, "e": eEnc}}
 
@@ -394,12 +431,11 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 		Grant_types_supported:                 []string{"authorization_code", "password", "client_credentials", "refresh_token"},
 		Token_endpoint_auth_methods_supported: []string{"client_secret_basic", "client_secret_post"},
 		Subject_types_supported:               []string{"public"},
-		Id_token_signing_alg_values_supported: []string{"HS256"},
+		Id_token_signing_alg_values_supported: []string{"RS256"},
 		Claims_supported:                      []string{"iss", "sub", "aud", "exp", "iat", "sub_legacy", "name", "nickname", "email", "email_verified", "website", "profile", "picture", "groups", "groups_direct"},
 	}
 	fmt.Println(j)
 	renderJSON(w, j, 200)
-
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
