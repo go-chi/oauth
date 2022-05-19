@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"bytes"
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/binary"
@@ -66,7 +67,10 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 		}
 
 		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
+
 		idtoken, err = CreateJWT("RS256", CreateClaims(), bs.pKey)
+		fmt.Println("dddd")
+		fmt.Println(idtoken)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
@@ -175,16 +179,14 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey) (st
 		tokens := jwt.NewWithClaims(rt, claims)
 		tokens.Header["kid"] = "web"
 		signedToken, err := tokens.SignedString(privatekey)
-		fmt.Println("###!###")
-		fmt.Println(privatekey.E)
-		ddd := &privatekey.PublicKey
+		fmt.Println("###$###")
+		fmt.Println(signedToken)
+		fmt.Println("--------------")
+		//ddd := &privatekey.PublicKey
 		jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/keys", keyfunc.Options{})
 		if err != nil {
 			log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 		}
-		fmt.Println("###$###")
-		fmt.Println(jwks)
-		fmt.Println(ddd)
 		token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		fmt.Println(err)
 		fmt.Println(token.Valid)
@@ -194,8 +196,10 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey) (st
 		nEnc := base64.URLEncoding.EncodeToString(privatekey.N.Bytes())
 		bss := make([]byte, 4)
 		binary.LittleEndian.PutUint32(bss, uint32(privatekey.E))
-		eEnc := base64.URLEncoding.EncodeToString(bss)
+		byteArr := IntToBytes(privatekey.E)
+		eEnc := base64.URLEncoding.EncodeToString(byteArr)
 		fmt.Println(bss)
+
 		var jwksJSON = json.RawMessage(`{"keys":[{"kid":"web","kty":"RSA","alg":"RS256","use":"sig","n":"` + nEnc + `","e":"` + eEnc + `"}]}`)
 
 		// Create the JWKS from the resource at the given URL.
@@ -203,24 +207,30 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey) (st
 		oo := jwkss.ReadOnlyKeys()
 		fmt.Println(oo["web"])
 		fmt.Println("zzzzzzz")
-		tokenw, err := jwt.Parse(signedToken, jwkss.Keyfunc)
-		fmt.Println(tokenw.Valid)
+		//tokenw, err := jwt.Parse(signedToken, jwkss.Keyfunc)
+		fmt.Println(signedToken)
 
 		if err != nil {
 			log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
 		}
 
-		tt, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
+		/* tt, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
 			return ddd, nil
-		})
-		fmt.Println(tt.Valid)
-		fmt.Println("token.Signature")
-		fmt.Println(tt.Valid)
+		}) */ /*
+			fmt.Println(tt.Valid)
+			fmt.Println("token.Signature")
+			fmt.Println(tt.Valid) */
 		return signedToken, err
 	default:
 		return "", errors.New("Failed creating jwt")
 	}
 
+}
+func IntToBytes(n int) []byte {
+	x := int32(n)
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	binary.Write(bytesBuffer, binary.BigEndian, x)
+	return bytesBuffer.Bytes()
 }
 
 // UserCredentials manages password grant type requests
