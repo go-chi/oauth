@@ -11,7 +11,8 @@ POST /token HTTP/1.1
   Host: server.example.com
   Content-Type: application/x-www-form-urlencoded
 
-  client_id=s6BhdRkqt3
+    &client_id=s6BhdRkqt3
+    &nonce=testnonce
     &client_secret=some_secret12345
     &grant_type=refresh_token
     &refresh_token=8xLOxBtZp8

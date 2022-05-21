@@ -235,6 +235,9 @@ func IntToBytes(n int) []byte {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.Form)
+	fmt.Println(r.FormValue("nonce"))
+	fmt.Println("+++++")
 	client_id := r.FormValue("client_id")
 	code := r.FormValue("code")
 	client_secret := r.FormValue("client_secret")
@@ -278,14 +281,16 @@ type Keys struct {
    }, */
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-
 	//dd := string(privatekey.D.Bytes())
 	sEnc := base64.URLEncoding.EncodeToString(bs.pKey.N.Bytes())
+
 	fmt.Println(sEnc)
 
 	bss := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bss, uint32(bs.pKey.E))
+	bss = IntToBytes(bs.pKey.E)
 	eEnc := base64.URLEncoding.EncodeToString(bss)
+
 	fmt.Println(eEnc)
 	//oo := map[string]string{"alg": "PS256"}
 	hh := Keys{[]map[string]string{map[string]string{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": "web", "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
@@ -316,6 +321,8 @@ func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 */
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Query()["nonce"][0])
+
 	id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
 	response_type := r.URL.Query()["response_type"][0]
 	fmt.Println(response_type)
