@@ -51,7 +51,8 @@ type TokenResponse struct {
 }
 
 type MyCustomClaims struct {
-	Foo string `json:"foo"`
+	Foo   string `json:"foo"`
+	Nonce string `json:"nonce"`
 	jwt.RegisteredClaims
 }
 

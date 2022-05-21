@@ -32,7 +32,7 @@ func TestJwtValidate(t *testing.T) {
 		nil,
 		privatekey)
 
-	jw, err := CreateJWT("RS256", CreateClaims(), bs.pKey)
+	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey)
 	//fmt.Println(jw)
 	if err != nil {
 		fmt.Println(err)

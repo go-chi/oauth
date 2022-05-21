@@ -49,6 +49,7 @@ type BearerServer struct {
 	verifier  CredentialsVerifier
 	provider  *TokenProvider
 	pKey      *rsa.PrivateKey
+	nonce     string
 }
 
 // NewBearerServer creates new OAuth 2 bearer server
