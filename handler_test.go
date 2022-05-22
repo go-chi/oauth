@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gofrs/uuid"
 )
 
 /* "keys": [
@@ -26,39 +27,47 @@ import (
      "kty": "RSA",
      "use": "sig"
    }, */
+
 type postData struct {
 	key   string
 	value string
 }
 
-var theTests = []struct {
-	name               string
-	url                string
-	method             string
-	params             []postData
-	expectedStatusCode int
-}{
-	{"config", "/", "GET", []postData{}, http.StatusOK},
-	{"config", "/config", "GET", []postData{}, http.StatusOK},
-	{"config", "/config", "GET", []postData{}, http.StatusOK},
-	{"load", "/load/mappings/FIRST3.json", "POST", []postData{
-		{key: "start", value: "2022-01-01"},
-		{key: "start", value: "2022-01-02"},
-	}, http.StatusOK},
-	{"load", "/load", "POST", []postData{
-		{key: "start", value: "2022-01-01"},
-		{key: "start", value: "2022-01-02"},
-	}, http.StatusOK},
-}
-
 func TestReturnKeys(t *testing.T) {
+
+	var theTests = []struct {
+		name               string
+		url                string
+		method             string
+		params             []postData
+		expectedStatusCode int
+	}{
+		{"config", "/", "GET", []postData{}, http.StatusOK},
+		{"config", "/config", "GET", []postData{}, http.StatusOK},
+		{"config", "/config", "GET", []postData{}, http.StatusOK},
+		{"load", "/load/mappings/FIRST3.json", "POST", []postData{
+			{key: "start", value: "2022-01-01"},
+			{key: "start", value: "2022-01-02"},
+		}, http.StatusOK},
+		{"load", "/load", "POST", []postData{
+			{key: "start", value: "2022-01-01"},
+			{key: "start", value: "2022-01-02"},
+		}, http.StatusOK},
+	}
+
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	if err != nil {
+		panic(err)
+	}
 	bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey)
+		privatekey,
+		signature.String(),
+	)
 
 	mux := chi.NewRouter()
 	mux.Get("/keys", bs.ReturnKeys)

@@ -13,7 +13,7 @@ func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 	eEnc := base64.URLEncoding.EncodeToString(bss)
 
 	fmt.Println(eEnc)
-	hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": "web", "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+	hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": bs.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
 	renderJSON(w, hh, 200)
 }
 
@@ -48,7 +48,11 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println(r.Header)
+	fmt.Println(r.Body)
+	fmt.Println(r.Form)
+	fmt.Println("+++++++++++++++++++++++++++++++")
+	//renderJSON(w, j, 200)
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {

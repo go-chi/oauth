@@ -66,7 +66,10 @@ func registerAPI(r *chi.Mux) {
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
-		nil, nil)
+		nil,
+		nil,
+		"nil",
+	)
 	r.Post("/token", s.UserCredentials)
 	r.Post("/auth", s.ClientCredentials)
 }

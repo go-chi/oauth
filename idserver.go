@@ -104,7 +104,9 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
 	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
 
-	idtoken, _ := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey, "web")
+	//claims := map[string]string{}
+
+	idtoken, _ := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey, string(bs.Signature))
 
 	if bs.verifier != nil {
 		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)

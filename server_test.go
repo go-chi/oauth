@@ -12,7 +12,10 @@ var _sut = NewBearerServer(
 	"mySecretKey-10101",
 	time.Second*60,
 	new(TestUserVerifier),
-	nil, nil)
+	nil,
+	nil,
+	"nil",
+)
 
 // TestUserVerifier provides user credentials verifier for testing.
 type TestUserVerifier struct {

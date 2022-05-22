@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/MicahParks/keyfunc"
+	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -36,13 +37,17 @@ func TestCreateJWT(t *testing.T) {
 
 func TestJwtValidate(t *testing.T) {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-
+	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	if err != nil {
+		panic(err)
+	}
 	bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey)
+		privatekey,
+		signature.String())
 
 	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey, "")
 	if err != nil {

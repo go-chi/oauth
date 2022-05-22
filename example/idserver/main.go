@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/gofrs/uuid"
 )
 
 /*
@@ -64,19 +65,26 @@ func main() {
 
 func registerAPI(r *chi.Mux) {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	signature, err := uuid.NewV4()
+
+	if err != nil {
+		panic(err)
+	}
+
 	s := oauth.NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey)
+		privatekey,
+		signature.String())
 	r.Get("/users/sign_in", s.SignIn)
 	r.Post("/token", s.TokenEndpoint)
 	r.Get("/keys", s.ReturnKeys)
 	r.Post("/auth", s.ClientCredentials)
 	r.Get("/authorize", s.GetRedirect)
 	r.Get("/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
-	r.Post("/userinfo", s.UserInfo)
+	r.Get("/userinfo", s.UserInfo)
 	r.Get("/.well-known/openid-configuration", s.OpenidConfig)
 }
 
