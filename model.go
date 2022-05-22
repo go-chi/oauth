@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"crypto/rsa"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -93,8 +92,10 @@ type RefreshToken struct {
 }
 
 type ClientConfig struct {
-	Method     string          `json:"method"`
-	Claims     jwt.Claims      `json:"Claims"`
-	Privatekey *rsa.PrivateKey `json:"privatekey"`
-	Kid        string          `json:"kid"`
+	Method string     `json:"method"`
+	Claims jwt.Claims `json:"Claims"`
+	Kid    string     `json:"kid"`
+}
+type Keys struct {
+	Keys []map[string]string `json:"keys"`
 }

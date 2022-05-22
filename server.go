@@ -50,6 +50,7 @@ type BearerServer struct {
 	provider  *TokenProvider
 	pKey      *rsa.PrivateKey
 	nonce     string
+	Clients   map[string]*ClientConfig
 }
 
 // NewBearerServer creates new OAuth 2 bearer server
@@ -58,13 +59,15 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
 	}
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	clients := InitClientConfig()
 	return &BearerServer{
 		secretKey: secretKey,
 
 		TokenTTL: ttl,
 		verifier: verifier,
 		provider: NewTokenProvider(formatter),
-		pKey:     privatekey}
+		pKey:     privatekey,
+		Clients:  clients}
 }
 
 // UserCredentials manages password grant type requests
