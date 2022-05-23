@@ -10,7 +10,7 @@ import (
 )
 
 // Generate token response
-func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, r *http.Request) (interface{}, int) {
+func (bs *BearerServer) GenerateIdTokenResponse(grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, r *http.Request) (interface{}, int) {
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
@@ -101,12 +101,20 @@ func (bs *BearerServer) generateIdTokenResponse(grantType GrantType, credential 
 	return resp, http.StatusOK
 }
 
-func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
+func GenToken(bs *BearerServer, username string, tokenType TokenType, scope string) *Token {
 	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
+	return token
+}
 
-	//claims := map[string]string{}
+func refreshToken(tokenId string, username string, tokenType TokenType, scope string) *RefreshToken {
+	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: tokenId, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
+	return refreshToken
+}
 
+func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
+	token := GenToken(bs, username, tokenType, scope)
 	idtoken, _ := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey, string(bs.Signature))
+	refreshToken := refreshToken(token.ID, username, tokenType, scope)
 
 	if bs.verifier != nil {
 		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
@@ -116,15 +124,7 @@ func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope st
 		token.Claims = claims
 	}
 
-	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: token.ID, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
 	return token, refreshToken, idtoken, nil
-}
-
-func IntToBytes(n int) []byte {
-	x := int32(n)
-	bytesBuffer := bytes.NewBuffer([]byte{})
-	binary.Write(bytesBuffer, binary.BigEndian, x)
-	return bytesBuffer.Bytes()
 }
 
 func (bs *BearerServer) cryptIdTokens(token *Token, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
@@ -148,4 +148,11 @@ func (bs *BearerServer) cryptIdTokens(token *Token, refresh *RefreshToken, idTok
 		tokenResponse.Properties = props
 	}
 	return tokenResponse, err
+}
+
+func IntToBytes(n int) []byte {
+	x := int32(n)
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	binary.Write(bytesBuffer, binary.BigEndian, x)
+	return bytesBuffer.Bytes()
 }
