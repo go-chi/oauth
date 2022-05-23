@@ -79,7 +79,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	// 	Body: {object|jwt} The consented claims, packaged in a JSON object or a JSON Web Token (JWT) (depending the registered client setting).
 
 	var contentType string = "Content-Type: application/jwt" //Content-Type: application/json
-
+	fmt.Println(contentType)
 	w.WriteHeader(401) // Unauthorized
 	w.WriteHeader(403) // Forbidden
 	w.WriteHeader(500) // Internal Server Error
