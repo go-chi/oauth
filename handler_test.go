@@ -107,3 +107,82 @@ func TestReturnKeys(t *testing.T) {
 	defer ts.Close()
 
 }
+
+func TestUserInfo(t *testing.T) {
+
+	var theTests = []struct {
+		name               string
+		url                string
+		method             string
+		params             []postData
+		expectedStatusCode int
+	}{
+		{"config", "/", "GET", []postData{}, http.StatusOK},
+		{"config", "/config", "GET", []postData{}, http.StatusOK},
+		{"config", "/config", "GET", []postData{}, http.StatusOK},
+		{"load", "/load/mappings/FIRST3.json", "POST", []postData{
+			{key: "start", value: "2022-01-01"},
+			{key: "start", value: "2022-01-02"},
+		}, http.StatusOK},
+		{"load", "/load", "POST", []postData{
+			{key: "start", value: "2022-01-01"},
+			{key: "start", value: "2022-01-02"},
+		}, http.StatusOK},
+	}
+
+	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	if err != nil {
+		panic(err)
+	}
+	bs := NewBearerServer(
+		"mySecretKey-10101",
+		time.Second*120,
+		&TestUserVerifier{},
+		nil,
+		privatekey,
+		signature.String(),
+	)
+
+	mux := chi.NewRouter()
+	mux.Get("/keys", bs.ReturnKeys)
+
+	ts := httptest.NewTLSServer(mux)
+	rs := map[string]int{"month": 12}
+	buf := new(bytes.Buffer)
+	if err := json.NewEncoder(buf).Encode(rs); err != nil {
+		panic(err)
+	}
+	for _, e := range theTests {
+		if e.method == "GET" {
+			resp, err := ts.Client().Get(ts.URL + e.url)
+			if err != nil {
+				t.Log(err)
+				t.Fatal(err)
+			}
+			if resp.StatusCode != e.expectedStatusCode {
+				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+			}
+		}
+	}
+}
+
+/*
+func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("+++++++++++++++++++++++++++++++")
+
+	fmt.Println(r.Header.Get("X-Forwarded-For"))
+	fmt.Println(r.Header.Get("X-Forwarded-Host"))
+	fmt.Println(r.Header.Get("X-Forwarded-Proto"))
+	eee := r.Header.Get("Authorization")
+	words := strings.Fields(eee)
+	fmt.Println(words[1])
+
+	rawDecodedText, err := base64.StdEncoding.DecodeString(words[1])
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Decoded text: %s\n", rawDecodedText)
+	//renderJSON(w, j, 200)
+}
+*/

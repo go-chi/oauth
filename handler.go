@@ -48,22 +48,41 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, resp, 200)
 }
 
-func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("+++++++++++++++++++++++++++++++")
+func CheckAccessToken(act string) {
 
-	fmt.Println(r.Header.Get("X-Forwarded-For"))
-	fmt.Println(r.Header.Get("X-Forwarded-Host"))
-	fmt.Println(r.Header.Get("X-Forwarded-Proto"))
+}
+
+func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
+	xff := r.Header.Get("X-Forwarded-For")
+	xfh := r.Header.Get("X-Forwarded-Host")
+	xfp := r.Header.Get("X-Forwarded-Proto")
+	fmt.Println(xff)
+	fmt.Println(xfh)
+	fmt.Println(xfp)
 	eee := r.Header.Get("Authorization")
 	words := strings.Fields(eee)
 	fmt.Println(words[1])
 
-	rawDecodedText, err := base64.StdEncoding.DecodeString(words[1])
-	if err != nil {
-		panic(err)
+	if words[0] == "bearer" && len(words) == 2 {
+		CheckAccessToken(words[1])
 	}
-	fmt.Printf("Decoded text: %s\n", rawDecodedText)
+
 	//renderJSON(w, j, 200)
+
+	/* 	Header parameters:
+	   	Authorization The access token of type Bearer or DPoP, scoped to retrieve the consented claims for the subject (end-user).
+	   	[ DPop ] The DPoP proof JWT, for an access token of type DPoP (optional). Note, the JWT must include an ath claim representing the BASE64URL encoded SHA-256 hash of the DPoP access token value.
+	   	[ Issuer ] The issuer URL when issuer aliases are configured, or the issuer URL for a tenant (in the multi-tenant Connect2id server edition). The tenant can be alternatively specified by the Tenant-ID header.
+	   	[ Tenant-ID ] The tenant ID (in the multi-tenant Connect2id server edition). The tenant can be alternatively specified by the Issuer header.
+	*/
+
+	// 	Body: {object|jwt} The consented claims, packaged in a JSON object or a JSON Web Token (JWT) (depending the registered client setting).
+
+	var contentType string = "Content-Type: application/jwt" //Content-Type: application/json
+
+	w.WriteHeader(401) // Unauthorized
+	w.WriteHeader(403) // Forbidden
+	w.WriteHeader(500) // Internal Server Error
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
