@@ -129,7 +129,6 @@ func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope st
 
 func (bs *BearerServer) cryptIdTokens(token *Token, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
 	cToken, err := bs.provider.CryptToken(token)
-
 	if err != nil {
 		return nil, err
 	}

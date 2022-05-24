@@ -18,29 +18,23 @@ func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, hh, 200)
 }
 
+func GetConfig() {
+
+}
+
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Form)
-	fmt.Println(r.FormValue("nonce"))
-	fmt.Println("+++++")
-	client_id := r.FormValue("client_id")
+	//client_id := r.FormValue("client_id")
+	//client_secret := r.FormValue("client_secret")
 	code := r.FormValue("code")
-	client_secret := r.FormValue("client_secret")
-	var grant_type GrantType
-	grant_type = GrantType(r.FormValue("grant_type"))
+	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
 	scope := r.FormValue("scope")
 	redirect_uri := r.FormValue("redirect_uri")
-	fmt.Println("client_id", client_id)
-	fmt.Println("code", code)
-	fmt.Println("client_secret", client_secret)
-	fmt.Println("grant_type", grant_type)
-	fmt.Println("refresh_token", refresh_token)
-	fmt.Println("scope", scope)
-	fmt.Println("redirect_uri", redirect_uri)
-	fmt.Println("######")
-	resp, _ := bs.GenerateIdTokenResponse(grant_type, "", "", "", "", "", "", r)
-	// generate key
+	credential := r.FormValue("credential")
+	secret := r.FormValue("secret")
+
+	resp, _ := bs.GenerateIdTokenResponse(grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
 
 	publickey := bs.pKey.Public()
 	fmt.Println(publickey)
@@ -67,6 +61,13 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		CheckAccessToken(words[1])
 	}
 
+	hh, err := bs.provider.DecryptToken(words[1])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(hh)
 	//renderJSON(w, j, 200)
 
 	/* 	Header parameters:
@@ -83,12 +84,15 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(401) // Unauthorized
 	w.WriteHeader(403) // Forbidden
 	w.WriteHeader(500) // Internal Server Error
+
+	renderJSON(w, hh, 200)
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	j := OpenidConfig{Issuer: "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io",
 		Authorization_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize",
 		Token_endpoint:                        "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/token",
+		Introspection_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/token/introspect",
 		Userinfo_endpoint:                     "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/userinfo",
 		Registration_endpoint:                 "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/clients",
 		Jwks_uri:                              "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/keys",

@@ -15,45 +15,6 @@ import (
 
 func TestGenerateIdTokenResponse(t *testing.T) {}
 
-func TestGenToken(t *testing.T) {
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
-	if err != nil {
-		t.Error()
-	}
-
-	bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-		privatekey,
-		signature.String(),
-	)
-	username := "John"
-	scope := "scope"
-	var tokenType TokenType = "Bearer"
-
-	token := GenToken(bs, username, tokenType, scope)
-
-	if token.Claims != nil {
-		t.Error()
-	}
-}
-
-func TestRefreshToken(t *testing.T) {
-
-	var tokenId string = "ID"
-	var username string = "ID"
-	var tokenType TokenType = "ID"
-	var scope string = "ID"
-
-	refreshToken := refreshToken(tokenId, username, tokenType, scope)
-
-	if refreshToken.Scope != "" {
-		t.Error()
-	}
-}
 
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	r := new(http.Request)
@@ -87,6 +48,86 @@ func TestGenerateIdToken4Password(t *testing.T) {
 }
 
 func TestClientIdCredentials(t *testing.T) {
+
+}
+
+func TestGenToken(t *testing.T) {
+	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	if err != nil {
+		t.Error()
+	}
+
+	bs := NewBearerServer(
+		"mySecretKey-10101",
+		time.Second*120,
+		&TestUserVerifier{},
+		nil,
+		privatekey,
+		signature.String(),
+	)
+	username := "John"
+	scope := "scope"
+	var tokenType TokenType = "Bearer"
+
+	token := GenToken(bs, username, tokenType, scope)
+
+	if token.Claims != nil {
+		t.Error()
+	}
+}
+
+func TestRefreshToken(t *testing.T) {
+
+}
+
+func TestGenerateIdTokens(t *testing.T) {
+	//generateIdTokens()
+}
+
+func TestCryptIdTokens(t *testing.T) {
+	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	if err != nil {
+		panic(err)
+	}
+	bs := NewBearerServer(
+		"mySecretKey-10101",
+		time.Second*120,
+		&TestUserVerifier{},
+		nil,
+		privatekey,
+		signature.String(),
+	)
+
+	var token *Token
+	token.Claims = map[string]string{}
+	token.CreationDate = time.Now()
+	token.ExpiresIn = time.Minute
+	token.Credential = "secret"
+	token.ID = "ID2"
+	token.Scope = ""
+	token.TokenType = ""
+
+	var rToken *RefreshToken
+
+	rToken.CreationDate = time.Now()
+	rToken.Credential = "secret"
+	rToken.Scope = ""
+	rToken.TokenType = ""
+	rToken.RefreshTokenID = ""
+	rToken.TokenID = ""
+	rToken.TokenType = ""
+	idToken := "eeee"
+
+	req, err := http.NewRequest("GET", "/health-check", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cToken, err := bs.cryptIdTokens(token, rToken, idToken, req)
+
+	fmt.Println(cToken.IDtoken)
 
 }
 
