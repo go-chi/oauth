@@ -80,10 +80,10 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	var contentType string = "Content-Type: application/jwt" //Content-Type: application/json
 	fmt.Println(contentType)
-	w.WriteHeader(401) // Unauthorized
+	/* w.WriteHeader(401) // Unauthorized
 	w.WriteHeader(403) // Forbidden
-	w.WriteHeader(500) // Internal Server Error
-
+	w.WriteHeader(500) // Internal Server Error */
+	w.Header().Set("Content-Type", "application/jwt")
 	scope := r.FormValue("scope")
 	credential := r.FormValue("credential")
 
