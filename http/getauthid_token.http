@@ -1,12 +1,12 @@
 
     https://christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize
-GET https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize?
+GET https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/authorize?
     &response_type=id_token%20token
   &client_id=s6BhdRkqt3
   &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
   &scope=openid%20profile%20email
   &nonce=n-0S6_WzA2Mj
   &state=af0ifjsldkj HTTP/1.1
-Host: 8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io
+Host: 8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io
 
 

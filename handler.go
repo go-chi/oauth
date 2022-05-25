@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
@@ -47,27 +46,27 @@ func CheckAccessToken(act string) {
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-	xff := r.Header.Get("X-Forwarded-For")
-	xfh := r.Header.Get("X-Forwarded-Host")
-	xfp := r.Header.Get("X-Forwarded-Proto")
-	fmt.Println(xff)
-	fmt.Println(xfh)
-	fmt.Println(xfp)
-	eee := r.Header.Get("Authorization")
-	words := strings.Fields(eee)
-	fmt.Println(words[1])
+	/* 	xff := r.Header.Get("X-Forwarded-For")
+	   	xfh := r.Header.Get("X-Forwarded-Host")
+	   	xfp := r.Header.Get("X-Forwarded-Proto")
+	   	fmt.Println(xff)
+	   	fmt.Println(xfh)
+	   	fmt.Println(xfp)
+	   	eee := r.Header.Get("Authorization")
+	   	words := strings.Fields(eee)
+	   	fmt.Println(words[1])
 
-	if words[0] == "bearer" && len(words) == 2 {
-		CheckAccessToken(words[1])
-	}
+	   	if words[0] == "bearer" && len(words) == 2 {
+	   		CheckAccessToken(words[1])
+	   	}
 
-	hh, err := bs.provider.DecryptToken(words[1])
+	   	hh, err := bs.provider.DecryptToken(words[1])
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	   	if err != nil {
+	   		fmt.Println(err)
+	   	}
+	*/
 
-	fmt.Println(hh)
 	//renderJSON(w, j, 200)
 
 	/* 	Header parameters:
@@ -85,17 +84,22 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(403) // Forbidden
 	w.WriteHeader(500) // Internal Server Error
 
-	renderJSON(w, hh, 200)
+	scope := r.FormValue("scope")
+	credential := r.FormValue("credential")
+
+	_, _, idtoken, _ := bs.generateIdTokens(UserToken, credential, scope, r)
+	fmt.Println(idtoken)
+	renderJSON(w, idtoken, 200)
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
-	j := OpenidConfig{Issuer: "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io",
-		Authorization_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize",
-		Token_endpoint:                        "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/token",
-		Introspection_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/token/introspect",
-		Userinfo_endpoint:                     "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/userinfo",
-		Registration_endpoint:                 "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/clients",
-		Jwks_uri:                              "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/keys",
+	j := OpenidConfig{Issuer: "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io",
+		Authorization_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/authorize",
+		Token_endpoint:                        "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/token",
+		Introspection_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/token/introspect",
+		Userinfo_endpoint:                     "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/userinfo",
+		Registration_endpoint:                 "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/clients",
+		Jwks_uri:                              "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/keys",
 		Scopes_supported:                      []string{"api", "read_api", "read_user", "read_repository", "write_repository", "read_registry", "write_registry", "sudo", "openid", "profile", "email"},
 		Response_types_supported:              []string{"code"},
 		Response_modes_supported:              []string{"query", "fragment"},
@@ -111,7 +115,7 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("signin")
-	redirect_uri := "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io/authorize?"
+	redirect_uri := "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/authorize?"
 	state := "af0ifjsldkj"
 	code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
 	location := redirect_uri + "code=" + code + "&state=" + state

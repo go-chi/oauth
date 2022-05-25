@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -32,7 +33,7 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	ctx = context.WithValue(ctx, "oauth.claims.test", "test")
 	ctx = context.WithValue(ctx, "oauth.props.test", "test")
 	*r = *r.Clone(ctx)
-
+	fmt.Print("sss")
 	switch {
 	case username == "user111" && password == "password111":
 		return nil
@@ -88,6 +89,9 @@ func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, 
 
 // Validate token ID
 func (TestUserVerifier) ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error {
+	fmt.Println(tokenType)
+	
+
 	return nil
 }
 

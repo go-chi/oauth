@@ -13,8 +13,32 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func TestGenerateIdTokenResponse(t *testing.T) {}
+func TestGenerateIdToken4Password(t *testing.T) {
 
+	resp, code := _sut.GenerateIdTokenResponse(PasswordGrant, "user111", "password111", "", "", "", "", new(http.Request))
+	if code != 200 {
+		t.Fatalf("Error StatusCode = %d", code)
+	}
+	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
+		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
+	}
+	t.Logf("Token response: %v", resp)
+	t.Error()
+}
+
+func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
+
+	resp, code := _sut.GenerateIdTokenResponse(ClientCredentialsGrant, "user111", "password111", "", "", "", "", new(http.Request))
+	if code != 200 {
+		t.Fatalf("Error StatusCode = %d", code)
+	}
+	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
+		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
+	}
+	t.Logf("Token response: %v", resp)
+
+}
+func TestGenerateRefreshTokenGrant(t *testing.T) {}
 
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	r := new(http.Request)
@@ -31,19 +55,6 @@ func TestGenerateIdTokensByUsername(t *testing.T) {
 	} else {
 		t.Fatalf("Error %s", err.Error())
 	}
-	t.Error()
-}
-func TestGenerateIdToken4Password(t *testing.T) {
-
-	resp, code := _sut.GenerateIdTokenResponse(PasswordGrant, "user111", "password111", "", "", "", "", new(http.Request))
-	if code != 200 {
-		t.Fatalf("Error StatusCode = %d", code)
-	}
-	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
-		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
-	}
-	t.Logf("Token response: %v", resp)
-
 	t.Error()
 }
 

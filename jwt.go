@@ -41,7 +41,7 @@ func CreateClaims(nonce string) MyCustomClaims {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu45.gitpod.io",
+			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io",
 			Subject:   "somebody",
 			ID:        "1",
 			Audience:  []string{"222"},
