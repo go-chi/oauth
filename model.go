@@ -65,10 +65,10 @@ type IDtoken struct {
 	Scope        string            `json:"scope"`
 	Claims       map[string]string `json:"claims"`
 	TokenType    TokenType         `json:"type"`
-	Issuer       string            `json:"issuer`
-	Subject      string            `json:"subject`
-	Audience     string            `json:"audience`
-	Expiration   time.Duration     `json:"expiration`
+	Issuer       string            `json:"issuer"`
+	Subject      string            `json:"subject"`
+	Audience     string            `json:"audience"`
+	Expiration   time.Duration     `json:"expiration"`
 }
 
 type Token struct {
@@ -98,4 +98,34 @@ type ClientConfig struct {
 }
 type Keys struct {
 	Keys []map[string]string `json:"keys"`
+}
+
+type User struct {
+	sub                string
+	name               string
+	given_name         string
+	family_name        string
+	middle_name        string
+	nickname           string
+	preferred_username string
+	profile            string
+	picture            string
+	website            string
+	email              string
+	//[ email_verified ] {true|false} True if the end-user's email address has been verified, else false.
+	//[ gender ] {"male"|"female"|?} The end-user's gender.
+	//[ birthdate ] {string} The end-user's birthday, represented in ISO 8601:2004 YYYY-MM-DD format. The year may be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.
+	zoneinfo string
+	//[ locale ] {string} The end-user's locale, represented as a BCP47 language tag. This is typically an ISO 639-1 Alpha-2 language code in lowercase and an ISO 3166-1 Alpha-2 country code in uppercase, separated by a dash. For example, en-US or fr-CA.
+	//[ phone_number ] {string} The end-user's preferred telephone number, typically in E.164 format, for example +1 (425) 555-1212 or +56 (2) 687 2400.
+	phone_number_verified bool
+	//[ address ] {object} A JSON object describing the end-user's preferred postal address with any of the following members:
+	//[ formatted ] {string} The full mailing address, with multiple lines if necessary. Newlines can be represented either as a \r\n or as a \n.
+	//[ street_address ] {string} The street address component, which may include house number, stree name, post office box, and other multi-line information. Newlines can be represented either as a \r\n or as a \n.
+	// [ locality ] {string} City or locality component.
+	//[ region ] {string} State, province, prefecture or region component.
+	//[ postal_code ] {string} Zip code or postal code component.
+	// [ country ] {string} Country name component.
+	// [ updated_at ] {number} Time the end-user's information was last updated, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time.
+
 }

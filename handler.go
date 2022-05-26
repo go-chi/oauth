@@ -78,18 +78,23 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	// 	Body: {object|jwt} The consented claims, packaged in a JSON object or a JSON Web Token (JWT) (depending the registered client setting).
 
-	var contentType string = "Content-Type: application/jwt" //Content-Type: application/json
-	fmt.Println(contentType)
+	//var contentType string = "Content-Type: application/jwt" //Content-Type: application/json
+	//fmt.Println(contentType)
 	/* w.WriteHeader(401) // Unauthorized
 	w.WriteHeader(403) // Forbidden
 	w.WriteHeader(500) // Internal Server Error */
-	w.Header().Set("Content-Type", "application/jwt")
-	scope := r.FormValue("scope")
-	credential := r.FormValue("credential")
+	w.Header().Set("Content-Type", "application/json")
+	//scope := r.FormValue("scope")
+	//credential := r.FormValue("credential")
 
-	_, _, idtoken, _ := bs.generateIdTokens(UserToken, credential, scope, r)
-	fmt.Println(idtoken)
-	renderJSON(w, idtoken, 200)
+	//_, _, idtoken, _ := bs.generateIdTokens(UserToken, credential, scope, r)
+	//fmt.Println(idtoken)
+
+	we := map[string]string{"sub": "dd", "la": "ss"}
+	//################
+	//todo add custom claims to json with funtion
+
+	renderJSON(w, we, 200)
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {

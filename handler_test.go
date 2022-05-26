@@ -1,17 +1,15 @@
 package oauth
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 )
 
@@ -28,161 +26,90 @@ import (
      "use": "sig"
    }, */
 
+var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
+var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
+
+var bs = NewBearerServer(
+	"mySecretKey-10101",
+	time.Second*120,
+	&TestUserVerifier{},
+	nil,
+	pk,
+	sig.String(),
+)
+
 type postData struct {
 	key   string
 	value string
 }
 
 func TestReturnKeys(t *testing.T) {
+	//pass request to handler with nil as parameter
+	req, err := http.NewRequest("GET", "/keys", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(bs.ReturnKeys)
 
-	var theTests = []struct {
-		name               string
-		url                string
-		method             string
-		params             []postData
-		expectedStatusCode int
-	}{
-		{"config", "/", "GET", []postData{}, http.StatusOK},
-		{"config", "/config", "GET", []postData{}, http.StatusOK},
-		{"config", "/config", "GET", []postData{}, http.StatusOK},
-		{"load", "/load/mappings/FIRST3.json", "POST", []postData{
-			{key: "start", value: "2022-01-01"},
-			{key: "start", value: "2022-01-02"},
-		}, http.StatusOK},
-		{"load", "/load", "POST", []postData{
-			{key: "start", value: "2022-01-01"},
-			{key: "start", value: "2022-01-02"},
-		}, http.StatusOK},
+	//call ServeHTTP method and pass  Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
 	}
 
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	bodybytes := rr.Body
+	decoder := json.NewDecoder(bodybytes)
+	var tsa Keys
+	err = decoder.Decode(&tsa)
 	if err != nil {
 		panic(err)
 	}
-	bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-		privatekey,
-		signature.String(),
-	)
 
-	mux := chi.NewRouter()
-	mux.Get("/keys", bs.ReturnKeys)
-
-	ts := httptest.NewTLSServer(mux)
-	rs := map[string]int{"month": 12}
-	buf := new(bytes.Buffer)
-	if err := json.NewEncoder(buf).Encode(rs); err != nil {
-		panic(err)
-	}
-	for _, e := range theTests {
-
-		if e.method == "GET" {
-			resp, err := ts.Client().Get(ts.URL + e.url)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
-			}
-		} else if e.method == "POST" {
-			values := url.Values{}
-			for _, x := range e.params {
-				values.Add(x.key, x.value)
-			}
-
-			_, err := ts.Client().Post(ts.URL+e.url, "application/json", buf)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
+	for _, v := range tsa.Keys {
+		for ii, _ := range v {
+			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
+				t.Error(err)
+				t.Errorf("expected other key: %s but got: ", ii)
 			}
 
 		}
-
 	}
-	defer ts.Close()
 
 }
 
 func TestUserInfo(t *testing.T) {
+	//pass request to handler with nil as parameter
+	req, err := http.NewRequest("GET", "/userinfo", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(bs.UserInfo)
 
-	var theTests = []struct {
-		name               string
-		url                string
-		method             string
-		params             []postData
-		expectedStatusCode int
-	}{
-		{"config", "/", "GET", []postData{}, http.StatusOK},
-		{"config", "/config", "GET", []postData{}, http.StatusOK},
-		{"config", "/config", "GET", []postData{}, http.StatusOK},
-		{"load", "/load/mappings/FIRST3.json", "POST", []postData{
-			{key: "start", value: "2022-01-01"},
-			{key: "start", value: "2022-01-02"},
-		}, http.StatusOK},
-		{"load", "/load", "POST", []postData{
-			{key: "start", value: "2022-01-01"},
-			{key: "start", value: "2022-01-02"},
-		}, http.StatusOK},
+	//call ServeHTTP method and pass  Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
 	}
 
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
+	bodybytes := rr.Body
+	decoder := json.NewDecoder(bodybytes)
+	var tsa map[string]interface{}
+
+	err = decoder.Decode(&tsa)
 	if err != nil {
 		panic(err)
 	}
-	bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-		privatekey,
-		signature.String(),
-	)
+	fmt.Println(tsa)
+	t.Error()
 
-	mux := chi.NewRouter()
-	mux.Get("/keys", bs.ReturnKeys)
-
-	ts := httptest.NewTLSServer(mux)
-	rs := map[string]int{"month": 12}
-	buf := new(bytes.Buffer)
-	if err := json.NewEncoder(buf).Encode(rs); err != nil {
-		panic(err)
-	}
-	for _, e := range theTests {
-		if e.method == "GET" {
-			resp, err := ts.Client().Get(ts.URL + e.url)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
-			}
-		}
-	}
 }
-
-/*
-func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("+++++++++++++++++++++++++++++++")
-
-	fmt.Println(r.Header.Get("X-Forwarded-For"))
-	fmt.Println(r.Header.Get("X-Forwarded-Host"))
-	fmt.Println(r.Header.Get("X-Forwarded-Proto"))
-	eee := r.Header.Get("Authorization")
-	words := strings.Fields(eee)
-	fmt.Println(words[1])
-
-	rawDecodedText, err := base64.StdEncoding.DecodeString(words[1])
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Decoded text: %s\n", rawDecodedText)
-	//renderJSON(w, j, 200)
-}
-*/
