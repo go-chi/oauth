@@ -104,7 +104,6 @@ func TestUserInfo(t *testing.T) {
 	bodybytes := rr.Body
 	decoder := json.NewDecoder(bodybytes)
 	var tsa map[string]interface{}
-
 	err = decoder.Decode(&tsa)
 	if err != nil {
 		panic(err)
@@ -112,4 +111,13 @@ func TestUserInfo(t *testing.T) {
 	fmt.Println(tsa)
 	t.Error()
 
+}
+
+func TestUserData(t *testing.T) {
+	groups := []string{"Admin", "User"}
+
+	s := make([]interface{}, len(groups))
+	for i, v := range groups {
+		s[i] = v
+	}
 }

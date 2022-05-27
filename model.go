@@ -115,10 +115,10 @@ type User struct {
 	//[ email_verified ] {true|false} True if the end-user's email address has been verified, else false.
 	//[ gender ] {"male"|"female"|?} The end-user's gender.
 	//[ birthdate ] {string} The end-user's birthday, represented in ISO 8601:2004 YYYY-MM-DD format. The year may be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.
-	zoneinfo string
+	//zoneinfo string
 	//[ locale ] {string} The end-user's locale, represented as a BCP47 language tag. This is typically an ISO 639-1 Alpha-2 language code in lowercase and an ISO 3166-1 Alpha-2 country code in uppercase, separated by a dash. For example, en-US or fr-CA.
 	//[ phone_number ] {string} The end-user's preferred telephone number, typically in E.164 format, for example +1 (425) 555-1212 or +56 (2) 687 2400.
-	phone_number_verified bool
+	//phone_number_verified bool
 	//[ address ] {object} A JSON object describing the end-user's preferred postal address with any of the following members:
 	//[ formatted ] {string} The full mailing address, with multiple lines if necessary. Newlines can be represented either as a \r\n or as a \n.
 	//[ street_address ] {string} The street address component, which may include house number, stree name, post office box, and other multi-line information. Newlines can be represented either as a \r\n or as a \n.
