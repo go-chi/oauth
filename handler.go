@@ -47,13 +47,18 @@ func CheckAccessToken(act string) {
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
-	j := OpenidConfig{Issuer: "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io",
-		Authorization_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/authorize",
-		Token_endpoint:                        "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/token",
-		Introspection_endpoint:                "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/token/introspect",
-		Userinfo_endpoint:                     "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/userinfo",
-		Registration_endpoint:                 "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/clients",
-		Jwks_uri:                              "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/keys",
+	scheme := "https://"
+	baseURL := scheme + r.Host
+	fmt.Println(baseURL)
+
+	j := OpenidConfig{
+		Issuer:                                baseURL,
+		Authorization_endpoint:                baseURL + "/authorize",
+		Token_endpoint:                        baseURL + "/token",
+		Introspection_endpoint:                baseURL + "/token/introspect",
+		Userinfo_endpoint:                     baseURL + "/userinfo",
+		Registration_endpoint:                 baseURL + "/clients",
+		Jwks_uri:                              baseURL + "/keys",
 		Scopes_supported:                      []string{"api", "read_api", "read_user", "read_repository", "write_repository", "read_registry", "write_registry", "sudo", "openid", "profile", "email"},
 		Response_types_supported:              []string{"code"},
 		Response_modes_supported:              []string{"query", "fragment"},
@@ -68,8 +73,9 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("signin")
-	redirect_uri := "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/authorize?"
+	scheme := "https://"
+	baseURL := scheme + r.Host
+	redirect_uri := baseURL + "/authorize?"
 	state := "af0ifjsldkj"
 	code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
 	location := redirect_uri + "code=" + code + "&state=" + state
@@ -77,9 +83,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, location, 302)
 }
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Header.Get("Referer"))
 	reqURL := r.Header.Get("Referer")
-	fmt.Println("#######")
 	bs.nonce = r.URL.Query()["nonce"][0]
 	id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
 

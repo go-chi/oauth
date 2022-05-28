@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -32,7 +33,7 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey, kid
 
 }
 
-func CreateClaims(nonce string) MyCustomClaims {
+func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
 	claims := MyCustomClaims{
 		"bars",
 		nonce,
@@ -41,7 +42,7 @@ func CreateClaims(nonce string) MyCustomClaims {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io",
+			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io" + "",
 			Subject:   "somebody",
 			ID:        "1",
 			Audience:  []string{"222"},

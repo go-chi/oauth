@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"log"
+	"net/http"
 	"testing"
 	"time"
 
@@ -21,7 +22,7 @@ func re(pKey *rsa.PrivateKey) (interface{}, error) {
 func TestCreateJWT(t *testing.T) {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	clientConfig := ClientConfig{Method: "RS256", Claims: nil, Kid: ""}
-	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/keys", keyfunc.Options{})
+	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io"+"/keys", keyfunc.Options{})
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
@@ -49,12 +50,18 @@ func TestJwtValidate(t *testing.T) {
 		privatekey,
 		signature.String())
 
-	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce), bs.pKey, "")
+	//pass request to handler with nil as parameter
+	req, err := http.NewRequest("GET", "/userinfo", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce, req), bs.pKey, "")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/keys", keyfunc.Options{})
+	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/"+"/keys", keyfunc.Options{})
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
