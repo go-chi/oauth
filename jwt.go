@@ -34,6 +34,8 @@ func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey, kid
 }
 
 func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
+	//scheme := "https://"
+	baseURL := scheme + r.Host
 	claims := MyCustomClaims{
 		"bars",
 		nonce,
@@ -42,7 +44,7 @@ func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io" + "",
+			Issuer:    baseURL + "",
 			Subject:   "somebody",
 			ID:        "1",
 			Audience:  []string{"222"},

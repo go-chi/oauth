@@ -46,11 +46,21 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) {
+	/* var jsonMap map[string]interface{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error().Err(err).Msg("Can't read json body")
+	}
+	err = json.Unmarshal(body, &jsonMap)
+	if err != nil {
+		log.Error().Err(err).Msg("Unmarshal body")
+	} */
 
 	fmt.Println("#######")
 	fmt.Println(r.Header)
-	fmt.Println(r.Body)
-
+	r.ParseForm()
+	fmt.Println(r.PostForm)
+	fmt.Println(r.Form)
 	we := map[string]bool{
 		"active": false,
 	}
@@ -60,7 +70,6 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 		s[i] = v
 	}
 	s["grant_type"] = []string{"refresh_token"}
-	fmt.Println(s)
 	renderJSON(w, s, 200)
 
 }
@@ -70,10 +79,7 @@ func CheckAccessToken(act string) {
 }
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
-	scheme := "https://"
 	baseURL := scheme + r.Host
-	fmt.Println(baseURL)
-	//"revocation_endpoint": "https://oauth2.googleapis.com/revoke",
 	j := OpenidConfig{
 		Issuer:                                baseURL,
 		Authorization_endpoint:                baseURL + "/oauth/authorize",
@@ -82,6 +88,7 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 		Userinfo_endpoint:                     baseURL + "/oauth/userinfo",
 		Registration_endpoint:                 baseURL + "/oauth/clients",
 		Jwks_uri:                              baseURL + "/oauth/keys",
+		Revocation_endpoint:                   baseURL + "/oauth/revoke",
 		Scopes_supported:                      []string{"api", "read_api", "read_user", "read_repository", "write_repository", "read_registry", "write_registry", "sudo", "openid", "profile", "email"},
 		Response_types_supported:              []string{"code"},
 		Response_modes_supported:              []string{"query", "fragment"},
@@ -91,12 +98,10 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 		Id_token_signing_alg_values_supported: []string{"RS256"},
 		Claims_supported:                      []string{"iss", "sub", "aud", "exp", "iat", "sub_legacy", "name", "nickname", "email", "email_verified", "website", "profile", "picture", "groups", "groups_direct"},
 	}
-	fmt.Println(j)
 	renderJSON(w, j, 200)
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	scheme := "https://"
 	baseURL := scheme + r.Host
 	redirect_uri := baseURL + "/authorize?"
 	state := "af0ifjsldkj"
@@ -108,8 +113,8 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	reqURL := r.Header.Get("Referer")
 	bs.nonce = r.URL.Query()["nonce"][0]
-	id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
-
+	//id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
+	id_token := ""
 	response_type := r.URL.Query()["response_type"][0]
 
 	redirect_uri := r.URL.Query()["redirect_uri"][0]

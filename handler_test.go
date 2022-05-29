@@ -121,3 +121,42 @@ func TestUserData(t *testing.T) {
 		s[i] = v
 	}
 }
+
+func TestTokenIntrospect(t *testing.T) {
+	//pass request to handler with nil as parameter
+	req, err := http.NewRequest("POST", "/oauth/introspect", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(bs.TokenIntrospect)
+
+	//call ServeHTTP method and pass  Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	bodybytes := rr.Body
+	decoder := json.NewDecoder(bodybytes)
+	var tsa Keys
+	err = decoder.Decode(&tsa)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range tsa.Keys {
+		for ii, _ := range v {
+			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
+				t.Error(err)
+				t.Errorf("expected other key: %s but got: ", ii)
+			}
+
+		}
+	}
+
+}
