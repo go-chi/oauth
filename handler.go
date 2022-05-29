@@ -24,6 +24,7 @@ func GetConfig() {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+
 	//client_id := r.FormValue("client_id")
 	//client_secret := r.FormValue("client_secret")
 	code := r.FormValue("code")
@@ -40,6 +41,28 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(publickey)
 
 	renderJSON(w, resp, 200)
+
+}
+
+// UserCredentials manages password grant type requests
+func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("#######")
+	fmt.Println(r.Header)
+	fmt.Println(r.Body)
+
+	we := map[string]bool{
+		"active": false,
+	}
+
+	s := make(map[string]interface{}, len(we))
+	for i, v := range we {
+		s[i] = v
+	}
+	s["grant_type"] = []string{"refresh_token"}
+	fmt.Println(s)
+	renderJSON(w, s, 200)
+
 }
 
 func CheckAccessToken(act string) {
@@ -50,15 +73,15 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	fmt.Println(baseURL)
-
+	//"revocation_endpoint": "https://oauth2.googleapis.com/revoke",
 	j := OpenidConfig{
 		Issuer:                                baseURL,
-		Authorization_endpoint:                baseURL + "/authorize",
-		Token_endpoint:                        baseURL + "/token",
-		Introspection_endpoint:                baseURL + "/token/introspect",
-		Userinfo_endpoint:                     baseURL + "/userinfo",
-		Registration_endpoint:                 baseURL + "/clients",
-		Jwks_uri:                              baseURL + "/keys",
+		Authorization_endpoint:                baseURL + "/oauth/authorize",
+		Token_endpoint:                        baseURL + "/oauth/token",
+		Introspection_endpoint:                baseURL + "/oauth/introspect",
+		Userinfo_endpoint:                     baseURL + "/oauth/userinfo",
+		Registration_endpoint:                 baseURL + "/oauth/clients",
+		Jwks_uri:                              baseURL + "/oauth/keys",
 		Scopes_supported:                      []string{"api", "read_api", "read_user", "read_repository", "write_repository", "read_registry", "write_registry", "sudo", "openid", "profile", "email"},
 		Response_types_supported:              []string{"code"},
 		Response_modes_supported:              []string{"query", "fragment"},
