@@ -18,7 +18,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(grantType GrantType, credential 
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
@@ -58,7 +58,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(grantType GrantType, credential 
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens(UserToken, credential, scope, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
@@ -111,11 +111,11 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
+func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
 	token := GenToken(bs, username, tokenType, scope)
 	//token, _ = CreateJWT("RS256", CreateClaims(bs.nonce, , r), bs.pKey, string(bs.Signature))
 
-	idtoken, _ := CreateJWT("RS256", CreateClaims(bs.nonce, r), bs.pKey, string(bs.Signature))
+	idtoken, _ := CreateJWT(method, CreateClaims(bs.nonce, r), bs.pKey, string(bs.Signature))
 	refreshToken := refreshToken(token.ID, username, tokenType, scope)
 
 	if bs.verifier != nil {

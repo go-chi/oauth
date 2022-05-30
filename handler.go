@@ -46,31 +46,27 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) {
-	/* var jsonMap map[string]interface{}
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Error().Err(err).Msg("Can't read json body")
-	}
-	err = json.Unmarshal(body, &jsonMap)
-	if err != nil {
-		log.Error().Err(err).Msg("Unmarshal body")
-	} */
-
-	fmt.Println("#######")
-	fmt.Println(r.Header)
 	r.ParseForm()
-	fmt.Println(r.PostForm)
-	fmt.Println(r.Form)
-	we := map[string]bool{
-		"active": false,
+
+	if r.Header["Accept"][0] == "application/json" {
+		fmt.Println("#######")
+		fmt.Println(r.Header["Accept"])
+		fmt.Println(r.Header)
+		fmt.Println(r.PostForm["token"])
 	}
 
-	s := make(map[string]interface{}, len(we))
-	for i, v := range we {
-		s[i] = v
+	if len(r.PostForm["token"]) > 0 {
+		we := map[string]bool{
+			"active": true,
+		}
+		s := make(map[string]interface{}, len(we))
+		for i, v := range we {
+			s[i] = v
+		}
+		renderJSON(w, s, 200)
+	} else {
+		renderJSON(w, nil, 400)
 	}
-	s["grant_type"] = []string{"refresh_token"}
-	renderJSON(w, s, 200)
 
 }
 

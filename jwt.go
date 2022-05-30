@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"crypto/rsa"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,24 +11,24 @@ import (
 )
 
 func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey, kid string) (string, error) {
-	switch method {
-	case "RS256":
-		rt := jwt.GetSigningMethod(method)
-		tokens := jwt.NewWithClaims(rt, claims)
-		tokens.Header["kid"] = kid
-		signedToken, err := tokens.SignedString(privatekey)
+	//switch method {
+	//case "RS256":
+	rt := jwt.GetSigningMethod(method)
+	tokens := jwt.NewWithClaims(rt, claims)
+	tokens.Header["kid"] = kid
+	signedToken, err := tokens.SignedString(privatekey)
 
-		if err != nil {
-			fmt.Errorf("failed to parse token: %w", err)
-		}
-		if err != nil {
-			log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
-		}
-
-		return signedToken, err
-	default:
-		return "", errors.New("Failed creating jwt")
+	if err != nil {
+		fmt.Errorf("failed to parse token: %w", err)
 	}
+	if err != nil {
+		log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
+	}
+
+	return signedToken, err
+	//default:
+	//	return "", errors.New("Failed creating jwt")
+	//}
 
 }
 
