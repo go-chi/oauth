@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
@@ -109,39 +112,45 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	reqURL := r.Header.Get("Referer")
 	bs.nonce = r.URL.Query()["nonce"][0]
-	//id_token := "eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUlMyNTYifQ.ewogImlzcyI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZfV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5NzAsCiAibmFtZSI6ICJKYW5lIERvZSIsCiAiZ2l2ZW5fbmFtZSI6ICJKYW5lIiwKICJmYW1pbHlfbmFtZSI6ICJEb2UiLAogImdlbmRlciI6ICJmZW1hbGUiLAogImJpcnRoZGF0ZSI6ICIwMDAwLTEwLTMxIiwKICJlbWFpbCI6ICJqYW5lZG9lQGV4YW1wbGUuY29tIiwKICJwaWN0dXJlIjogImh0dHA6Ly9leGFtcGxlLmNvbS9qYW5lZG9lL21lLmpwZyIKfQ.rHQjEmBqn9Jre0OLykYNnspA10Qql2rvx4FsD00jwlB0Sym4NzpgvPKsDjn_wMkHxcp6CilPcoKrWHcipR2iAjzLvDNAReF97zoJqq880ZD1bwY82JDauCXELVR9O6_B0w3K-E7yM2macAAgNCUwtik6SjoSUZRcf-O5lygIyLENx882p6MtmwaL1hd6qn5RZOQ0TLrOYu0532g9Exxcm-ChymrB4xLykpDj3lUivJt63eEGGN6DH5K6o33TcxkIjNrCD4XB1CKKumZvCedgHHF3IAK4dVEDSUoGlH9z4pP_eWYNXvqQOjGs-rDaQzUHl6cQQWNiDpWOl_lxXjQEvQ"
-	id_token := ""
 	response_type := r.URL.Query()["response_type"][0]
-
+	scope := strings.Split(r.URL.Query()["scope"][0], ",")
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
-	redirect_uri = reqURL + "session/callback?"
 	state := r.URL.Query()["state"][0]
-	access_token := "access_token"
+
+	redirect_uri = reqURL + "session/callback?"
+
+	//fmt.Println(redirect_uri)
+	//fmt.Println(response_type)
+	//fmt.Println(r.URL.Query())
 	token_type := "token_type"
-	code := "sss"
+
+	claims := CreateClaims(bs.nonce, r)
+	access_token, _ := CreateJWT("RS256", claims, bs.pKey, "324")
+	id_token, _ := CreateJWT("RS256", claims, bs.pKey, "324")
 
 	switch response_type {
 	case "id_token":
 		location := redirect_uri + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code":
-		code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
-		location := redirect_uri + "code=" + code + "&state=" + state
-		w.Header().Add("Location", location)
-		http.Redirect(w, r, location, 302)
+		if slices.Contains(scope, "openid") {
+			location := redirect_uri + "code=" + access_token + "&state=" + state
+			w.Header().Add("Location", location)
+			http.Redirect(w, r, location, 302)
+		}
 	case "id_token token": //insecure
 		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code id_token":
-		location := redirect_uri + "&code=" + code + "&id_token=" + id_token + "&state=" + state
+		location := redirect_uri + "&code=" + access_token + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code token": //insecure
-		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&state=" + state
+		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + token_type + "&state=" + state
 		w.Header().Add("Location", location)
 		//"code id_token token"
 	case "code token id_token": //insecure
 		fmt.Println("ssss")
-		location := redirect_uri + "&code=" + code + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
+		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 		http.Redirect(w, r, location, 302)
 	default:
