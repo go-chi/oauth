@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 /*
@@ -96,6 +97,25 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
+func (TestUserVerifier) CreateClaims(nonce string, r *http.Request) oauth.MyCustomClaims {
+	scheme := "https://"
+	baseURL := scheme + r.Host
+	claims := oauth.MyCustomClaims{
+		"bars",
+		nonce,
+		jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    baseURL + "",
+			Subject:   "somebody",
+			ID:        "1",
+			Audience:  []string{"222"},
+		},
+	}
+	return claims
+}
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
@@ -136,11 +156,14 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 }
 
 // ValidateTokenID validates token ID
-func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
-	return nil
+func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) (bool, error) {
+	return false, nil
 }
 
 // StoreTokenID saves the token id generated for the user
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
+}
+func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
+	return false, nil
 }

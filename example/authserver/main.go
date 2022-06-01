@@ -81,6 +81,10 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
+func (TestUserVerifier) CreateClaims(nonce string, r *http.Request) oauth.MyCustomClaims {
+
+	return oauth.MyCustomClaims{}
+}
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
@@ -121,11 +125,17 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 }
 
 // ValidateTokenID validates token ID
-func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
-	return nil
+func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) (bool, error) {
+	return false, nil
 }
 
 // StoreTokenID saves the token id generated for the user
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
+}
+func (*TestUserVerifier) ValidateToken(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
+	return nil
+}
+func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
+	return false, nil
 }

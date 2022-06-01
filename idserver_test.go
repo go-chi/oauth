@@ -15,12 +15,15 @@ import (
 
 func TestGenerateIdToken4Password(t *testing.T) {
 
-	resp, code := _sut.GenerateIdTokenResponse(PasswordGrant, "user111", "password111", "", "", "", "", new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "user111", "password111", "", "", "", "", new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
 	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
 		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
+	}
+	if err != nil {
+
 	}
 	t.Logf("Token response: %v", resp)
 	t.Error()
@@ -28,12 +31,15 @@ func TestGenerateIdToken4Password(t *testing.T) {
 
 func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
 
-	resp, code := _sut.GenerateIdTokenResponse(ClientCredentialsGrant, "user111", "password111", "", "", "", "", new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "user111", "password111", "", "", "", "", new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
 	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
 		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
+	}
+	if err != nil {
+
 	}
 	t.Logf("Token response: %v", resp)
 

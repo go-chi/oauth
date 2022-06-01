@@ -26,6 +26,11 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
+func (TestUserVerifier) CreateClaims(nonce string, r *http.Request) MyCustomClaims {
+
+	return MyCustomClaims{}
+}
+
 // Validate username and password returning an error if the user credentials are wrong
 func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
 	// Add something to the request context, so we can access it in the claims and props funcs.
@@ -88,16 +93,19 @@ func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, 
 }
 
 // Validate token ID
-func (TestUserVerifier) ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error {
+func (TestUserVerifier) ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) (bool, error) {
 	fmt.Println(tokenType)
-	
 
-	return nil
+	return false, nil
 }
 
 // Optionally store the token ID generated for the user
 func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
+}
+
+func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
+	return false, nil
 }
 
 func TestGenerateTokensByUsername(t *testing.T) {

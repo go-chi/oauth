@@ -28,8 +28,6 @@ func GetConfig() {
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
-	//client_id := r.FormValue("client_id")
-	//client_secret := r.FormValue("client_secret")
 	code := r.FormValue("code")
 	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
@@ -38,10 +36,15 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	credential := r.FormValue("credential")
 	secret := r.FormValue("secret")
 
-	resp, _ := bs.GenerateIdTokenResponse(grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
+	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
+	if err != nil {
+		renderJSON(w, err, 200)
+	}
+	if returncode != 200 {
 
-	publickey := bs.pKey.Public()
-	fmt.Println(publickey)
+	}
+
+	//publickey := bs.pKey.Public()
 
 	renderJSON(w, resp, 200)
 
@@ -52,10 +55,12 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	r.ParseForm()
 
 	if r.Header["Accept"][0] == "application/json" {
-		fmt.Println("#######")
-		fmt.Println(r.Header["Accept"])
-		fmt.Println(r.Header)
 		fmt.Println(r.PostForm["token"])
+
+		bs.verifier.ValidateJwt(r.PostForm["token"][0])
+
+	} else if r.Header["Accept"][0] == "application/jwt" {
+
 	}
 
 	if len(r.PostForm["token"]) > 0 {

@@ -29,11 +29,15 @@ type CredentialsVerifier interface {
 	// Provide additional information to the authorization server response
 	AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Optionally validate previously stored tokenID during refresh request
-	ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
+	ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) (bool, error)
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
 	AddIdClaims() (map[string]string, error)
+	// Provide additional claims to the idtoken
+	CreateClaims(nonce string, r *http.Request) MyCustomClaims
+
+	ValidateJwt(token string) (bool, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
@@ -203,7 +207,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		if err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
+		if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
 			return "Not authorized invalid token", http.StatusUnauthorized
 		}
 
