@@ -7,8 +7,19 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
 )
+
+func GenKid() string {
+
+	signature, err := uuid.NewV4()
+	if err != nil {
+
+	}
+	return signature.String()
+
+}
 
 func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey, kid string) (string, error) {
 	//switch method {

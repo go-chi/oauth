@@ -7,18 +7,33 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gofrs/uuid"
 	"golang.org/x/exp/slices"
 )
 
-func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-	sEnc := base64.URLEncoding.EncodeToString(bs.pKey.N.Bytes())
-
-	bss := IntToBytes(bs.pKey.E)
+func GenJWKS(kc *KeyContainer) {
+	sEnc := base64.URLEncoding.EncodeToString(kc.Pk.N.Bytes())
+	bss := IntToBytes(kc.Pk.E)
 	eEnc := base64.URLEncoding.EncodeToString(bss)
+	signature, err := uuid.NewV4()
+	if err != nil {
 
-	fmt.Println(eEnc)
-	hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": bs.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
-	renderJSON(w, hh, 200)
+	}
+	kc.Signature = signature.String()
+	kc.Keys = Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": kc.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+
+}
+
+func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
+	//sEnc := base64.URLEncoding.EncodeToString(bs.pKey.N.Bytes())
+
+	//bss := IntToBytes(bs.pKey.E)
+	//eEnc := base64.URLEncoding.EncodeToString(bss)
+
+	//fmt.Println(eEnc)
+	//hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": bs.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+
+	renderJSON(w, bs.kc.Keys, 200)
 }
 
 func GetConfig() {

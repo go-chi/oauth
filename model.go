@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"crypto/rsa"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -98,9 +99,6 @@ type ClientConfig struct {
 	Claims jwt.Claims `json:"Claims"`
 	Kid    string     `json:"kid"`
 }
-type Keys struct {
-	Keys []map[string]string `json:"keys"`
-}
 
 type User struct {
 	sub                string
@@ -130,4 +128,15 @@ type User struct {
 	// [ country ] {string} Country name component.
 	// [ updated_at ] {number} Time the end-user's information was last updated, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time.
 
+}
+
+type Keys struct {
+	Keys []map[string]string `json:"keys"`
+}
+
+type KeyContainer struct {
+	Pk        *rsa.PrivateKey
+	Keys      Keys
+	kid       string
+	Signature string
 }

@@ -53,6 +53,7 @@ type BearerServer struct {
 	verifier  CredentialsVerifier
 	provider  *TokenProvider
 	pKey      *rsa.PrivateKey
+	kc        *KeyContainer
 	Signature string
 	nonce     string
 	Clients   map[string]*ClientConfig
@@ -67,7 +68,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 	clients := InitClientConfig()
 	return &BearerServer{
 		secretKey: secretKey,
-
+		kc:        &KeyContainer{Pk: },
 		TokenTTL:  ttl,
 		verifier:  verifier,
 		provider:  NewTokenProvider(formatter),
