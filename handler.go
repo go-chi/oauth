@@ -33,7 +33,7 @@ func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(eEnc)
 	//hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": bs.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
 
-	renderJSON(w, bs.kc.Keys, 200)
+	renderJSON(w, bs.Kc.Keys, 200)
 }
 
 func GetConfig() {
@@ -50,7 +50,7 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	redirect_uri := r.FormValue("redirect_uri")
 	credential := r.FormValue("credential")
 	secret := r.FormValue("secret")
-	
+
 	fmt.Println(r.Form)
 	bodybytes := r.Body
 	decoder := json.NewDecoder(bodybytes)
@@ -154,8 +154,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	token_type := "token_type"
 
 	claims := CreateClaims(bs.nonce, r)
-	access_token, _ := CreateJWT("RS256", claims, bs.kc)
-	id_token, _ := CreateJWT("RS256", claims, bs.kc)
+	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
+	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
 	switch response_type {
 	case "id_token":

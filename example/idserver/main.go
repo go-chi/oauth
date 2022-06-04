@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -126,7 +127,8 @@ func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r 
 }
 
 // ValidateCode validates token ID
-func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error) {
+func (*TestUserVerifier) ValidateCode(sub string, clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error) {
+	fmt.Println(sub)
 
 	return "", nil
 }

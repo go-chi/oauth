@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -60,4 +61,18 @@ func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
 		},
 	}
 	return claims
+}
+
+func ParseJWT(jwtToken string, kc *KeyContainer) (string, error) {
+	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc.Pk.PublicKey, nil })
+	if parsedToken.Valid {
+		return "", errors.New("Token invalid")
+	}
+
+	claims := parsedToken.Claims.(jwt.MapClaims)
+	if val, ok := claims["sub"]; ok {
+		sub := val.(string)
+		return sub, err
+	}
+	return "", err
 }

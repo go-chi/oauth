@@ -43,7 +43,7 @@ type CredentialsVerifier interface {
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
 type AuthorizationCodeVerifier interface {
 	// ValidateCode checks the authorization code and returns the user credential
-	ValidateCode(clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error)
+	ValidateCode(sub string, clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error)
 }
 
 // BearerServer is the OAuth 2 bearer server implementation.
@@ -53,7 +53,7 @@ type BearerServer struct {
 	verifier  CredentialsVerifier
 	provider  *TokenProvider
 	pKey      *rsa.PrivateKey
-	kc        *KeyContainer
+	Kc        *KeyContainer
 	Signature string
 	nonce     string
 	Clients   map[string]*ClientConfig
@@ -71,7 +71,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 	clients := InitClientConfig()
 	return &BearerServer{
 		secretKey: secretKey,
-		kc:        &kc,
+		Kc:        &kc,
 		TokenTTL:  ttl,
 		verifier:  verifier,
 		provider:  NewTokenProvider(formatter),
@@ -187,7 +187,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Not authorized, grant type not supported", http.StatusUnauthorized
 		}
 
-		user, err := codeVerifier.ValidateCode(credential, secret, code, redirectURI, r)
+		user, err := codeVerifier.ValidateCode("bs", credential, secret, code, redirectURI, r)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}

@@ -23,7 +23,7 @@ func TestCreateJWT(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
-	signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.kc)
+	signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 	token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 	if err != nil {
 		t.Error(err)
@@ -47,7 +47,7 @@ func TestJwtValidate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce, req), bs.kc)
+	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce, req), bs.Kc)
 	if err != nil {
 		fmt.Println(err)
 	}

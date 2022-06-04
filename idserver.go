@@ -52,8 +52,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized, nil
 		}
-
-		user, err := codeVerifier.ValidateCode(credential, secret, code, redirectURI, r)
+		sub, err := ParseJWT(code, bs.Kc)
+		user, err := codeVerifier.ValidateCode(sub, credential, secret, code, redirectURI, r)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized, err
 		}
@@ -114,7 +114,7 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
 	token := GenToken(bs, username, tokenType, scope)
 	claims := bs.verifier.CreateClaims(bs.nonce, r)
-	idtoken, _ := CreateJWT(method, claims, bs.kc)
+	idtoken, _ := CreateJWT(method, claims, bs.Kc)
 	refreshToken := refreshToken(token.ID, username, tokenType, scope)
 
 	if bs.verifier != nil {
