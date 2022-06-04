@@ -34,8 +34,6 @@ var bs = NewBearerServer(
 	time.Second*120,
 	&TestUserVerifier{},
 	nil,
-	pk,
-	sig.String(),
 )
 
 type postData struct {

@@ -1,10 +1,7 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -65,21 +62,17 @@ func main() {
 }
 
 func registerAPI(r *chi.Mux) {
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	kc := oauth.KeyContainer{Pk: privatekey}
-	oauth.GenJWKS(&kc)
-	
+
 	s := oauth.NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey, kc.Signature)
+	)
 	r.Get("/users/sign_in", s.SignIn)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
-	r.Get("/oauth/keys", s
-	ReturnKeys)
+	r.Get("/oauth/keys", s.ReturnKeys)
 	r.Post("/oauth/auth", s.ClientCredentials)
 	r.Get("/oauth/authorize", s.GetRedirect)
 	r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)

@@ -19,8 +19,7 @@ func GenJWKS(kc *KeyContainer) {
 	if err != nil {
 
 	}
-	kc.Signature = signature.String()
-	kc.Keys = Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": kc.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
+	kc.Keys = Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": signature.String(), "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
 
 }
 
@@ -145,8 +144,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	token_type := "token_type"
 
 	claims := CreateClaims(bs.nonce, r)
-	access_token, _ := CreateJWT("RS256", claims, bs.pKey, "324")
-	id_token, _ := CreateJWT("RS256", claims, bs.pKey, "324")
+	access_token, _ := CreateJWT("RS256", claims, bs.kc)
+	id_token, _ := CreateJWT("RS256", claims, bs.kc)
 
 	switch response_type {
 	case "id_token":

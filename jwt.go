@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"crypto/rsa"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,13 +20,13 @@ func GenKid() string {
 
 }
 
-func CreateJWT(method string, claims jwt.Claims, privatekey *rsa.PrivateKey, kid string) (string, error) {
+func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, error) {
 	//switch method {
 	//case "RS256":
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
-	tokens.Header["kid"] = kid
-	signedToken, err := tokens.SignedString(privatekey)
+	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
+	signedToken, err := tokens.SignedString(kc.Pk)
 
 	if err != nil {
 		fmt.Errorf("failed to parse token: %w", err)

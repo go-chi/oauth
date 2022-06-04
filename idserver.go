@@ -117,7 +117,7 @@ func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, use
 	claims := bs.verifier.CreateClaims(bs.nonce, r)
 	//token, _ = CreateJWT(method, claims, bs.pKey, string(bs.Signature))
 
-	idtoken, _ := CreateJWT(method, claims, bs.pKey, string(bs.Signature))
+	idtoken, _ := CreateJWT(method, claims, bs.kc)
 	refreshToken := refreshToken(token.ID, username, tokenType, scope)
 
 	if bs.verifier != nil {

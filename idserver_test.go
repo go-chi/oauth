@@ -2,15 +2,11 @@ package oauth
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/rsa"
 	"encoding/binary"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/gofrs/uuid"
 )
 
 func TestGenerateIdToken4Password(t *testing.T) {
@@ -69,19 +65,12 @@ func TestClientIdCredentials(t *testing.T) {
 }
 
 func TestGenToken(t *testing.T) {
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
-	if err != nil {
-		t.Error()
-	}
 
 	bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey,
-		signature.String(),
 	)
 	username := "John"
 	scope := "scope"
@@ -103,18 +92,12 @@ func TestGenerateIdTokens(t *testing.T) {
 }
 
 func TestCryptIdTokens(t *testing.T) {
-	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	signature, err := uuid.FromBytes(privatekey.PublicKey.N.Bytes())
-	if err != nil {
-		panic(err)
-	}
+
 	bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-		privatekey,
-		signature.String(),
 	)
 
 	var token *Token

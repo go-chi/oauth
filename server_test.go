@@ -14,8 +14,6 @@ var _sut = NewBearerServer(
 	time.Second*60,
 	new(TestUserVerifier),
 	nil,
-	nil,
-	"nil",
 )
 
 // TestUserVerifier provides user credentials verifier for testing.

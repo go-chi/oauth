@@ -135,8 +135,6 @@ type Keys struct {
 }
 
 type KeyContainer struct {
-	Pk        *rsa.PrivateKey
-	Keys      Keys
-	kid       string
-	Signature string
+	Pk   *rsa.PrivateKey
+	Keys Keys
 }
