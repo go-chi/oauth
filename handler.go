@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -41,7 +42,7 @@ func GetConfig() {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-
+	r.ParseForm()
 	code := r.FormValue("code")
 	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
@@ -49,6 +50,13 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	redirect_uri := r.FormValue("redirect_uri")
 	credential := r.FormValue("credential")
 	secret := r.FormValue("secret")
+	
+	fmt.Println(r.Form)
+	bodybytes := r.Body
+	decoder := json.NewDecoder(bodybytes)
+	var tsa map[string]interface{}
+	decoder.Decode(&tsa)
+	fmt.Println(tsa)
 
 	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
 	if err != nil {
@@ -135,7 +143,9 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	scope := strings.Split(r.URL.Query()["scope"][0], ",")
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
 	state := r.URL.Query()["state"][0]
-
+	fmt.Println(r.URL.Query()["client_id"][0])
+	fmt.Println(r.URL.Query()["client_id"][0])
+	fmt.Println(r.Form)
 	redirect_uri = reqURL + "session/callback?"
 
 	//fmt.Println(redirect_uri)

@@ -106,6 +106,7 @@ func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request
 	// grant_type client_credentials variables
 	clientID := r.FormValue("client_id")
 	clientSecret := r.FormValue("client_secret")
+
 	if clientID == "" || clientSecret == "" {
 		// get clientID and secret from basic authorization header
 		var err error

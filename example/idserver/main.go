@@ -127,6 +127,7 @@ func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r 
 
 // ValidateCode validates token ID
 func (*TestUserVerifier) ValidateCode(clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error) {
+
 	return "", nil
 }
 
