@@ -144,14 +144,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `<h1>Login</h1>
-    <form method="post" action="/oauth/auth?%s">
-        <label for="name">User name</label>
-        <input type="text" id="name" name="name">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password">
-        <button type="submit">Login</button>
-    </form>  `, r.URL.RawQuery)
+	bs.verifier.StoreClient("username", "password", "scope")
 }
 
 func validateOidcParams(r *http.Request) bool {
