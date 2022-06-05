@@ -71,6 +71,7 @@ func registerAPI(r *chi.Mux) {
 		nil,
 	)
 	r.Get("/users/sign_in", s.SignIn)
+	r.Post("/oauth/clients", s.Registration)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Get("/oauth/keys", s.ReturnKeys)
@@ -170,5 +171,8 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
+	return nil, nil
+}
+func (*TestUserVerifier) StoreClient(username, password, scope string) (map[string]string, error) {
 	return nil, nil
 }

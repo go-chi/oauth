@@ -20,6 +20,9 @@ var _sut = NewBearerServer(
 type TestUserVerifier struct {
 }
 
+func (*TestUserVerifier) StoreClient(username, password, scope string) (map[string]string, error) {
+	return nil, nil
+}
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
 	return nil, nil
 }

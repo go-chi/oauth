@@ -138,6 +138,12 @@ func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
+
+	//r.Body
+
+}
+
+func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<h1>Login</h1>
     <form method="post" action="/oauth/auth?%s">
         <label for="name">User name</label>
