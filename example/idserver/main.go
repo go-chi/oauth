@@ -74,17 +74,18 @@ func registerAPI(r *chi.Mux) {
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Get("/oauth/keys", s.ReturnKeys)
-	r.Post("/oauth/auth", s.ClientCredentials)
-	r.Get("/oauth/authorize", s.GetRedirect)
+	r.HandleFunc("/oauth/auth", s.GetRedirect)
+	r.Get("/oauth/authorize", s.SignIn)
 	r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
 	r.Get("/oauth/userinfo", s.UserInfo)
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
-	r.Post("/login", s.Login)
-	fs := http.FileServer(http.Dir("./static/"))
+	//r.Post("/login", s.Login)
+	r.Get("/login", s.SignIn)
+	//fs := http.FileServer(http.Dir("./static/"))
 	// Set up static file serving
 	//staticPath, _ := filepath.Abs("./static/login.html")
 	//fs := http.FileServer(http.Dir(staticPath))
-	r.Handle("/static/", http.StripPrefix("/static", fs))
+	//r.Handle("/static/", http.StripPrefix("/static", fs))
 	//r.Handle("/*", fs)
 
 }
@@ -100,9 +101,9 @@ func (TestUserVerifier) CreateClaims(nonce string, r *http.Request) oauth.MyCust
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := oauth.MyCustomClaims{
-		"bars",
-		nonce,
-		jwt.RegisteredClaims{
+		Foo:   "bars",
+		Nonce: nonce,
+		RegisteredClaims: jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -167,4 +168,7 @@ func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tok
 }
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
+}
+func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
+	return nil, nil
 }

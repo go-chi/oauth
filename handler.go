@@ -51,12 +51,12 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	credential := r.FormValue("credential")
 	secret := r.FormValue("secret")
 
-	fmt.Println(r.Form)
+	//fmt.Println(r.Form)
 	bodybytes := r.Body
 	decoder := json.NewDecoder(bodybytes)
 	var tsa map[string]interface{}
 	decoder.Decode(&tsa)
-	fmt.Println(tsa)
+	//fmt.Println(tsa)
 
 	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
 	if err != nil {
@@ -77,7 +77,7 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	r.ParseForm()
 
 	if r.Header["Accept"][0] == "application/json" {
-		fmt.Println(r.PostForm["token"])
+		//fmt.Println(r.PostForm["token"])
 
 		bs.verifier.ValidateJwt(r.PostForm["token"][0])
 
@@ -127,7 +127,7 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, j, 200)
 }
 
-func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
+func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
 	baseURL := scheme + r.Host
 	redirect_uri := baseURL + "/authorize?"
 	state := "af0ifjsldkj"
@@ -137,35 +137,94 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, location, 302)
 }
 
-func (bs *BearerServer) Login(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Println(r.Form)
-	bs.verifier.ValidateUser()
-	/* 	baseURL := scheme + r.Host
-	   	redirect_uri := baseURL + "/authorize?"
-	   	state := "af0ifjsldkj"
-	   	code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
-	   	location := redirect_uri + "code=" + code + "&state=" + state */
-
-	//http.Redirect(w, r, location, 302)
+func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `<h1>Login</h1>
+    <form method="post" action="/oauth/auth?%s">
+        <label for="name">User name</label>
+        <input type="text" id="name" name="name">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password">
+        <button type="submit">Login</button>
+    </form>  `, r.URL.RawQuery)
 }
 
+func validateOidcParams(r *http.Request) bool {
+	news := []string{"state", "nonce", "response_type", "scope", "redirect_uri", "client_id"}
+	for _, v := range news {
+		ok := r.URL.Query().Has(v)
+		if ok != true {
+			return false
+		}
+	}
+	return true
+}
+
+/* func (bs *BearerServer) Login(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	//redirect_uri := r.URL.Query()["redirect_uri"][0]
+
+	usernameSlice, ok := r.Form["name"]
+	passwordSlice, ok := r.Form["password"]
+	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
+
+	}
+	username := usernameSlice[0]
+
+	password := passwordSlice[0]
+
+	err := bs.verifier.ValidateUser(username, password, "", r)
+	if err != nil {
+
+	}
+
+	urlA, err := url.Parse("/oauth/auth")
+	urlA.RawQuery = r.URL.RawQuery
+	location := urlA.String()
+
+	if !validateOidcParams(r) {
+		if err != nil {
+		}
+		redirect_uri := r.Header.Get("Referer")
+		values := urlA.Query()
+		values.Add("code", "codesss")
+		values.Add("state", "statess")
+		values.Add("nonce", "nonce")
+		values.Add("response_type", "response_type")
+		values.Add("scope", "scope")
+		values.Add("redirect_uri", redirect_uri)
+		values.Add("client_id", "222")
+		urlA.RawQuery = values.Encode()
+		location = urlA.String()
+	}
+
+	http.Redirect(w, r, location, 302)
+} */
+
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
-	reqURL := r.Header.Get("Referer")
+	r.ParseForm()
+
+	usernameSlice, ok := r.Form["name"]
+	passwordSlice, ok := r.Form["password"]
+	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
+
+	}
+
 	bs.nonce = r.URL.Query()["nonce"][0]
 	response_type := r.URL.Query()["response_type"][0]
 	scope := strings.Split(r.URL.Query()["scope"][0], ",")
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
 	state := r.URL.Query()["state"][0]
-	fmt.Println(r.URL.Query()["client_id"][0])
-	fmt.Println(r.URL.Query()["client_id"][0])
-	fmt.Println(r.Form)
-	redirect_uri = reqURL + "session/callback?"
+
+	username := usernameSlice[0]
+	password := passwordSlice[0]
+	err := bs.verifier.ValidateUser(username, password, scope[0], r)
+	if err != nil {
+
+	}
 
 	//fmt.Println(redirect_uri)
 	//fmt.Println(response_type)
 	//fmt.Println(r.URL.Query())
-	token_type := "token_type"
 
 	claims := CreateClaims(bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
@@ -173,27 +232,27 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 
 	switch response_type {
 	case "id_token":
-		location := redirect_uri + "&id_token=" + id_token + "&state=" + state
+		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code":
 		if slices.Contains(scope, "openid") {
-			location := redirect_uri + "code=" + access_token + "&state=" + state
+			location := redirect_uri + "?code=" + access_token + "&state=" + state
 			w.Header().Add("Location", location)
 			http.Redirect(w, r, location, 302)
 		}
 	case "id_token token": //insecure
-		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
+		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code id_token":
 		location := redirect_uri + "&code=" + access_token + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code token": //insecure
-		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + token_type + "&state=" + state
+		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + "token_type" + "&state=" + state
 		w.Header().Add("Location", location)
 		//"code id_token token"
 	case "code token id_token": //insecure
 		fmt.Println("ssss")
-		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + token_type + "&id_token=" + id_token + "&state=" + state
+		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 		http.Redirect(w, r, location, 302)
 	default:

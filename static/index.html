@@ -2,7 +2,18 @@
 <html>
 
 <body>
-
+    <script>
+        const urlParams = new URLSearchParams("https://example.com/?product=troussers&color=black&newuser&size=s");
+        const size = urlParams.get('size');
+        alert(size);
+        // s
+        const color = urlParams.get('color')
+        alert(color);
+        // black      
+        const newUser = urlParams.get('newuser')
+        alert(newUser);
+        // empty string
+    </script>
     <h1>Login</h1>
     <form method="post" action="/login">
         <label for="name">User name</label>

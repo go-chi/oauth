@@ -137,3 +137,6 @@ func (*TestUserVerifier) ValidateToken(tokenType oauth.TokenType, credential, to
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
+func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
+	return nil, nil
+}

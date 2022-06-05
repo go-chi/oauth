@@ -138,3 +138,12 @@ type KeyContainer struct {
 	Pk   *rsa.PrivateKey
 	Keys Keys
 }
+type RedirectParameter struct {
+	code          string
+	state         string
+	nonce         string
+	response_type string
+	scope         string
+	redirect_uri  string
+	client_id     string
+}
