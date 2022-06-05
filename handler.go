@@ -136,6 +136,20 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, location, 302)
 }
+
+func (bs *BearerServer) Login(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	fmt.Println(r.Form)
+	bs.verifier.ValidateUser()
+	/* 	baseURL := scheme + r.Host
+	   	redirect_uri := baseURL + "/authorize?"
+	   	state := "af0ifjsldkj"
+	   	code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
+	   	location := redirect_uri + "code=" + code + "&state=" + state */
+
+	//http.Redirect(w, r, location, 302)
+}
+
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	reqURL := r.Header.Get("Referer")
 	bs.nonce = r.URL.Query()["nonce"][0]
