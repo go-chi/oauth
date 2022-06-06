@@ -13,40 +13,40 @@ import (
 func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, r *http.Request) (interface{}, int, error) {
 	var resp *TokenResponse
 	switch grantType {
-	case PasswordGrant:
-		if err := bs.verifier.ValidateUser(credential, secret, scope, r); err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
+	/* case PasswordGrant:
+	if err := bs.verifier.ValidateUser(credential, secret, scope, r); err != nil {
+		return "Not authorized", http.StatusUnauthorized, err
+	}
 
-		token, refresh, idtoken, err := bs.generateIdTokens(method, UserToken, credential, scope, r)
-		if err != nil {
-			return "Token generation failed, check claims", http.StatusInternalServerError, err
-		}
+	token, refresh, idtoken, err := bs.generateIdTokens(method, UserToken, credential, scope, r)
+	if err != nil {
+		return "Token generation failed, check claims", http.StatusInternalServerError, err
+	}
 
-		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
-			return "Storing Token ID failed", http.StatusInternalServerError, err
-		}
+	if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		return "Storing Token ID failed", http.StatusInternalServerError, err
+	}
 
-		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
-			return "Token generation failed, check security provider", http.StatusInternalServerError, err
-		}
-	case ClientCredentialsGrant:
-		if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
+	if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
+		return "Token generation failed, check security provider", http.StatusInternalServerError, err
+	} */
+	/* case ClientCredentialsGrant:
+	if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
+		return "Not authorized", http.StatusUnauthorized, err
+	}
 
-		token, refresh, err := bs.generateTokens(ClientToken, credential, scope, r)
-		if err != nil {
-			return "Token generation failed, check claims", http.StatusInternalServerError, err
-		}
+	token, refresh, err := bs.generateTokens(ClientToken, credential, scope, r)
+	if err != nil {
+		return "Token generation failed, check claims", http.StatusInternalServerError, err
+	}
 
-		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
-			return "Storing Token ID failed", http.StatusInternalServerError, err
-		}
+	if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		return "Storing Token ID failed", http.StatusInternalServerError, err
+	}
 
-		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
-			return "Token generation failed, check security provider", http.StatusInternalServerError, err
-		}
+	if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
+		return "Token generation failed, check security provider", http.StatusInternalServerError, err
+	} */
 	case AuthCodeGrant:
 		codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
 		if !ok {
@@ -71,29 +71,29 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError, err
 		}
-	case RefreshTokenGrant:
-		refresh, err := bs.provider.DecryptRefreshTokens(refreshToken)
-		if err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
+	/* case RefreshTokenGrant:
+	refresh, err := bs.provider.DecryptRefreshTokens(refreshToken)
+	if err != nil {
+		return "Not authorized", http.StatusUnauthorized, err
+	}
 
-		if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
-			return "Not authorized invalid token", http.StatusUnauthorized, err
-		}
+	if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
+		return "Not authorized invalid token", http.StatusUnauthorized, err
+	}
 
-		token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
-		if err != nil {
-			return "Token generation failed", http.StatusInternalServerError, err
-		}
+	token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
+	if err != nil {
+		return "Token generation failed", http.StatusInternalServerError, err
+	}
 
-		err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
-		if err != nil {
-			return "Storing Token ID failed", http.StatusInternalServerError, err
-		}
+	err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
+	if err != nil {
+		return "Storing Token ID failed", http.StatusInternalServerError, err
+	}
 
-		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
-			return "Token generation failed", http.StatusInternalServerError, err
-		}
+	if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
+		return "Token generation failed", http.StatusInternalServerError, err
+	} */
 	default:
 		return "Invalid grant_type", http.StatusBadRequest, nil
 	}
@@ -113,6 +113,7 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 
 func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
 	token := GenToken(bs, username, tokenType, scope)
+
 	claims := bs.verifier.CreateClaims(bs.nonce, r)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
 	refreshToken := refreshToken(token.ID, username, tokenType, scope)

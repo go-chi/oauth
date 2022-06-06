@@ -84,6 +84,9 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	} else if r.Header["Accept"][0] == "application/jwt" {
 
 	}
+	fmt.Println(r.Body)
+	//UserLookup(username, password, scope string) (map[string]string, error)
+	//convert to json
 
 	if len(r.PostForm["token"]) > 0 {
 		we := map[string]bool{
@@ -138,9 +141,14 @@ func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-
-	//r.Body
-
+	fmt.Fprintf(w, `<h1>Login</h1>
+    <form method="post" action="/oauth/auth?%s">
+        <label for="name">User name</label>
+        <input type="text" id="name" name="name">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password">
+        <button type="submit">Login</button>
+    </form>  `, r.URL.RawQuery)
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
@@ -220,7 +228,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 	}
-
+	fmt.Println(redirect_uri)
 	//fmt.Println(redirect_uri)
 	//fmt.Println(response_type)
 	//fmt.Println(r.URL.Query())
@@ -276,6 +284,11 @@ func UserData() (map[string]interface{}, int, string, error) {
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	token := strings.Split(r.Header.Get("Authorization"), " ")
+	fmt.Println(token)
+
+	//Only those claims that are scoped by the token will be made available to the client.
 	/* 	xff := r.Header.Get("X-Forwarded-For")
 	 	xfh := r.Header.Get("X-Forwarded-Host")
 	 	xfp := r.Header.Get("X-Forwarded-Proto")
