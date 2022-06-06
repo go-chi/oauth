@@ -48,7 +48,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		return "Token generation failed, check security provider", http.StatusInternalServerError, err
 	} */
 	case AuthCodeGrant:
-		codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
+		/* codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized, nil
 		}
@@ -57,13 +57,13 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized, err
 		}
-
+		*/
 		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}
-		err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
+		//err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError, err
 		}
@@ -111,43 +111,43 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, string, error) {
-	token := GenToken(bs, username, tokenType, scope)
+func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (string, *RefreshToken, string, error) {
+	//token := GenToken(bs, username, tokenType, scope)
 
 	claims := bs.verifier.CreateClaims(bs.nonce, r)
+	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
-	refreshToken := refreshToken(token.ID, username, tokenType, scope)
+	refreshToken := refreshToken("token.ID", username, tokenType, scope)
 
-	if bs.verifier != nil {
-		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
+	/* 	if bs.verifier != nil {
+		claims, err := bs.verifier.AddClaims("token.TokenType", username, "token.ID", "token.Scope", r)
 		if err != nil {
 			return nil, nil, "nil", err
 		}
 		token.Claims = claims
-	}
+	} */
 
 	return token, refreshToken, idtoken, nil
 }
 
-func (bs *BearerServer) cryptIdTokens(token *Token, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
-	cToken, err := bs.provider.CryptToken(token)
+func (bs *BearerServer) cryptIdTokens(token string, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
+	/* cToken, err := bs.provider.CryptToken(token)
 	if err != nil {
 		return nil, err
-	}
+	} */
 	cRefreshToken, err := bs.provider.CryptRefreshToken(refresh)
 	if err != nil {
 		return nil, err
 	}
+	tokenResponse := &TokenResponse{Token: token, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: idToken}
 
-	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: idToken}
-
-	if bs.verifier != nil {
+	/* if bs.verifier != nil {
 		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
 		if err != nil {
 			return nil, err
 		}
 		tokenResponse.Properties = props
-	}
+	} */
 	return tokenResponse, err
 }
 

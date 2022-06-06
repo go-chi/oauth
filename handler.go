@@ -286,8 +286,11 @@ func UserData() (map[string]interface{}, int, string, error) {
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	token := strings.Split(r.Header.Get("Authorization"), " ")
-	fmt.Println(token)
 
+	hh, err := ParseJWT(token[1], &bs.Kc.Pk.PublicKey)
+	fmt.Println(hh)
+	fmt.Println(err)
+	fmt.Println(bs.Kc)
 	//Only those claims that are scoped by the token will be made available to the client.
 	/* 	xff := r.Header.Get("X-Forwarded-For")
 	 	xfh := r.Header.Get("X-Forwarded-Host")

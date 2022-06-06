@@ -93,12 +93,12 @@ func TestGenerateIdTokens(t *testing.T) {
 
 func TestCryptIdTokens(t *testing.T) {
 
-	bs := NewBearerServer(
+	/* bs := NewBearerServer(
 		"mySecretKey-10101",
 		time.Second*120,
 		&TestUserVerifier{},
 		nil,
-	)
+	) */
 
 	var token *Token
 	token.Claims = map[string]string{}
@@ -118,16 +118,16 @@ func TestCryptIdTokens(t *testing.T) {
 	rToken.RefreshTokenID = ""
 	rToken.TokenID = ""
 	rToken.TokenType = ""
-	idToken := "eeee"
+	//idToken := "eeee"
 
-	req, err := http.NewRequest("GET", "/health-check", nil)
+	_, err := http.NewRequest("GET", "/health-check", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	cToken, err := bs.cryptIdTokens(token, rToken, idToken, req)
+	//cToken, err := bs.cryptIdTokens(token, rToken, idToken, req)
 
-	fmt.Println(cToken.IDtoken)
+	//fmt.Println(cToken.IDtoken)
 
 }
 

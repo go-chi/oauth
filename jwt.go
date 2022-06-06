@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"crypto/rsa"
 	"errors"
 	"fmt"
 	"log"
@@ -28,7 +29,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	tokens := jwt.NewWithClaims(rt, claims)
 	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
 	signedToken, err := tokens.SignedString(kc.Pk)
-
+	ParseJWT(signedToken, &kc.Pk.PublicKey)
 	if err != nil {
 		fmt.Errorf("failed to parse token: %w", err)
 	}
@@ -63,9 +64,9 @@ func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
 	return claims
 }
 
-func ParseJWT(jwtToken string, kc *KeyContainer) (string, error) {
-	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc.Pk.PublicKey, nil })
-	if parsedToken.Valid {
+func ParseJWT(jwtToken string, kc *rsa.PublicKey) (string, error) {
+	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
+	if !parsedToken.Valid {
 		return "", errors.New("Token invalid")
 	}
 
