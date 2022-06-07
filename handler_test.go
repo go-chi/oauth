@@ -13,19 +13,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-/* "keys": [
-   {
-     "alg": "RS256",
-     "e": "AQAB",
-     "n": "iKqiD4cr7FZKm6f05K4r-GQOvjRqjOeFmOho9V7SAXYwCyJluaGBLVvDWO1XlduPLOrsG_Wgs67SOG5qeLPR8T1zDK4bfJAo1Tvbw
-           YeTwVSfd_0mzRq8WaVc_2JtEK7J-4Z0MdVm_dJmcMHVfDziCRohSZthN__WM2NwGnbewWnla0wpEsU3QMZ05_OxvbBdQZaDUsNSx4
-           6is29eCdYwhkAfFd_cFRq3DixLEYUsRwmOqwABwwDjBTNvgZOomrtD8BRFWSTlwsbrNZtJMYU33wuLO9ynFkZnY6qRKVHr3YToIrq
-           NBXw0RWCheTouQ-snfAB6wcE2WDN3N5z760ejqQ",
-     "kid": "U5R8cHbGw445Qbq8zVO1PcCpXL8yG6IcovVa3laCoxM",
-     "kty": "RSA",
-     "use": "sig"
-   }, */
-
 var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
