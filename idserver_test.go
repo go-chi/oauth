@@ -64,25 +64,6 @@ func TestClientIdCredentials(t *testing.T) {
 
 }
 
-func TestGenToken(t *testing.T) {
-
-	bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-	)
-	username := "John"
-	scope := "scope"
-	var tokenType TokenType = "Bearer"
-
-	token := GenToken(bs, username, tokenType, scope)
-
-	if token.Claims != nil {
-		t.Error()
-	}
-}
-
 func TestRefreshToken(t *testing.T) {
 
 }

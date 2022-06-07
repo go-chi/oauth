@@ -12,14 +12,12 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func GenKid() string {
-
+func GenKid() (string, error) {
 	signature, err := uuid.NewV4()
 	if err != nil {
-
+		return "", err
 	}
-	return signature.String()
-
+	return signature.String(), nil
 }
 
 func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, error) {
@@ -31,21 +29,16 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	signedToken, err := tokens.SignedString(kc.Pk)
 	ParseJWT(signedToken, &kc.Pk.PublicKey)
 	if err != nil {
-		fmt.Errorf("failed to parse token: %w", err)
+		fmt.Printf("failed to parse token: %e", err)
 	}
 	if err != nil {
 		log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
 	}
 
 	return signedToken, err
-	//default:
-	//	return "", errors.New("Failed creating jwt")
-	//}
-
 }
 
-func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
-	//scheme := "https://"
+func CreateClaims(userdata map[string]string, nonce string, r *http.Request) MyCustomClaims {
 	baseURL := scheme + r.Host
 	claims := MyCustomClaims{
 		"bars",
@@ -61,6 +54,12 @@ func CreateClaims(nonce string, r *http.Request) MyCustomClaims {
 			Audience:  []string{"222"},
 		},
 	}
+	for i, v := range userdata {
+		if i == "Subject" {
+			claims.Subject = v
+		}
+	}
+
 	return claims
 }
 
@@ -88,10 +87,6 @@ Data Structure
    iss  REQUIRED - as defined in Section 4.1.1 of [RFC7519].
 
    exp  REQUIRED - as defined in Section 4.1.4 of [RFC7519].
-
-
-
-
 
 
 Bertocci                Expires November 26, 2021               [Page 4]

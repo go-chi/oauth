@@ -1,20 +1,20 @@
 package oauth
 
 import (
-	"crypto/rsa"
 	"fmt"
 	"log"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func re(pKey *rsa.PrivateKey) (interface{}, error) {
-
-	return pKey.PublicKey, nil
+func TestGenKid(t *testing.T) {
+	kid, err := GenKid()
+	if kid == "" && err != nil {
+		t.Error()
+	}
 }
 
 func TestCreateJWT(t *testing.T) {
@@ -34,20 +34,13 @@ func TestCreateJWT(t *testing.T) {
 }
 
 func TestJwtValidate(t *testing.T) {
-	bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-	)
-
 	//pass request to handler with nil as parameter
 	req, err := http.NewRequest("GET", "/userinfo", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	jw, err := CreateJWT("RS256", CreateClaims(bs.nonce, req), bs.Kc)
+	userdata := map[string]string{"Subject": "testuser"}
+	jw, err := CreateJWT("RS256", CreateClaims(userdata, bs.nonce, req), bs.Kc)
 	if err != nil {
 		fmt.Println(err)
 	}

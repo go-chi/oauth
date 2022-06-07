@@ -147,3 +147,25 @@ type RedirectParameter struct {
 	redirect_uri  string
 	client_id     string
 }
+
+type Registration struct {
+	client_id                            string
+	statclient_secrete                   string
+	client_secret_expires_at             string
+	registration_access_token            string
+	registration_client_uri              string
+	token_endpoint_auth_method           string
+	client_iapplication_typed            string
+	redirect_uris                        string
+	client_name                          string
+	scope                                string
+	redirect_uri                         string
+	logo_uri                             string
+	subject_type                         string
+	sector_identifier_uri                string
+	jwks_uri                             string
+	scouserinfo_encrypted_response_algpe string
+	userinfo_encrypted_response_enc      string
+	contacts                             string
+	request_uris                         string
+}

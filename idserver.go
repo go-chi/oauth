@@ -101,10 +101,10 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 	return resp, http.StatusOK, nil
 }
 
-func GenToken(bs *BearerServer, username string, tokenType TokenType, scope string) *Token {
+/* func GenToken(bs *BearerServer, username string, tokenType TokenType, scope string) *Token {
 	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
 	return token
-}
+} */
 
 func refreshToken(tokenId string, username string, tokenType TokenType, scope string) *RefreshToken {
 	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: tokenId, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
@@ -112,8 +112,6 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 }
 
 func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, r *http.Request) (string, *RefreshToken, string, error) {
-	//token := GenToken(bs, username, tokenType, scope)
-
 	claims := bs.verifier.CreateClaims(bs.nonce, r)
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)

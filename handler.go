@@ -253,7 +253,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
 	}
-
+	userdata := map[string]string{"Subject": usernameSlice[0]}
 	bs.nonce = r.URL.Query()["nonce"][0]
 	response_type := r.URL.Query()["response_type"][0]
 	scope := strings.Split(r.URL.Query()["scope"][0], ",")
@@ -271,7 +271,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(response_type)
 	//fmt.Println(r.URL.Query())
 
-	claims := CreateClaims(bs.nonce, r)
+	claims := CreateClaims(userdata, bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
