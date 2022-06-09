@@ -149,23 +149,42 @@ type RedirectParameter struct {
 }
 
 type Registration struct {
-	client_id                            string
-	statclient_secrete                   string
-	client_secret_expires_at             string
-	registration_access_token            string
-	registration_client_uri              string
-	token_endpoint_auth_method           string
-	client_iapplication_typed            string
-	redirect_uris                        string
-	client_name                          string
-	scope                                string
-	redirect_uri                         string
-	logo_uri                             string
-	subject_type                         string
-	sector_identifier_uri                string
-	jwks_uri                             string
-	scouserinfo_encrypted_response_algpe string
-	userinfo_encrypted_response_enc      string
-	contacts                             string
-	request_uris                         string
+	Redirect_uris                   []string `json:"redirect_uris"`
+	Response_types                  string   `json:"response_types"`
+	Grant_types                     string   `json:"grant_types"`
+	Application_type                string   `json:"application_type"`
+	Contacts                        []string `json:"contacts"`
+	Client_name                     string   `json:"client_name"`
+	Logo_uri                        string   `json:"logo_uri"`
+	Client_uri                      string   `json:"client_uri"`
+	Policy_uri                      string   `json:"policy_uri"`
+	Tos_uri                         string   `json:"tos_uri"`
+	Jwks_uri                        string   `json:"jwks_uri"`
+	Jwks                            string   `json:"jwks"`
+	Sector_identifier_uri           string   `json:"sector_identifier_uri"`
+	Subject_type                    string   `json:"subject_type"`
+	Id_token_signed_response_alg    string   `json:"id_token_signed_response_alg"`
+	Id_token_encrypted_response_alg string   `json:"id_token_encrypted_response_alg"`
+	Id_token_encrypted_response_enc string   `json:"id_token_encrypted_response_enc"`
+	Userinfo_signed_response_alg    string   `json:"userinfo_signed_response_alg"`
+	Userinfo_encrypted_response_alg string   `json:"userinfo_encrypted_response_alg"`
+	Userinfo_encrypted_response_enc string   `json:"userinfo_encrypted_response_enc"`
+	Request_object_signing_alg      string   `json:"request_object_signing_alg"`
+	Request_object_encryption_alg   string   `json:"request_object_encryption_alg"`
+	Request_object_encryption_enc   string   `json:"request_object_encryption_enc"`
+	Token_endpoint_auth_method      string   `json:"token_endpoint_auth_method"`
+	Token_endpoint_auth_signing_alg string   `json:"token_endpoint_auth_signing_alg"`
+	Default_max_age                 string   `json:"default_max_age"`
+	Require_auth_time               string   `json:"require_auth_time"`
+	Default_acr_values              string   `json:"default_acr_values"`
+	Initiate_login_uri              string   `json:"initiate_login_uri"`
+	Request_uris                    string   `json:"request_uris"`
 }
+
+type K struct {
+	Ke string `json:"ke"`
+	Le string
+}
+
+
+

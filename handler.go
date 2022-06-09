@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/gofrs/uuid"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
 
@@ -130,7 +132,7 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, j, 200)
 }
 
-func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
+/* func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
 	baseURL := scheme + r.Host
 	redirect_uri := baseURL + "/authorize?"
 	state := "af0ifjsldkj"
@@ -138,7 +140,7 @@ func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
 	location := redirect_uri + "code=" + code + "&state=" + state
 
 	http.Redirect(w, r, location, 302)
-}
+} */
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<h1>Login</h1>
@@ -152,23 +154,45 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-Type") == "application/json" {
+		switch r.Method {
+		case "GET":
+			fmt.Println("GET")
+		case "POST":
+			fmt.Println("POST")
+			body, err := ioutil.ReadAll(r.Body)
 
-	switch r.Method {
-	case "GET":
-		fmt.Println("GET")
-	case "POST":
-		fmt.Println("POST")
-	case "PUT":
-		fmt.Println("PUT")
-	case "DELETE":
-		fmt.Println("DELETE")
-	default:
-		fmt.Println("Too far away.")
+			var jsonMap Registration
+			err = json.Unmarshal(body, &jsonMap)
+			var inInterface map[string]interface{}
+			inrec, _ := json.Marshal(jsonMap)
+			json.Unmarshal(inrec, &inInterface)
+			inInterface["client_id"] = "client_id22"
+			fmt.Println(inInterface)
+			fmt.Println("#####")
+			empJSON, err := json.Marshal(jsonMap)
+
+			fmt.Printf("%v", string(empJSON))
+
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+
+		case "PUT":
+			fmt.Println("PUT")
+		case "DELETE":
+			fmt.Println("DELETE")
+		default:
+			fmt.Println("Too far away.")
+		}
+		//add client object
+		bs.verifier.StoreClient("username", "password", "scope")
+		/* 	client_id
+		client_secret
+		client_id_issued_at
+		client_secret_expires_at */
+		//renderJSON(w, j, 200)
 	}
-	//add client object
-	bs.verifier.StoreClient("username", "password", "scope")
-
-	//	renderJSON(w, j, 200)
 }
 
 func validateOidcParams(r *http.Request) bool {
