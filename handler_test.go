@@ -25,8 +25,13 @@ var theTests = []struct {
 	method             string
 	params             []postData
 	expectedStatusCode int
+	Host               string
+	Authorization      string
 }{
-	{"config", "/oauth/clients/wiki", "GET", []postData{}, http.StatusOK},
+	{"config", "/oauth/clients/s6BhdRkqt3", "GET",
+		[]postData{}, http.StatusOK, "c2id.com",
+		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+	},
 }
 
 var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
@@ -143,7 +148,6 @@ func TestRegistrationGet(t *testing.T) {
 			resp, err := ts.Client().Get(ts.URL + e.url)
 			if err != nil {
 				t.Log(err)
-				t.Fatal(err)
 			}
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)

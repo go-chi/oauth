@@ -159,8 +159,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		oo := chi.URLParam(r, "id")
-		fmt.Println(r.URL)
-		fmt.Println("?????")
 		fmt.Println(oo)
 	case "POST":
 		fmt.Println("POST")
