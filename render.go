@@ -16,8 +16,8 @@ func renderJSON(w http.ResponseWriter, v interface{}, statusCode int) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
+
 	_, _ = w.Write(buf.Bytes())
 }

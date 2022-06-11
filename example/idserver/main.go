@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -71,7 +72,7 @@ func registerAPI(r *chi.Mux) {
 		nil,
 	)
 	r.Get("/users/sign_in", s.SignIn)
-	r.HandleFunc("/oauth/clients", s.Registration)
+	r.HandleFunc("/oauth/clients/{id}", s.Registration)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Get("/oauth/keys", s.ReturnKeys)
@@ -173,6 +174,13 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
 	return nil, nil
 }
-func (*TestUserVerifier) StoreClient(username, password, scope string) (map[string]string, error) {
+func (*TestUserVerifier) StoreClient(scope oauth.Registration) (map[string]interface{}, error) {
+
+	var inInterface map[string]interface{}
+
+	var jsonMap oauth.Registration
+	inrec, _ := json.Marshal(jsonMap)
+	json.Unmarshal(inrec, &inInterface)
+
 	return nil, nil
 }

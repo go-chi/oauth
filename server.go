@@ -38,10 +38,9 @@ type CredentialsVerifier interface {
 	CreateClaims(nonce string, r *http.Request) MyCustomClaims
 
 	ValidateJwt(token string) (bool, error)
-	
-	UserLookup(username, password, scope string) (map[string]string, error)
-	StoreClient(username, password, scope string) (map[string]string, error)
 
+	UserLookup(username, password, scope string) (map[string]string, error)
+	StoreClient(registration Registration) (map[string]interface{}, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier

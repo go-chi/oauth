@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
@@ -154,39 +155,41 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") == "application/json" {
-		switch r.Method {
-		case "GET":
-			fmt.Println("GET")
-		case "POST":
-			fmt.Println("POST")
-			body, err := ioutil.ReadAll(r.Body)
+	//if r.Header.Get("Content-Type") == "application/json" {
+	switch r.Method {
+	case "GET":
+		oo := chi.URLParam(r, "id")
+		fmt.Println(r.URL)
+		fmt.Println("?????")
+		fmt.Println(oo)
+	case "POST":
+		fmt.Println("POST")
+		body, err := ioutil.ReadAll(r.Body)
 
-			var jsonMap Registration
-			err = json.Unmarshal(body, &jsonMap)
-			var inInterface map[string]interface{}
-			inrec, _ := json.Marshal(jsonMap)
-			json.Unmarshal(inrec, &inInterface)
-			inInterface["client_id"] = "client_id22"
-			fmt.Println(inInterface)
-			fmt.Println("#####")
-			empJSON, err := json.Marshal(jsonMap)
+		var jsonMap Registration
+		err = json.Unmarshal(body, &jsonMap)
+		bs.verifier.StoreClient(jsonMap)
 
-			fmt.Printf("%v", string(empJSON))
+		var inInterface map[string]interface{}
+		inrec, _ := json.Marshal(jsonMap)
 
-			if err != nil {
-				log.Error().Err(err).Msg("Unable to Unmarshal file")
-			}
-
-		case "PUT":
-			fmt.Println("PUT")
-		case "DELETE":
-			fmt.Println("DELETE")
-		default:
-			fmt.Println("Too far away.")
+		json.Unmarshal(inrec, &inInterface)
+		inInterface["client_id"] = "client_id22"
+		inInterface["registration_access_token"] = "registration_access_token"
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to Unmarshal file")
 		}
+
+		renderJSON(w, inInterface, 200)
+	case "PUT":
+		fmt.Println("PUT")
+	case "DELETE":
+		fmt.Println("DELETE")
+	default:
+		fmt.Println("Too far away.")
+		//}
 		//add client object
-		bs.verifier.StoreClient("username", "password", "scope")
+		//bs.verifier.StoreClient("username", "password", "scope")
 		/* 	client_id
 		client_secret
 		client_id_issued_at
