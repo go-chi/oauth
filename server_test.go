@@ -12,9 +12,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
-	Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
-	Token_endpoint_auth_method: "w"}
+var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "sss",
+	Contacts: []string{"ee"}, Application_type: "ssss", Grant_types: "a", Response_types: "ewre", Redirect_uris: []string{"wwewe"},
+	Token_endpoint_auth_method: "w", Subject_type: "ss", Id_token_signed_response_alg: "rwr"}
 
 var _sut = NewBearerServer(
 	"mySecretKey-10101",
@@ -28,9 +28,6 @@ type TestUserVerifier struct {
 }
 
 func (*TestUserVerifier) StoreClient(scope Registration, methode string) (map[string]interface{}, error) {
-	fmt.Println("Cjson")
-
-	fmt.Println(Cjson)
 
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(Cjson)

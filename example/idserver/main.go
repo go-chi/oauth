@@ -199,6 +199,6 @@ func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, er
 
 	return respInterface, nil
 }
-func (*TestUserVerifier) DeleteClients(clientId string) (map[string]interface{}, error) {
-	return nil, nil
+func (*TestUserVerifier) DeleteClients(clientId string) (int, error) {
+	return 204, nil
 }
