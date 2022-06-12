@@ -176,24 +176,25 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
 	return nil, nil
 }
-func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (map[string]interface{}, error) {
-	var inInterface map[string]interface{}
 
-	var jsonMap oauth.Registration
-	inrec, err := json.Marshal(jsonMap)
-	json.Unmarshal(inrec, &inInterface)
-	inInterface["client_id"] = "client_id22"
-	inInterface["registration_access_token"] = "registration_access_token"
+func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (map[string]interface{}, error) {
+
+	var respInterface map[string]interface{}
+	inrec, err := json.Marshal(Cjson)
+	json.Unmarshal(inrec, &respInterface)
+	respInterface["client_id"] = "client_id22"
+	respInterface["registration_access_token"] = "registration_access_token"
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
-
-	return nil, nil
+	fmt.Println(respInterface)
+	return respInterface, nil
 }
 
 func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
+
 	var respInterface map[string]interface{}
-	inrec, _ := json.Marshal(cjson)
+	inrec, _ := json.Marshal(Cjson)
 	json.Unmarshal(inrec, &respInterface)
 
 	return respInterface, nil

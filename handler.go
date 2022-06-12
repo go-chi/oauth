@@ -186,6 +186,8 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &jsonMap)
 
 		regResp, err := bs.verifier.StoreClient(jsonMap, r.Method)
+		fmt.Println(regResp)
+		fmt.Println("++++")
 		renderJSON(w, regResp, 200)
 	case "DELETE":
 		fmt.Println("DELETE")

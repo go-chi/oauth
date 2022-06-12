@@ -165,8 +165,8 @@ func TestRegistrationPost(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, get Registration, want string) {
 		t.Helper()
 
-		wants := []string{"client_id", "client_secret", "client_secret_expires_at", "registration_access_token",
-			"registration_client_uri", "client_name", "logo_uri", "contacts", "application_type", "grant_types", "response_types",
+		wants := []string{"client_id", "registration_access_token",
+			 "client_name", "logo_uri", "contacts", "application_type", "grant_types", "response_types",
 			"redirect_uris", "token_endpoint_auth_method", "id_token_signed_response_alg", "subject_type"}
 
 		empJSON, err := json.Marshal(get)

@@ -2,12 +2,19 @@ package oauth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
+
+var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
+	Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
+	Token_endpoint_auth_method: "w"}
 
 var _sut = NewBearerServer(
 	"mySecretKey-10101",
@@ -21,7 +28,20 @@ type TestUserVerifier struct {
 }
 
 func (*TestUserVerifier) StoreClient(scope Registration, methode string) (map[string]interface{}, error) {
-	return nil, nil
+	fmt.Println("Cjson")
+
+	fmt.Println(Cjson)
+
+	var respInterface map[string]interface{}
+	inrec, err := json.Marshal(Cjson)
+	json.Unmarshal(inrec, &respInterface)
+	respInterface["client_id"] = "client_id22"
+	respInterface["registration_access_token"] = "registration_access_token"
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to Unmarshal file")
+	}
+	fmt.Println(respInterface)
+	return respInterface, nil
 }
 
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
@@ -215,5 +235,14 @@ func TestRefreshToken4ClientCredentials(t *testing.T) {
 	t.Logf("New Token Response: %v", resp2)
 }
 func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
-	return nil, nil
+
+	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
+		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
+		Token_endpoint_auth_method: "w"}
+
+	var respInterface map[string]interface{}
+	inrec, _ := json.Marshal(Cjson)
+	json.Unmarshal(inrec, &respInterface)
+
+	return respInterface, nil
 }

@@ -2,4 +2,6 @@ package main
 
 import "github.com/christhirst/oauth"
 
-var cjson = oauth.Registration{Registration_access_token: "eeee", Client_id: ""}
+var Cjson = oauth.Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
+	Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
+	Token_endpoint_auth_method: "w"}
