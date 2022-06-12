@@ -155,34 +155,32 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
+	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
 	//if r.Header.Get("Content-Type") == "application/json" {
 	switch r.Method {
+
 	case "GET":
-		oo := chi.URLParam(r, "id")
-		fmt.Println(oo)
-	case "POST":
-		fmt.Println("POST")
+		cId := chi.URLParam(r, "id")
+		clientConfig, err := bs.verifier.GetClients(cId)
+
+		rc := 200
+		if err != nil {
+			rc = 400
+		}
+		renderJSON(w, clientConfig, rc)
+	case "POST", "PUT":
 		body, err := ioutil.ReadAll(r.Body)
-
-		var jsonMap Registration
-		err = json.Unmarshal(body, &jsonMap)
-		bs.verifier.StoreClient(jsonMap)
-
-		var inInterface map[string]interface{}
-		inrec, _ := json.Marshal(jsonMap)
-
-		json.Unmarshal(inrec, &inInterface)
-		inInterface["client_id"] = "client_id22"
-		inInterface["registration_access_token"] = "registration_access_token"
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to Unmarshal file")
 		}
+		var jsonMap Registration
+		err = json.Unmarshal(body, &jsonMap)
 
-		renderJSON(w, inInterface, 200)
-	case "PUT":
-		fmt.Println("PUT")
+		regResp, err := bs.verifier.StoreClient(jsonMap, r.Method)
+		renderJSON(w, regResp, 200)
 	case "DELETE":
 		fmt.Println("DELETE")
+
 	default:
 		fmt.Println("Too far away.")
 		//}

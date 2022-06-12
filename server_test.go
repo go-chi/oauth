@@ -20,7 +20,7 @@ var _sut = NewBearerServer(
 type TestUserVerifier struct {
 }
 
-func (*TestUserVerifier) StoreClient(scope Registration) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClient(scope Registration, methode string) (map[string]interface{}, error) {
 	return nil, nil
 }
 
@@ -213,4 +213,7 @@ func TestRefreshToken4ClientCredentials(t *testing.T) {
 		t.Fatalf("Error StatusCode = %d", code2)
 	}
 	t.Logf("New Token Response: %v", resp2)
+}
+func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
+	return nil, nil
 }

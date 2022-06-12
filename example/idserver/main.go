@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/zerolog/log"
 )
 
 /*
@@ -174,13 +175,24 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
 	return nil, nil
 }
-func (*TestUserVerifier) StoreClient(scope oauth.Registration) (map[string]interface{}, error) {
-
+func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (map[string]interface{}, error) {
 	var inInterface map[string]interface{}
 
 	var jsonMap oauth.Registration
-	inrec, _ := json.Marshal(jsonMap)
+	inrec, err := json.Marshal(jsonMap)
 	json.Unmarshal(inrec, &inInterface)
+	inInterface["client_id"] = "client_id22"
+	inInterface["registration_access_token"] = "registration_access_token"
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to Unmarshal file")
+	}
 
+	return nil, nil
+}
+
+func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
+	return nil, nil
+}
+func (*TestUserVerifier) DeleteClients(clientId string) (map[string]interface{}, error) {
 	return nil, nil
 }

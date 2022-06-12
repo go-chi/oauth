@@ -40,7 +40,8 @@ type CredentialsVerifier interface {
 	ValidateJwt(token string) (bool, error)
 
 	UserLookup(username, password, scope string) (map[string]string, error)
-	StoreClient(registration Registration) (map[string]interface{}, error)
+	StoreClient(registration Registration, methode string) (map[string]interface{}, error)
+	GetClients(clientId string) (map[string]interface{}, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
