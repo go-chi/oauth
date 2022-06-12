@@ -83,7 +83,6 @@ func registerAPI(r *chi.Mux) {
 	r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
 	r.Get("/oauth/userinfo", s.UserInfo)
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
-	//r.Post("/login", s.Login)
 	r.Get("/login", s.SignIn)
 	//fs := http.FileServer(http.Dir("./static/"))
 	// Set up static file serving
