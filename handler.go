@@ -154,8 +154,15 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
     </form>  `, r.URL.RawQuery)
 }
 
+func ConvertStructInterface() {
+
+}
+
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
+	authH := r.Header.Get("Authorization")
+	fmt.Println(authH)
+
 	//if r.Header.Get("Content-Type") == "application/json" {
 	switch r.Method {
 
@@ -165,8 +172,10 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 
 		rc := 200
 		if err != nil {
+			log.Err(err)
 			rc = 400
 		}
+
 		renderJSON(w, clientConfig, rc)
 	case "POST", "PUT":
 		body, err := ioutil.ReadAll(r.Body)

@@ -74,6 +74,7 @@ func registerAPI(r *chi.Mux) {
 	)
 	r.Get("/users/sign_in", s.SignIn)
 	r.HandleFunc("/oauth/clients/{id}", s.Registration)
+	r.Get("/oauth/clients", s.Registration)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Get("/oauth/keys", s.ReturnKeys)
@@ -191,7 +192,11 @@ func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (
 }
 
 func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
-	return nil, nil
+	var respInterface map[string]interface{}
+	inrec, _ := json.Marshal(cjson)
+	json.Unmarshal(inrec, &respInterface)
+
+	return respInterface, nil
 }
 func (*TestUserVerifier) DeleteClients(clientId string) (map[string]interface{}, error) {
 	return nil, nil

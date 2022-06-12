@@ -149,6 +149,7 @@ type RedirectParameter struct {
 }
 
 type Registration struct {
+	Client_id                       string   `json:"client_id,omitempty"`
 	Redirect_uris                   []string `json:"redirect_uris,omitempty"`
 	Response_types                  string   `json:"response_types,omitempty"`
 	Grant_types                     string   `json:"grant_types,omitempty"`
@@ -179,6 +180,7 @@ type Registration struct {
 	Default_acr_values              string   `json:"default_acr_values,omitempty"`
 	Initiate_login_uri              string   `json:"initiate_login_uri,omitempty"`
 	Request_uris                    string   `json:"request_uris,omitempty"`
+	Registration_access_token       string   `json:"registration_access_token,omitempty"`
 }
 
 type K struct {

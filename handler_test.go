@@ -9,9 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -29,6 +26,10 @@ var theTests = []struct {
 	Authorization      string
 }{
 	{"config", "/oauth/clients/s6BhdRkqt3", "GET",
+		[]postData{}, http.StatusOK, "c2id.com",
+		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+	},
+	{"config", "/oauth/clients", "GET",
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
 	},
@@ -136,50 +137,28 @@ func TestOpenidConfig(t *testing.T) {}
 func TestSignIn(t *testing.T) {}
 
 func TestRegistrationGet(t *testing.T) {
-
 	mux := chi.NewRouter()
 	mux.Get("/oauth/clients/{id}", bs.Registration)
-	t.Error()
+	mux.Get("/oauth/clients", bs.Registration)
 	ts := httptest.NewTLSServer(mux)
 
 	for _, e := range theTests {
 		if e.method == "GET" {
 			fmt.Println(ts.URL)
 			resp, err := ts.Client().Get(ts.URL + e.url)
+			fmt.Println(e.url)
+			fmt.Println(resp.Header)
+			fmt.Println(resp.StatusCode)
 			if err != nil {
 				t.Log(err)
 			}
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
-		} else if strings.Contains(e.url, "mappings") {
-			//rootPath := ldap.UniversalConfigPath()
-			fmt.Println(ts.URL + e.url)
-			fmt.Println(e.url)
-			io, _ := os.Open("./mappings/FIRST.json")
-			_, err := ts.Client().Post(ts.URL+e.url, "application/json", io)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-		} else if e.method == "POST" {
-			values := url.Values{}
-			for _, x := range e.params {
-				values.Add(x.key, x.value)
-			}
-			//rootPath := ldap.UniversalConfigPath()
-			io, _ := os.Open("./ldapconfig2.json")
-			_, err := ts.Client().Post(ts.URL+e.url, "application/json", io)
-			if err != nil {
-				t.Log(err)
-				t.Fatal(err)
-			}
-
 		}
 
 	}
 	defer ts.Close()
-
 }
 
 func TestRegistrationPost(t *testing.T) {
