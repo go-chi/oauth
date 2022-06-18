@@ -43,6 +43,7 @@ func CreateClaims(userdata map[string]string, nonce string, r *http.Request) MyC
 	claims := MyCustomClaims{
 		"bars",
 		nonce,
+		[]string{"admin"},
 		jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
