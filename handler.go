@@ -44,7 +44,7 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
 	fmt.Println("*****")
-	fmt.Println(parsedJwt)
+	fmt.Println(parsedJwt["aud"])
 	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
 	scope := r.FormValue("scope")
@@ -72,13 +72,17 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(bodybytes)
 	var tsa map[string]interface{}
 	decoder.Decode(&tsa) */
+	var aud string
+	for _, v := range parsedJwt["aud"].([]interface{}) {
+		aud = v.(string)
+	}
 
 	fmt.Println("----")
-	fmt.Println(client_id)
+	fmt.Println(aud)
 	var at = AuthToken{
 		//iss:   client_id,
 		//sub:   client_id,
-		Aud:   client_id,
+		Aud:   aud,
 		Nonce: nonce,
 		//exp:       scope,
 		//iat:       state,
