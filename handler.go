@@ -28,13 +28,6 @@ func GenJWKS(kc *KeyContainer) {
 }
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-	//sEnc := base64.URLEncoding.EncodeToString(bs.pKey.N.Bytes())
-
-	//bss := IntToBytes(bs.pKey.E)
-	//eEnc := base64.URLEncoding.EncodeToString(bss)
-
-	//fmt.Println(eEnc)
-	//hh := Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": bs.Signature, "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
 
 	renderJSON(w, bs.Kc.Keys, 200)
 }
@@ -45,23 +38,55 @@ func GetConfig() {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+
 	r.ParseForm()
+
 	code := r.FormValue("code")
+	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
+	fmt.Println("*****")
+	fmt.Println(parsedJwt)
 	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
 	scope := r.FormValue("scope")
 	redirect_uri := r.FormValue("redirect_uri")
-	credential := r.FormValue("credential")
+	credential := r.FormValue("password")
+	username := r.FormValue("name")
 	secret := r.FormValue("secret")
-
-	//fmt.Println(r.Form)
-	bodybytes := r.Body
+	state := r.FormValue("state")
+	nonce := r.FormValue("nonce")
+	client_id := r.FormValue("client_id")
+	var rdParameter = RedirectParameter{
+		code:          code,
+		state:         state,
+		nonce:         nonce,
+		response_type: "",
+		scope:         scope,
+		redirect_uri:  redirect_uri,
+		client_id:     client_id,
+		username:      username,
+		credential:    credential,
+	}
+	fmt.Println("oooooooooooooo")
+	fmt.Println(rdParameter)
+	/* bodybytes := r.Body
 	decoder := json.NewDecoder(bodybytes)
 	var tsa map[string]interface{}
-	decoder.Decode(&tsa)
-	//fmt.Println(tsa)
+	decoder.Decode(&tsa) */
 
-	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, r)
+	fmt.Println("----")
+	fmt.Println(client_id)
+	var at = AuthToken{
+		//iss:   client_id,
+		//sub:   client_id,
+		Aud:   client_id,
+		Nonce: nonce,
+		//exp:       scope,
+		//iat:       state,
+		//auth_time: response_type,
+		//acr:       scope,
+		//azp:       state,
+	}
+	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, at, r)
 	if err != nil {
 		renderJSON(w, err, 200)
 	}
@@ -259,16 +284,22 @@ func validateOidcParams(r *http.Request) bool {
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	fmt.Println(r.Form)
+	fmt.Println("+++++")
 
+	aud := r.URL.Query()["client_id"][0]
+	fmt.Println(aud)
 	usernameSlice, ok := r.Form["name"]
 	passwordSlice, ok := r.Form["password"]
 	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
 	}
-	userdata := map[string]string{"Subject": usernameSlice[0]}
+
 	bs.nonce = r.URL.Query()["nonce"][0]
 	response_type := r.URL.Query()["response_type"][0]
 	scope := strings.Split(r.URL.Query()["scope"][0], ",")
+
+	nonce := r.URL.Query()["nonce"][0]
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
 	state := r.URL.Query()["state"][0]
 
@@ -278,12 +309,36 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 	}
-	fmt.Println(redirect_uri)
+	fmt.Println(r.URL.Query())
+	fmt.Println("uuuuuuuuuuuu")
+
 	//fmt.Println(redirect_uri)
 	//fmt.Println(response_type)
 	//fmt.Println(r.URL.Query())
 
-	claims := CreateClaims(userdata, bs.nonce, r)
+	var authParameter = AuthToken{
+		//iss:   client_id,
+		//sub:   client_id,
+		Aud:   aud,
+		Nonce: nonce,
+		//exp:       scope,
+		//iat:       state,
+		//auth_time: response_type,
+		//acr:       scope,
+		//azp:       state,
+	}
+
+	/* userdata := map[string]string{
+		"client_id":     client_id,
+		"noce":          nonce,
+		"redirect_uri":  redirect_uri,
+		"response_type": response_type,
+		"state":         state,
+		"Subject":       usernameSlice[0],
+		"aud":           aud,
+	} */
+
+	claims := CreateClaims(authParameter, bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 

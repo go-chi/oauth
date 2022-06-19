@@ -38,8 +38,12 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	return signedToken, err
 }
 
-func CreateClaims(userdata map[string]string, nonce string, r *http.Request) MyCustomClaims {
+func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 	baseURL := scheme + r.Host
+
+	sub := "somebody"
+	id := "ww"
+	aud := []string{at.Aud}
 	claims := MyCustomClaims{
 		"bars",
 		nonce,
@@ -49,33 +53,28 @@ func CreateClaims(userdata map[string]string, nonce string, r *http.Request) MyC
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    baseURL + "",
-			Subject:   "somebody",
-			ID:        "1",
-			Audience:  []string{"222"},
+			Issuer:    baseURL + at.Iss,
+			Subject:   sub,
+			ID:        id,
+			Audience:  aud,
 		},
-	}
-	for i, v := range userdata {
-		if i == "Subject" {
-			claims.Subject = v
-		}
 	}
 
 	return claims
 }
 
-func ParseJWT(jwtToken string, kc *rsa.PublicKey) (string, error) {
+func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
 	if !parsedToken.Valid {
-		return "", errors.New("Token invalid")
+		return jwt.MapClaims{}, errors.New("Token invalid")
 	}
 
 	claims := parsedToken.Claims.(jwt.MapClaims)
-	if val, ok := claims["sub"]; ok {
-		sub := val.(string)
-		return sub, err
-	}
-	return "", err
+	//if val, ok := claims["sub"]; ok {
+	//sub := val.(string)
+	return claims, err
+	//}
+	return jwt.MapClaims{}, err
 }
 
 /*

@@ -39,8 +39,19 @@ func TestJwtValidate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	userdata := map[string]string{"Subject": "testuser"}
-	jw, err := CreateJWT("RS256", CreateClaims(userdata, bs.nonce, req), bs.Kc)
+	var authParameter = AuthToken{
+		//iss:   client_id,
+		//sub:   client_id,
+		Aud:   "aud",
+		Nonce: "nonce",
+		//exp:       scope,
+		//iat:       state,
+		//auth_time: response_type,
+		//acr:       scope,
+		//azp:       state,
+	}
+
+	jw, err := CreateJWT("RS256", CreateClaims(authParameter, bs.nonce, req), bs.Kc)
 	if err != nil {
 		fmt.Println(err)
 	}

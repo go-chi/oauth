@@ -100,7 +100,7 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
-func (TestUserVerifier) CreateClaims(username, nonce string, r *http.Request) oauth.MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username, nonce string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := oauth.MyCustomClaims{
@@ -114,7 +114,7 @@ func (TestUserVerifier) CreateClaims(username, nonce string, r *http.Request) oa
 			Issuer:    baseURL + "",
 			Subject:   "somebody",
 			ID:        "1",
-			Audience:  []string{"222"},
+			Audience:  []string{at.Aud},
 		},
 	}
 	return claims
@@ -179,7 +179,7 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
-	inrec, err := json.Marshal(Cjson)
+	inrec, err := json.Marshal(scope)
 	json.Unmarshal(inrec, &respInterface)
 	respInterface["client_id"] = "client_id22"
 	respInterface["registration_access_token"] = "registration_access_token"
@@ -193,8 +193,8 @@ func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (
 func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
-	inrec, _ := json.Marshal(Cjson)
-	json.Unmarshal(inrec, &respInterface)
+	/* inrec, _ := json.Marshal(clientId)
+	json.Unmarshal(inrec, &respInterface)  */
 
 	return respInterface, nil
 }

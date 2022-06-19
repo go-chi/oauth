@@ -13,7 +13,7 @@ type TokenType string
 
 const (
 	BearerToken TokenType = "Bearer"
-	AuthToken   TokenType = "A"
+	AuthTokent  TokenType = "A"
 	UserToken   TokenType = "U"
 	ClientToken TokenType = "C"
 )
@@ -85,6 +85,18 @@ type Token struct {
 	TokenType    TokenType         `json:"type"`
 }
 
+type AuthToken struct {
+	Iss       string
+	Sub       string
+	Aud       string
+	Nonce     string
+	Exp       string
+	Iat       string
+	Auth_time string
+	Acr       string
+	Azp       string
+}
+
 // RefreshToken structure included in the authorization server response
 type RefreshToken struct {
 	CreationDate   time.Time `json:"date"`
@@ -147,8 +159,9 @@ type RedirectParameter struct {
 	scope         string
 	redirect_uri  string
 	client_id     string
+	username      string
+	credential    string
 }
-
 type Registration struct {
 	Client_id                       string   `json:"client_id,omitempty"`
 	Redirect_uris                   []string `json:"redirect_uris,omitempty"`

@@ -35,7 +35,7 @@ type CredentialsVerifier interface {
 	// Provide additional claims to the idtoken
 	AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
-	CreateClaims(username, nonce string, r *http.Request) MyCustomClaims
+	CreateClaims(username, nonce string, at AuthToken, r *http.Request) MyCustomClaims
 
 	ValidateJwt(token string) (bool, error)
 
@@ -196,7 +196,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		token, refresh, err := bs.generateTokens(AuthToken, user, scope, r)
+		token, refresh, err := bs.generateTokens(AuthTokent, user, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
