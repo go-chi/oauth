@@ -130,7 +130,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) GetClients(clientId string) (interface{}, error) {
+func (*TestUserVerifier) GetClients() (interface{}, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
 		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},

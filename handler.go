@@ -157,7 +157,13 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 
 	case "GET":
 		cId := chi.URLParam(r, "id")
-		clientConfig, err := bs.verifier.GetClients(cId)
+		var clientConfig interface{}
+		var err error
+		if cId != "" {
+			clientConfig, err = bs.verifier.GetClients()
+		} else {
+
+		}
 
 		rc := 200
 		if err != nil {
