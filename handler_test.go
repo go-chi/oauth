@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/christhirst/gohelper"
+	gohelper "github.com/christhirst/gohelper/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 )
@@ -186,6 +188,7 @@ func TestRegistrationPost(t *testing.T) {
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(rr, req)
 		bodybytes := rr.Body
+		gohelper.PPs
 		jmap, err := StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {

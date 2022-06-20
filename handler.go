@@ -38,47 +38,22 @@ func GetConfig() {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-
 	r.ParseForm()
 
 	code := r.FormValue("code")
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
-	fmt.Println("*****")
-	fmt.Println(parsedJwt["aud"])
 	grant_type := GrantType(r.FormValue("grant_type"))
 	refresh_token := r.FormValue("refresh_token")
 	scope := r.FormValue("scope")
 	redirect_uri := r.FormValue("redirect_uri")
 	credential := r.FormValue("password")
-	username := r.FormValue("name")
+	//username := r.FormValue("name")
 	secret := r.FormValue("secret")
-	state := r.FormValue("state")
+	//state := r.FormValue("state")
 	nonce := r.FormValue("nonce")
-	client_id := r.FormValue("client_id")
-	var rdParameter = RedirectParameter{
-		code:          code,
-		state:         state,
-		nonce:         nonce,
-		response_type: "",
-		scope:         scope,
-		redirect_uri:  redirect_uri,
-		client_id:     client_id,
-		username:      username,
-		credential:    credential,
-	}
-	fmt.Println("oooooooooooooo")
-	fmt.Println(rdParameter)
-	/* bodybytes := r.Body
-	decoder := json.NewDecoder(bodybytes)
-	var tsa map[string]interface{}
-	decoder.Decode(&tsa) */
-	var aud string
-	for _, v := range parsedJwt["aud"].([]interface{}) {
-		aud = v.(string)
-	}
+	//client_id := r.FormValue("client_id")
 
-	fmt.Println("----")
-	fmt.Println(aud)
+	aud := parsedJwt["aud"].([]interface{})[0].(string)
 	var at = AuthToken{
 		//iss:   client_id,
 		//sub:   client_id,
@@ -98,8 +73,6 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	//publickey := bs.pKey.Public()
-
 	renderJSON(w, resp, 200)
 
 }
@@ -116,9 +89,6 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	} else if r.Header["Accept"][0] == "application/jwt" {
 
 	}
-	fmt.Println(r.Body)
-	//UserLookup(username, password, scope string) (map[string]string, error)
-	//convert to json
 
 	if len(r.PostForm["token"]) > 0 {
 		we := map[string]bool{
@@ -161,16 +131,6 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(w, j, 200)
 }
-
-/* func (bs *BearerServer) Sign(w http.ResponseWriter, r *http.Request) {
-	baseURL := scheme + r.Host
-	redirect_uri := baseURL + "/authorize?"
-	state := "af0ifjsldkj"
-	code := "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
-	location := redirect_uri + "code=" + code + "&state=" + state
-
-	http.Redirect(w, r, location, 302)
-} */
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<h1>Login</h1>
@@ -215,22 +175,12 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &jsonMap)
 
 		regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
-		fmt.Println(regResp)
-		fmt.Println("++++")
 		renderJSON(w, regResp, 200)
 	case "DELETE":
 		fmt.Println("DELETE")
 
 	default:
 		fmt.Println("Too far away.")
-		//}
-		//add client object
-		//bs.verifier.StoreClient("username", "password", "scope")
-		/* 	client_id
-		client_secret
-		client_id_issued_at
-		client_secret_expires_at */
-		//renderJSON(w, j, 200)
 	}
 }
 
@@ -244,47 +194,6 @@ func validateOidcParams(r *http.Request) bool {
 	}
 	return true
 }
-
-/* func (bs *BearerServer) Login(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	//redirect_uri := r.URL.Query()["redirect_uri"][0]
-
-	usernameSlice, ok := r.Form["name"]
-	passwordSlice, ok := r.Form["password"]
-	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
-
-	}
-	username := usernameSlice[0]
-
-	password := passwordSlice[0]
-
-	err := bs.verifier.ValidateUser(username, password, "", r)
-	if err != nil {
-
-	}
-
-	urlA, err := url.Parse("/oauth/auth")
-	urlA.RawQuery = r.URL.RawQuery
-	location := urlA.String()
-
-	if !validateOidcParams(r) {
-		if err != nil {
-		}
-		redirect_uri := r.Header.Get("Referer")
-		values := urlA.Query()
-		values.Add("code", "codesss")
-		values.Add("state", "statess")
-		values.Add("nonce", "nonce")
-		values.Add("response_type", "response_type")
-		values.Add("scope", "scope")
-		values.Add("redirect_uri", redirect_uri)
-		values.Add("client_id", "222")
-		urlA.RawQuery = values.Encode()
-		location = urlA.String()
-	}
-
-	http.Redirect(w, r, location, 302)
-} */
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
