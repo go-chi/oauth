@@ -190,13 +190,13 @@ func (*TestUserVerifier) StoreClient(clientname string, scope oauth.Registration
 	return respInterface, nil
 }
 
-func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
+func (*TestUserVerifier) GetClients(clientId string) (interface{}, error) {
 
-	var respInterface map[string]interface{}
+	//var respInterface map[string]interface{}
 	/* inrec, _ := json.Marshal(clientId)
 	json.Unmarshal(inrec, &respInterface)  */
 
-	return respInterface, nil
+	return oauth.Registration{}, nil
 }
 func (*TestUserVerifier) DeleteClients(clientId string) (int, error) {
 	return 204, nil

@@ -130,6 +130,19 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
+func (*TestUserVerifier) GetClients(clientId string) (interface{}, error) {
+
+	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
+		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
+		Token_endpoint_auth_method: "w"}
+
+	var respInterface map[string]interface{}
+	inrec, _ := json.Marshal(Cjson)
+	json.Unmarshal(inrec, &respInterface)
+
+	return Registration{}, nil
+}
+
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
 	token, refresh, err := _sut.generateTokens(UserToken, "user111", "", r)
@@ -230,16 +243,4 @@ func TestRefreshToken4ClientCredentials(t *testing.T) {
 		t.Fatalf("Error StatusCode = %d", code2)
 	}
 	t.Logf("New Token Response: %v", resp2)
-}
-func (*TestUserVerifier) GetClients(clientId string) (map[string]interface{}, error) {
-
-	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
-		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
-		Token_endpoint_auth_method: "w"}
-
-	var respInterface map[string]interface{}
-	inrec, _ := json.Marshal(Cjson)
-	json.Unmarshal(inrec, &respInterface)
-
-	return respInterface, nil
 }

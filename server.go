@@ -41,7 +41,7 @@ type CredentialsVerifier interface {
 
 	UserLookup(username, password, scope string) (map[string]string, error)
 	StoreClient(clientname string, registration Registration, methode string) (map[string]interface{}, error)
-	GetClients(clientId string) (map[string]interface{}, error)
+	GetClients(clientId string) (interface{}, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier

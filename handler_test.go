@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	gohelper "github.com/christhirst/gohelper/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 )
@@ -146,9 +147,6 @@ func TestRegistrationGet(t *testing.T) {
 		if e.method == "GET" {
 			fmt.Println(ts.URL)
 			resp, err := ts.Client().Get(ts.URL + e.url)
-			fmt.Println(e.url)
-			fmt.Println(resp.Header)
-			fmt.Println(resp.StatusCode)
 			if err != nil {
 				t.Log(err)
 			}
@@ -186,8 +184,7 @@ func TestRegistrationPost(t *testing.T) {
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(rr, req)
 		bodybytes := rr.Body
-
-		jmap, err := StructToJson(bodybytes)
+		jmap, err := gohelper.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {
 			log.Fatal(err)
