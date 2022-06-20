@@ -214,7 +214,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		var jsonMap Registration
 		err = json.Unmarshal(body, &jsonMap)
 
-		regResp, err := bs.verifier.StoreClient(jsonMap, r.Method)
+		regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
 		fmt.Println(regResp)
 		fmt.Println("++++")
 		renderJSON(w, regResp, 200)

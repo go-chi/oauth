@@ -176,7 +176,7 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 	return nil, nil
 }
 
-func (*TestUserVerifier) StoreClient(scope oauth.Registration, methode string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClient(clientname string, scope oauth.Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(scope)

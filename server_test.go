@@ -27,7 +27,7 @@ var _sut = NewBearerServer(
 type TestUserVerifier struct {
 }
 
-func (*TestUserVerifier) StoreClient(scope Registration, methode string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClient(clientname string, scope Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(Cjson)
