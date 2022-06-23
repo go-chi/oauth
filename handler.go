@@ -151,39 +151,46 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
 	authH := r.Header.Get("Authorization")
 	fmt.Println(authH)
-
+	fmt.Println(r.Method)
 	//if r.Header.Get("Content-Type") == "application/json" {
 	switch r.Method {
-
 	case "GET":
 		cId := chi.URLParam(r, "id")
 		var clientConfig interface{}
 		var err error
-		if cId != "" {
-			clientConfig, err = bs.verifier.GetClients()
-		} else {
 
-		}
+		clientConfig, err = bs.verifier.StoreClientsGet(cId)
 
 		rc := 200
 		if err != nil {
 			log.Err(err)
 			rc = 400
 		}
-
 		renderJSON(w, clientConfig, rc)
 	case "POST", "PUT":
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Error().Err(err).Msg("Unable to Unmarshal file")
+			log.Error().Err(err).Msg("Unable to read body")
 		}
 		var jsonMap Registration
 		err = json.Unmarshal(body, &jsonMap)
-
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to Unmarshal file")
+		}
 		regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
 		renderJSON(w, regResp, 200)
 	case "DELETE":
-		fmt.Println("DELETE")
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to read body")
+		}
+		var jsonMap Registration
+		err = json.Unmarshal(body, &jsonMap)
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to Unmarshal file")
+		}
+		err = bs.verifier.StoreClientDelete(jsonMap.Client_name)
+		fmt.Println(err)
 
 	default:
 		fmt.Println("Too far away.")

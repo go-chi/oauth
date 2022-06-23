@@ -34,6 +34,16 @@ var theTests = []struct {
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
 	},
+	{"config", "/oauth/clients", "POST",
+		[]postData{}, http.StatusOK, "c2id.com",
+		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+	},
+}
+
+var client = Registration{
+	Client_id:      "client1",
+	Redirect_uris:  []string{"http://test.de"},
+	Response_types: "POST",
 }
 
 var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
@@ -141,6 +151,7 @@ func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
 	mux.Get("/oauth/clients/{id}", bs.Registration)
 	mux.Get("/oauth/clients", bs.Registration)
+	mux.Post("/oauth/clients", bs.Registration)
 	ts := httptest.NewTLSServer(mux)
 
 	for _, e := range theTests {
@@ -153,16 +164,23 @@ func TestRegistrationGet(t *testing.T) {
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
-		}
+		} else if e.method == "POST" {
+			var buf bytes.Buffer
+			err := json.NewEncoder(&buf).Encode(client)
+			fmt.Println(err, buf)
+			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
 
+			fmt.Println("###")
+			fmt.Println(resp)
+		}
+		t.Error()
 	}
 	defer ts.Close()
 }
 
 func TestRegistrationPost(t *testing.T) {
-	assertCorrectMessage := func(t testing.TB, get Registration, want string) {
+	assertCorrectMessage := func(t testing.TB, get Registration, want Registration) {
 		t.Helper()
-
 		wants := []string{"client_id", "registration_access_token",
 			"client_name", "logo_uri", "contacts", "application_type", "grant_types", "response_types",
 			"redirect_uris", "token_endpoint_auth_method", "id_token_signed_response_alg", "subject_type"}
@@ -196,10 +214,16 @@ func TestRegistrationPost(t *testing.T) {
 				t.Errorf("%q does not exist", v)
 			}
 		}
-		/*
-			if got != want {
-				t.Errorf("got %q want %q", got, want)
-			} */
+		jsonStr, err := json.Marshal(jmap)
+		fmt.Println(string(jsonStr))
+
+		// convert json to struct
+		s := Registration{}
+		json.Unmarshal(jsonStr, &s)
+
+		if get.Client_id != want.Client_id {
+			t.Errorf("got %q want %q", get, want)
+		}
 	}
 
 	t.Run("Registration Test 1", func(t *testing.T) {
@@ -214,7 +238,17 @@ func TestRegistrationPost(t *testing.T) {
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
 		}
-		want := "got"
+		want := Registration{
+			Application_type: "web",
+			Redirect_uris: []string{
+				"https://client.example.org/callback",
+				"https://client.example.org/callback2",
+			},
+			Client_name:                "My Cool App",
+			Logo_uri:                   "https://client.example.org/logo.png",
+			Token_endpoint_auth_method: "client_secret_basic",
+			Contacts:                   []string{"admin@example.org"},
+		}
 		assertCorrectMessage(t, got, want)
 	})
 
@@ -230,7 +264,17 @@ func TestRegistrationPost(t *testing.T) {
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
 		}
-		want := "Hello, World"
+		want := Registration{
+			Application_type: "web",
+			Redirect_uris: []string{
+				"https://client.example.org/callback",
+				"https://client.example.org/callback2",
+			},
+			Client_name:                "My Cool App",
+			Logo_uri:                   "https://client.example.org/logo.png",
+			Token_endpoint_auth_method: "client_secret_basic",
+			Contacts:                   []string{"admin@example.org"},
+		}
 		assertCorrectMessage(t, got, want)
 
 	})

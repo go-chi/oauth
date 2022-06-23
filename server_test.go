@@ -12,10 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "sss",
-	Contacts: []string{"ee"}, Application_type: "ssss", Grant_types: "a", Response_types: "ewre", Redirect_uris: []string{"wwewe"},
-	Token_endpoint_auth_method: "w", Subject_type: "ss", Id_token_signed_response_alg: "rwr"}
-
 var _sut = NewBearerServer(
 	"mySecretKey-10101",
 	time.Second*60,
@@ -27,18 +23,19 @@ var _sut = NewBearerServer(
 type TestUserVerifier struct {
 }
 
-func (*TestUserVerifier) StoreClient(clientname string, scope Registration, methode string) (map[string]interface{}, error) {
-
+func (*TestUserVerifier) StoreClient(clientname string, clientData Registration, methode string) (map[string]interface{}, error) {
 	var respInterface map[string]interface{}
-	inrec, err := json.Marshal(Cjson)
+	inrec, err := json.Marshal(clientData)
 	json.Unmarshal(inrec, &respInterface)
-	respInterface["client_id"] = "client_id22"
-	respInterface["registration_access_token"] = "registration_access_token"
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
 	fmt.Println(respInterface)
 	return respInterface, nil
+}
+
+func (*TestUserVerifier) StoreClientDelete(clientId string) error {
+	return nil
 }
 
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
@@ -130,7 +127,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) GetClients() ([]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
 		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
@@ -140,8 +137,10 @@ func (*TestUserVerifier) GetClients() ([]interface{}, error) {
 	inrec, _ := json.Marshal(Cjson)
 	json.Unmarshal(inrec, &respInterface)
 
-	return Registration{}, nil
+	return nil, nil
 }
+
+func StoreClientDelete(client string) {}
 
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
@@ -152,95 +151,4 @@ func TestGenerateTokensByUsername(t *testing.T) {
 	} else {
 		t.Fatalf("Error %s", err.Error())
 	}
-}
-
-func TestCryptTokens(t *testing.T) {
-	r := new(http.Request)
-	token, refresh, err := _sut.generateTokens(UserToken, "user222", "", r)
-	if err == nil {
-		t.Logf("Token: %v", token)
-		t.Logf("Refresh Token: %v", refresh)
-	} else {
-		t.Fatalf("Error %s", err.Error())
-	}
-
-	resp, err := _sut.cryptTokens(token, refresh, r)
-	if err == nil {
-		t.Logf("Response: %v", resp)
-	} else {
-		t.Fatalf("Error %s", err.Error())
-	}
-}
-
-func TestDecryptRefreshTokens(t *testing.T) {
-	r := new(http.Request)
-	token, refresh, err := _sut.generateTokens(UserToken, "user333", "", r)
-	if err == nil {
-		t.Logf("Token: %v", token)
-		t.Logf("Refresh Token: %v", refresh)
-	} else {
-		t.Fatalf("Error %s", err.Error())
-	}
-
-	resp, err := _sut.cryptTokens(token, refresh, r)
-	if err == nil {
-		t.Logf("Response: %v", resp)
-		t.Logf("Response Refresh Token: %v", resp.RefreshToken)
-	} else {
-		t.Fatalf("Error %s", err.Error())
-	}
-
-	refresh2, err := _sut.provider.DecryptRefreshTokens(resp.RefreshToken)
-	if err == nil {
-		t.Logf("Refresh Token Decrypted: %v", refresh2)
-	} else {
-		t.Fatalf("Error %s", err.Error())
-	}
-}
-
-func TestGenerateToken4Password(t *testing.T) {
-	resp, code := _sut.generateTokenResponse(PasswordGrant, "user111", "password111", "", "", "", "", new(http.Request))
-	if code != 200 {
-		t.Fatalf("Error StatusCode = %d", code)
-	}
-	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
-		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
-	}
-	t.Logf("Token response: %v", resp)
-}
-
-func TestShouldFailGenerateToken4Password(t *testing.T) {
-	_, code := _sut.generateTokenResponse(PasswordGrant, "user111", "password4444", "", "", "", "", new(http.Request))
-	t.Logf("Server response: %v", code)
-	if code != 401 {
-		t.Fatalf("Error StatusCode = %d", code)
-	}
-}
-
-func TestGenerateToken4ClientCredentials(t *testing.T) {
-	resp, code := _sut.generateTokenResponse(ClientCredentialsGrant, "abcdef", "12345", "", "", "", "", new(http.Request))
-	if code != 200 {
-		t.Fatalf("Error StatusCode = %d", code)
-	}
-	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
-		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
-	}
-	t.Logf("Token response: %v", resp)
-}
-
-func TestRefreshToken4ClientCredentials(t *testing.T) {
-	r := new(http.Request)
-	resp, code := _sut.generateTokenResponse(ClientCredentialsGrant, "abcdef", "12345", "", "", "", "", r)
-	if code != 200 {
-		t.Fatalf("Error StatusCode = %d", code)
-	}
-	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
-		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
-	}
-	t.Logf("Token Response: %v", resp)
-	resp2, code2 := _sut.generateTokenResponse(RefreshTokenGrant, "", "", resp.(*TokenResponse).RefreshToken, "", "", "", r)
-	if code2 != 200 {
-		t.Fatalf("Error StatusCode = %d", code2)
-	}
-	t.Logf("New Token Response: %v", resp2)
 }

@@ -176,21 +176,20 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 	return nil, nil
 }
 
-func (*TestUserVerifier) StoreClient(clientname string, scope oauth.Registration, methode string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
-	inrec, err := json.Marshal(scope)
+	inrec, err := json.Marshal(client)
 	json.Unmarshal(inrec, &respInterface)
-	respInterface["client_id"] = "client_id22"
-	respInterface["registration_access_token"] = "registration_access_token"
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
+	fmt.Println("****")
 	fmt.Println(respInterface)
 	return respInterface, nil
 }
 
-func (*TestUserVerifier) GetClients() ([]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
 
 	//var respInterface map[string]interface{}
 	/* inrec, _ := json.Marshal(clientId)
@@ -201,6 +200,6 @@ func (*TestUserVerifier) GetClients() ([]interface{}, error) {
 	return i, nil
 }
 
-func (*TestUserVerifier) DeleteClients(clientId string) (int, error) {
-	return 204, nil
+func (*TestUserVerifier) StoreClientDelete(clientId string) error {
+	return nil
 }
