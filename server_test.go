@@ -66,7 +66,7 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	case username == "user333" && password == "password333":
 		return nil, nil
 	default:
-		return errors.New("wrong user")
+		return []string{}, errors.New("wrong user")
 	}
 }
 
