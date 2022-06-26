@@ -149,6 +149,9 @@ func ConvertStructInterface() {
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
+
+	bs.verifier.ValidateJwt()
+
 	authH := r.Header.Get("Authorization")
 	fmt.Println(authH)
 	fmt.Println(r.Method)
