@@ -39,15 +39,29 @@ func GetConfig() {
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
-	code := r.FormValue("code")
-	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
 	grant_type := GrantType(r.FormValue("grant_type"))
-	refresh_token := r.FormValue("refresh_token")
+	//code = r.FormValue("code")
 	scope := r.FormValue("scope")
+	switch grant_type {
+	case "password":
+		fmt.Println("testr")
+		username := r.FormValue("name")
+		credential := r.FormValue("password")
+		_, err := bs.verifier.ValidateUser(username, credential, scope, r)
+		fmt.Println(err)
+
+	}
+	var code string
+	if len(r.URL.Query()["client_id"]) > 0 {
+		code = r.FormValue("code")
+	}
+
+	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
+
+	refresh_token := r.FormValue("refresh_token")
+
 	redirect_uri := r.FormValue("redirect_uri")
-	credential := r.FormValue("password")
-	//username := r.FormValue("name")
+
 	secret := r.FormValue("secret")
 	//state := r.FormValue("state")
 	nonce := r.FormValue("nonce")
@@ -65,7 +79,7 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 		//acr:       scope,
 		//azp:       state,
 	}
-	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, credential, secret, refresh_token, scope, code, redirect_uri, at, r)
+	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, "credential", secret, refresh_token, scope, code, redirect_uri, at, r)
 	if err != nil {
 		renderJSON(w, err, 200)
 	}
@@ -213,35 +227,41 @@ func validateOidcParams(r *http.Request) bool {
 }
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Println(r.Form)
+	err := r.ParseForm()
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to Parse Formdata")
+	}
 	fmt.Println("+++++")
 
-	aud := r.URL.Query()["client_id"][0]
+	var aud, response_type, nonce, redirect_uri, state string
+	var scope []string
+	if len(r.URL.Query()["client_id"]) > 0 {
+		aud = r.URL.Query()["client_id"][0]
+		bs.nonce = r.URL.Query()["nonce"][0]
+		response_type = r.URL.Query()["response_type"][0]
+		scope = strings.Split(r.URL.Query()["scope"][0], ",")
+		nonce = r.URL.Query()["nonce"][0]
+		redirect_uri = r.URL.Query()["redirect_uri"][0]
+		state = r.URL.Query()["state"][0]
+	}
+
 	fmt.Println(aud)
 	usernameSlice, ok := r.Form["name"]
 	passwordSlice, ok := r.Form["password"]
-	fmt.Println(passwordSlice)
-	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
+
+	if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
 	}
-
-	bs.nonce = r.URL.Query()["nonce"][0]
-	response_type := r.URL.Query()["response_type"][0]
-	scope := strings.Split(r.URL.Query()["scope"][0], ",")
-
-	nonce := r.URL.Query()["nonce"][0]
-	redirect_uri := r.URL.Query()["redirect_uri"][0]
-	state := r.URL.Query()["state"][0]
-
+	fmt.Println(usernameSlice)
+	fmt.Println(passwordSlice)
 	username := usernameSlice[0]
 	password := passwordSlice[0]
-	err := bs.verifier.ValidateUser(username, password, scope[0], r)
+	groups, err := bs.verifier.ValidateUser(username, password, scope[0], r)
 	if err != nil {
 
 	}
 	fmt.Println(r.URL.Query())
-	fmt.Println("uuuuuuuuuuuu")
+	fmt.Println(groups)
 
 	//fmt.Println(redirect_uri)
 	//fmt.Println(response_type)

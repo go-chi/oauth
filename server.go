@@ -21,7 +21,7 @@ const (
 // CredentialsVerifier defines the interface of the user and client credentials verifier.
 type CredentialsVerifier interface {
 	// Validate username and password returning an error if the user credentials are wrong
-	ValidateUser(username, password, scope string, r *http.Request) error
+	ValidateUser(username, password, scope string, r *http.Request) ([]string, error)
 	// Validate clientID and secret returning an error if the client credentials are wrong
 	ValidateClient(clientID, clientSecret, scope string, r *http.Request) error
 	// Provide additional claims to the token
@@ -153,7 +153,8 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
-		if err := bs.verifier.ValidateUser(credential, secret, scope, r); err != nil {
+		e, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		if err := e; err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 

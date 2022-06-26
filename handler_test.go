@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -104,7 +105,51 @@ func TestReturnKeys(t *testing.T) {
 
 func TestGetConfig(t *testing.T) {}
 
-func TestTokenEndpoint(t *testing.T) {}
+func TestTokenEndpoint(t *testing.T) {
+	assertCorrectMessage := func(t testing.TB, got, want map[string]interface{}) {
+		t.Helper()
+
+		form := url.Values{}
+
+		form.Add("name", "tester")
+		form.Add("password", "testpw")
+		form.Add("grant_type", "password")
+		req, err := http.NewRequest("POST", "/oauth/token", nil)
+		req.PostForm = form
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(bs.TokenEndpoint)
+
+		//call ServeHTTP method and pass  Request and ResponseRecorder.
+		handler.ServeHTTP(rr, req)
+		bodybytes := rr.Body
+		jmap, err := gohelper.StructToJson(bodybytes)
+		//bodyBytes, err := io.ReadAll(rr.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		jsonStr, err := json.Marshal(jmap)
+		fmt.Println(string(jsonStr))
+
+		// convert json to struct
+		s := Registration{}
+		json.Unmarshal(jsonStr, &s)
+
+	}
+
+	t.Run("Registration Test 1", func(t *testing.T) {
+		got := map[string]interface{}{"name": "tester"}
+		want := map[string]interface{}{"name": "tester"}
+		assertCorrectMessage(t, got, want)
+	})
+
+}
 func TestTokenIntrospect(t *testing.T) {
 	//pass request to handler with nil as parameter
 	req, err := http.NewRequest("POST", "/oauth/introspect", nil)
@@ -413,19 +458,21 @@ func TestValidateOidcParams(t *testing.T) {}
 func TestGetRedirect(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, got, want map[string]interface{}) {
 		t.Helper()
-		empJSON, err := json.Marshal(got)
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-		//pass request to handler with nil as parameter
-		req, err := http.NewRequest("POST", "/oauth/auth", bytes.NewBuffer(empJSON))
+
+		form := url.Values{}
+
+		form.Add("name", "tester")
+		form.Add("password", "testpw")
+		req, err := http.NewRequest("POST", "/oauth/auth", nil)
+		req.PostForm = form
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 		if err != nil {
 			t.Fatal(err)
 		}
 		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(bs.Registration)
+		handler := http.HandlerFunc(bs.GetRedirect)
 
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(rr, req)

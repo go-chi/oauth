@@ -121,12 +121,12 @@ func (TestUserVerifier) CreateClaims(username, nonce string, at oauth.AuthToken,
 }
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
-func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
+func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
 	if username == "Aaliyah" && password == "12345" {
-		return nil
+		return []string{""}, nil
 	}
 
-	return errors.New("wrong user")
+	return []string{""}, errors.New("wrong user")
 }
 
 // ValidateClient validates clientID and secret returning an error if the client credentials are wrong

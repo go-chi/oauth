@@ -51,7 +51,7 @@ func (TestUserVerifier) CreateClaims(username, nonce string, at AuthToken, r *ht
 }
 
 // Validate username and password returning an error if the user credentials are wrong
-func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) error {
+func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
 	// Add something to the request context, so we can access it in the claims and props funcs.
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "oauth.claims.test", "test")
@@ -60,11 +60,11 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	fmt.Print("sss")
 	switch {
 	case username == "user111" && password == "password111":
-		return nil
+		return nil, nil
 	case username == "user222" && password == "password222":
-		return nil
+		return nil, nil
 	case username == "user333" && password == "password333":
-		return nil
+		return nil, nil
 	default:
 		return errors.New("wrong user")
 	}
