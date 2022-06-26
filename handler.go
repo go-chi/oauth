@@ -149,54 +149,55 @@ func ConvertStructInterface() {
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
-
-	bs.verifier.ValidateJwt()
-
 	authH := r.Header.Get("Authorization")
-	fmt.Println(authH)
-	fmt.Println(r.Method)
-	//if r.Header.Get("Content-Type") == "application/json" {
-	switch r.Method {
-	case "GET":
-		cId := chi.URLParam(r, "id")
-		var clientConfig interface{}
-		var err error
+	udate, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
+	}
 
-		clientConfig, err = bs.verifier.StoreClientsGet(cId)
+	if len(udate) == 1 {
+		switch r.Method {
+		case "GET":
+			cId := chi.URLParam(r, "id")
+			var clientConfig interface{}
+			var err error
 
-		rc := 200
-		if err != nil {
-			log.Err(err)
-			rc = 400
-		}
-		renderJSON(w, clientConfig, rc)
-	case "POST", "PUT":
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to read body")
-		}
-		var jsonMap Registration
-		err = json.Unmarshal(body, &jsonMap)
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to Unmarshal file")
-		}
-		regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
-		renderJSON(w, regResp, 200)
-	case "DELETE":
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to read body")
-		}
-		var jsonMap Registration
-		err = json.Unmarshal(body, &jsonMap)
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to Unmarshal file")
-		}
-		err = bs.verifier.StoreClientDelete(jsonMap.Client_name)
-		fmt.Println(err)
+			clientConfig, err = bs.verifier.StoreClientsGet(cId)
 
-	default:
-		fmt.Println("Too far away.")
+			rc := 200
+			if err != nil {
+				log.Err(err)
+				rc = 400
+			}
+			renderJSON(w, clientConfig, rc)
+		case "POST", "PUT":
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to read body")
+			}
+			var jsonMap Registration
+			err = json.Unmarshal(body, &jsonMap)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
+			renderJSON(w, regResp, 200)
+		case "DELETE":
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to read body")
+			}
+			var jsonMap Registration
+			err = json.Unmarshal(body, &jsonMap)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+			err = bs.verifier.StoreClientDelete(jsonMap.Client_name)
+			fmt.Println(err)
+
+		default:
+			fmt.Println("Too far away.")
+		}
 	}
 }
 
@@ -220,6 +221,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(aud)
 	usernameSlice, ok := r.Form["name"]
 	passwordSlice, ok := r.Form["password"]
+	fmt.Println(passwordSlice)
 	if ok != true || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
 	}

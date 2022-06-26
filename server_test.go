@@ -112,10 +112,10 @@ func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, 
 }
 
 // Validate token ID
-func (TestUserVerifier) ExtractJWTtoUserGroup(tokenType TokenType, credential, tokenID, refreshTokenID string) (string, error) {
-	fmt.Println(tokenType)
+func (TestUserVerifier) ExtractJWTtoUserGroup(jwt string) (map[string][]string, error) {
+	fmt.Println(jwt)
 
-	return "false", nil
+	return nil, nil
 }
 
 // Optionally store the token ID generated for the user

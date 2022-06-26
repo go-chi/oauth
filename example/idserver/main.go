@@ -61,7 +61,7 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 	registerAPI(r)
-	_ = http.ListenAndServe(":8080", r)
+	_ = http.ListenAndServe(":8090", r)
 }
 
 func registerAPI(r *chi.Mux) {
@@ -160,15 +160,20 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 	return props, nil
 }
 
-func (*TestUserVerifier) ExtractJWTtoUserGroup(clientId string, jwt string) (map[string]string, error) {
-	return nil, nil
+func (*TestUserVerifier) ExtractJWTtoUserGroup(jwt string) (map[string][]string, error) {
+	fmt.Println(jwt)
+	fmt.Println("jwt")
+
+	userResp := map[string][]string{"Testuser": []string{"group1", "group2"}}
+
+	return userResp, nil
 }
 
 // StoreTokenID saves the token id generated for the user
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
-func (*TestUserVerifier) ValidateJwt(token string) (string, error) {
+func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {

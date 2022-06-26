@@ -29,7 +29,7 @@ type CredentialsVerifier interface {
 	// Provide additional information to the authorization server response
 	AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Optionally validate previously stored tokenID during refresh request
-	ExtractJWTtoUserGroup(clientId, jwt string) (map[string]string, error)
+	ExtractJWTtoUserGroup(jwt string) (map[string][]string, error)
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
@@ -216,8 +216,8 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
-			return "Not authorized invalid token", http.StatusUnauthorized
+		if _, err = bs.verifier.ExtractJWTtoUserGroup(refreshToken); err != nil {
+			return nil, 200
 		}
 
 		token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
