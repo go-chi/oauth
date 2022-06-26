@@ -160,16 +160,15 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 	return props, nil
 }
 
-// ValidateTokenID validates token ID
-func (*TestUserVerifier) ValidateTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) (bool, error) {
-	return false, nil
+func (*TestUserVerifier) ExtractJWTtoUserGroup(clientId string, jwt string) (map[string]string, error) {
+	return nil, nil
 }
 
 // StoreTokenID saves the token id generated for the user
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
-func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
+func (*TestUserVerifier) ValidateJwt(token string) (string, error) {
 	return false, nil
 }
 func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {

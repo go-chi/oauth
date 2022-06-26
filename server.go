@@ -29,7 +29,7 @@ type CredentialsVerifier interface {
 	// Provide additional information to the authorization server response
 	AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Optionally validate previously stored tokenID during refresh request
-	ValidateTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) (bool, error)
+	ExtractJWTtoUserGroup(clientId, jwt string) (map[string]string, error)
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
