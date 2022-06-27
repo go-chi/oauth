@@ -11,7 +11,7 @@ import (
 
 func TestGenerateIdToken4Password(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "user111", "password111", "", "", "", "", at, new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "user111", "password111", "", "", "", "", []string{"groups"}, at, new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
@@ -27,7 +27,7 @@ func TestGenerateIdToken4Password(t *testing.T) {
 
 func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "user111", "password111", "", "", "", "", at, new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "user111", "password111", "", "", "", "", []string{"group1"}, at, new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
@@ -45,7 +45,7 @@ func TestGenerateRefreshTokenGrant(t *testing.T) {}
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	var at = AuthToken{}
 	r := new(http.Request)
-	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", UserToken, "user111", "openid", at, r)
+	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", UserToken, "user111", "openid", []string{"group1"}, at, r)
 
 	if idtoken == "nil" {
 		fmt.Println(idtoken)

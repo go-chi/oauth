@@ -100,12 +100,13 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
-func (TestUserVerifier) CreateClaims(username, nonce string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := oauth.MyCustomClaims{
-		Foo:   "bars",
-		Nonce: nonce,
+		Foo:    "bars",
+		Nonce:  nonce,
+		Groups: groups,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),

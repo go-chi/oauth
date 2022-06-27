@@ -10,7 +10,7 @@ import (
 )
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, at AuthToken, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, groups []string, at AuthToken, r *http.Request) (interface{}, int, error) {
 	var resp *TokenResponse
 	switch grantType {
 	/* case PasswordGrant:
@@ -58,8 +58,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 		*/
-		
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, at, r)
+
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
@@ -112,8 +112,8 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
-	claims := bs.verifier.CreateClaims(username, bs.nonce, at, r)
+func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
+	claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
 	refreshToken := refreshToken("token.ID", username, tokenType, scope)

@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,61 +9,57 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
 
-func GenJWKS(kc *KeyContainer) {
-	sEnc := base64.URLEncoding.EncodeToString(kc.Pk.N.Bytes())
-	bss := IntToBytes(kc.Pk.E)
-	eEnc := base64.URLEncoding.EncodeToString(bss)
-	signature, err := uuid.NewV4()
+func getFormData(r *http.Request) {
+	err := r.ParseForm()
 	if err != nil {
-
+		log.Err(err)
 	}
-	kc.Keys = Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": signature.String(), "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
-
-}
-
-func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-
-	renderJSON(w, bs.Kc.Keys, 200)
-}
-
-func GetConfig() {
+	for key, values := range r.Form { // range over map
+		for _, value := range values { // range over []string
+			fmt.Println(key, value)
+		}
+	}
 
 }
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	getFormData(r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 	//code = r.FormValue("code")
 	scope := r.FormValue("scope")
+	var groups []string
 	switch grant_type {
 	case "password":
-		fmt.Println("testr")
 		username := r.FormValue("name")
 		credential := r.FormValue("password")
-		_, err := bs.verifier.ValidateUser(username, credential, scope, r)
-		fmt.Println(err)
-
+		groups, err := bs.verifier.ValidateUser(username, credential, scope, r)
+		if err != nil {
+			log.Err(err)
+			fmt.Println(groups)
+		}
 	}
+	fmt.Println(groups)
 	var code string
 	if len(r.URL.Query()["client_id"]) > 0 {
 		code = r.FormValue("code")
 	}
 
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
+	if err != nil {
+		log.Err(err)
+	}
 
 	refresh_token := r.FormValue("refresh_token")
-
 	redirect_uri := r.FormValue("redirect_uri")
-
 	secret := r.FormValue("secret")
-	//state := r.FormValue("state")
 	nonce := r.FormValue("nonce")
+
+	//state := r.FormValue("state")
 	//client_id := r.FormValue("client_id")
 
 	aud := parsedJwt["aud"].([]interface{})[0].(string)
@@ -79,12 +74,12 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 		//acr:       scope,
 		//azp:       state,
 	}
-	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, "credential", secret, refresh_token, scope, code, redirect_uri, at, r)
+	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, "credential", secret, refresh_token, scope, code, redirect_uri, groups, at, r)
 	if err != nil {
 		renderJSON(w, err, 200)
 	}
 	if returncode != 200 {
-
+		renderJSON(w, err, 200)
 	}
 
 	renderJSON(w, resp, 200)
@@ -93,18 +88,22 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-
+	err := r.ParseForm()
+	if err != nil {
+		log.Err(err)
+	}
+	token := r.PostForm["token"]
+	_, err = bs.verifier.ValidateJwt(token[0])
+	if err != nil {
+		log.Err(err)
+	}
 	if r.Header["Accept"][0] == "application/json" {
-		//fmt.Println(r.PostForm["token"])
-
-		bs.verifier.ValidateJwt(r.PostForm["token"][0])
 
 	} else if r.Header["Accept"][0] == "application/jwt" {
 
 	}
 
-	if len(r.PostForm["token"]) > 0 {
+	if len(token) > 0 {
 		we := map[string]bool{
 			"active": true,
 		}
@@ -116,48 +115,6 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	} else {
 		renderJSON(w, nil, 400)
 	}
-
-}
-
-func CheckAccessToken(act string) {
-
-}
-
-func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
-	baseURL := scheme + r.Host
-	j := OpenidConfig{
-		Issuer:                                baseURL,
-		Authorization_endpoint:                baseURL + "/oauth/authorize",
-		Token_endpoint:                        baseURL + "/oauth/token",
-		Introspection_endpoint:                baseURL + "/oauth/introspect",
-		Userinfo_endpoint:                     baseURL + "/oauth/userinfo",
-		Registration_endpoint:                 baseURL + "/oauth/clients",
-		Jwks_uri:                              baseURL + "/oauth/keys",
-		Revocation_endpoint:                   baseURL + "/oauth/revoke",
-		Scopes_supported:                      []string{"api", "read_api", "read_user", "read_repository", "write_repository", "read_registry", "write_registry", "sudo", "openid", "profile", "email"},
-		Response_types_supported:              []string{"code"},
-		Response_modes_supported:              []string{"query", "fragment"},
-		Grant_types_supported:                 []string{"authorization_code", "password", "client_credentials", "refresh_token"},
-		Token_endpoint_auth_methods_supported: []string{"client_secret_basic", "client_secret_post"},
-		Subject_types_supported:               []string{"public"},
-		Id_token_signing_alg_values_supported: []string{"RS256"},
-		Claims_supported:                      []string{"iss", "sub", "aud", "exp", "iat", "sub_legacy", "name", "nickname", "email", "email_verified", "website", "profile", "picture", "groups", "groups_direct"},
-	}
-	renderJSON(w, j, 200)
-}
-
-func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `<h1>Login</h1>
-    <form method="post" action="/oauth/auth?%s">
-        <label for="name">User name</label>
-        <input type="text" id="name" name="name">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password">
-        <button type="submit">Login</button>
-    </form>  `, r.URL.RawQuery)
-}
-
-func ConvertStructInterface() {
 
 }
 
@@ -213,17 +170,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Too far away.")
 		}
 	}
-}
-
-func validateOidcParams(r *http.Request) bool {
-	news := []string{"state", "nonce", "response_type", "scope", "redirect_uri", "client_id"}
-	for _, v := range news {
-		ok := r.URL.Query().Has(v)
-		if ok != true {
-			return false
-		}
-	}
-	return true
 }
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
@@ -340,37 +286,18 @@ func UserData() (map[string]interface{}, int, string, error) {
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		log.Err(err)
+	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 
 	hh, err := ParseJWT(token[1], &bs.Kc.Pk.PublicKey)
 	fmt.Println(hh)
 	fmt.Println(err)
-	fmt.Println(bs.Kc)
-	//Only those claims that are scoped by the token will be made available to the client.
-	/* 	xff := r.Header.Get("X-Forwarded-For")
-	 	xfh := r.Header.Get("X-Forwarded-Host")
-	 	xfp := r.Header.Get("X-Forwarded-Proto")
-		eee := r.Header.Get("Authorization")
-	 	words := strings.Fields(eee)
-	 	fmt.Println(words[1])
-	 	if words[0] == "bearer" && len(words) == 2 {
-	 		CheckAccessToken(words[1])
-	 	}
-	 	hh, err := bs.provider.DecryptToken(words[1])
-	 	if err != nil {
-	 		fmt.Println(err)
-	 	}
-	*/
-	/* 	Header parameters:
-	   	Authorization The access token of type Bearer or DPoP, scoped to retrieve the consented claims for the subject (end-user).
-	   	[ DPop ] The DPoP proof JWT, for an access token of type DPoP (optional). Note, the JWT must include an ath claim representing the BASE64URL encoded SHA-256 hash of the DPoP access token value.
-	   	[ Issuer ] The issuer URL when issuer aliases are configured, or the issuer URL for a tenant (in the multi-tenant Connect2id server edition). The tenant can be alternatively specified by the Tenant-ID header.
-	   	[ Tenant-ID ] The tenant ID (in the multi-tenant Connect2id server edition). The tenant can be alternatively specified by the Issuer header.
-	*/
 	jsonPayload, rc, contentType, err := UserData()
 	if err != nil {
-
+		log.Err(err)
 	}
 	w.Header().Set("Content-Type", contentType)
 

@@ -2,8 +2,6 @@ package oauth
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -47,7 +45,6 @@ var client = Registration{
 	Response_types: "POST",
 }
 
-var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
 var bs = NewBearerServer(
@@ -62,65 +59,23 @@ type postData struct {
 	value string
 }
 
-func TestGenJWKS(t *testing.T) {}
-
-func TestReturnKeys(t *testing.T) {
-	//pass request to handler with nil as parameter
-	req, err := http.NewRequest("GET", "/keys", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(bs.ReturnKeys)
-
-	//call ServeHTTP method and pass  Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
-
-	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
-	bodybytes := rr.Body
-	decoder := json.NewDecoder(bodybytes)
-	var tsa Keys
-	err = decoder.Decode(&tsa)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, v := range tsa.Keys {
-		for ii, _ := range v {
-			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
-				t.Error(err)
-				t.Errorf("expected other key: %s but got: ", ii)
-			}
-
-		}
-	}
-
-}
-
-func TestGetConfig(t *testing.T) {}
-
 func TestTokenEndpoint(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, got, want map[string]interface{}) {
 		t.Helper()
 
 		form := url.Values{}
-
 		form.Add("name", "tester")
 		form.Add("password", "testpw")
 		form.Add("grant_type", "password")
-		req, err := http.NewRequest("POST", "/oauth/token", nil)
-		req.PostForm = form
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
+		req, err := http.NewRequest("POST", "/oauth/token", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.PostForm = form
+
 		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(bs.TokenEndpoint)
@@ -129,18 +84,22 @@ func TestTokenEndpoint(t *testing.T) {
 		handler.ServeHTTP(rr, req)
 		bodybytes := rr.Body
 		jmap, err := gohelper.StructToJson(bodybytes)
-		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Println(string(jsonStr))
 
 		// convert json to struct
 		s := Registration{}
-		json.Unmarshal(jsonStr, &s)
-
+		err = json.Unmarshal(jsonStr, &s)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	t.Run("Registration Test 1", func(t *testing.T) {
@@ -150,6 +109,11 @@ func TestTokenEndpoint(t *testing.T) {
 	})
 
 }
+
+func TestGenJWKS(t *testing.T) {}
+
+func TestGetConfig(t *testing.T) {}
+
 func TestTokenIntrospect(t *testing.T) {
 	//pass request to handler with nil as parameter
 	req, err := http.NewRequest("POST", "/oauth/introspect", nil)

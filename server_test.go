@@ -45,7 +45,7 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
-func (TestUserVerifier) CreateClaims(username, nonce string, at AuthToken, r *http.Request) MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims {
 
 	return MyCustomClaims{}
 }
