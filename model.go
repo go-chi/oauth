@@ -51,6 +51,7 @@ type TokenResponse struct {
 	ExpiresIn    int64             `json:"expires_in"` // secs
 	Properties   map[string]string `json:"properties"`
 	IDtoken      string            `json:"id_token"`
+	scope        string            `json:"scope"`
 }
 
 type MyCustomClaims struct {

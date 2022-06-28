@@ -65,6 +65,9 @@ func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 
 func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
+	if err != nil {
+		return nil, err
+	}
 	if !parsedToken.Valid {
 		return jwt.MapClaims{}, errors.New("Token invalid")
 	}

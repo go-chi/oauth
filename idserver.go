@@ -7,29 +7,34 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, groups []string, at AuthToken, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, r *http.Request) (interface{}, int, error) {
 	var resp *TokenResponse
 	switch grantType {
-	/* case PasswordGrant:
-	if err := bs.verifier.ValidateUser(credential, secret, scope, r); err != nil {
-		return "Not authorized", http.StatusUnauthorized, err
-	}
+	case PasswordGrant:
+		credential := r.FormValue("name")
+		secret := r.FormValue("password")
+		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		if err != nil {
+			return "Not authorized", http.StatusUnauthorized, err
+		}
 
-	token, refresh, idtoken, err := bs.generateIdTokens(method, UserToken, credential, scope, r)
-	if err != nil {
-		return "Token generation failed, check claims", http.StatusInternalServerError, err
-	}
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
+		if err != nil {
+			return "Token generation failed, check claims", http.StatusInternalServerError, err
+		}
 
-	if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
-		return "Storing Token ID failed", http.StatusInternalServerError, err
-	}
+		/* if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+			return "Storing Token ID failed", http.StatusInternalServerError, err
+		}
+		*/
 
-	if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
-		return "Token generation failed, check security provider", http.StatusInternalServerError, err
-	} */
+		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
+			return "Token generation failed, check security provider", http.StatusInternalServerError, err
+		}
 	/* case ClientCredentialsGrant:
 	if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
 		return "Not authorized", http.StatusUnauthorized, err
@@ -48,6 +53,32 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		return "Token generation failed, check security provider", http.StatusInternalServerError, err
 	} */
 	case AuthCodeGrant:
+		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
+		if err != nil {
+			log.Err(err)
+		}
+		secret = r.FormValue("secret")
+		redirect_uri = r.FormValue("redirect_uri")
+		nonce := r.FormValue("nonce")
+		state := r.FormValue("state")
+		client_id := r.FormValue("client_id")
+
+		aud := parsedJwt["aud"].([]interface{})[0].(string)
+		at = AuthToken{
+			//iss:   client_id,
+			//sub:   client_id,
+			Aud:   aud,
+			Nonce: nonce,
+			//exp:       scope,
+			Iat: state,
+			//auth_time: response_type,
+			//acr:       scope,
+			//azp:       state,
+		}
+		if err := bs.verifier.ValidateClient(client_id, secret, scope, r); err != nil {
+			return "Not authorized", http.StatusUnauthorized, err
+		}
+		refresh_token = r.FormValue("refresh_token")
 		/* codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized, nil
@@ -58,7 +89,9 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 		*/
-
+		credential := r.FormValue("name")
+		secret := r.FormValue("password")
+		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
 		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
 
 		if err != nil {
@@ -113,7 +146,9 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 }
 
 func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
-	claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
+	//claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
+	claims := CreateClaims(at, bs.nonce, r)
+
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
 	refreshToken := refreshToken("token.ID", username, tokenType, scope)

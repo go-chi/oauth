@@ -123,11 +123,12 @@ func (TestUserVerifier) CreateClaims(username, nonce string, groups []string, at
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
+
 	if username == "Aaliyah" && password == "12345" {
-		return []string{""}, nil
+		return []string{"group1", "group2", "group3", "group4"}, nil
 	}
 
-	return []string{""}, errors.New("wrong user")
+	return []string{"group1", "group2", "group3", "group4"}, errors.New("wrong user")
 }
 
 // ValidateClient validates clientID and secret returning an error if the client credentials are wrong
@@ -189,8 +190,6 @@ func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registratio
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
-	fmt.Println("****")
-	fmt.Println(respInterface)
 	return respInterface, nil
 }
 

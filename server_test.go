@@ -30,7 +30,7 @@ func (*TestUserVerifier) StoreClient(clientname string, clientData Registration,
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
-	fmt.Println(respInterface)
+
 	return respInterface, nil
 }
 
@@ -53,20 +53,21 @@ func (TestUserVerifier) CreateClaims(username, nonce string, groups []string, at
 // Validate username and password returning an error if the user credentials are wrong
 func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
 	// Add something to the request context, so we can access it in the claims and props funcs.
+
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "oauth.claims.test", "test")
 	ctx = context.WithValue(ctx, "oauth.props.test", "test")
 	*r = *r.Clone(ctx)
-	fmt.Print("sss")
+
 	switch {
 	case username == "user111" && password == "password111":
-		return nil, nil
+		return []string{"group1", "group2", "group3", "group4"}, nil
 	case username == "user222" && password == "password222":
-		return nil, nil
-	case username == "user333" && password == "password333":
-		return nil, nil
+		return []string{"group1", "group2", "group3", "group4"}, nil
+	case username == "Aaliyah" && password == "12345":
+		return []string{"group1", "group2", "group3", "group4"}, nil
 	default:
-		return []string{}, errors.New("wrong user")
+		return []string{"group1", "group2", "group3", "group4"}, errors.New("wrong user")
 	}
 }
 

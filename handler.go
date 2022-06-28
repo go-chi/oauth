@@ -13,7 +13,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func getFormData(r *http.Request) {
+func getFormData(formValues []string, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Err(err)
@@ -26,62 +26,28 @@ func getFormData(r *http.Request) {
 
 }
 
+var refresh_token, redirect_uri, secret, code string
+var at AuthToken
+
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-	getFormData(r)
+	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 	//code = r.FormValue("code")
 	scope := r.FormValue("scope")
-	var groups []string
-	switch grant_type {
-	case "password":
-		username := r.FormValue("name")
-		credential := r.FormValue("password")
-		groups, err := bs.verifier.ValidateUser(username, credential, scope, r)
-		if err != nil {
-			log.Err(err)
-			fmt.Println(groups)
-		}
-	}
-	fmt.Println(groups)
+
 	var code string
 	if len(r.URL.Query()["client_id"]) > 0 {
 		code = r.FormValue("code")
 	}
 
-	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
-	if err != nil {
-		log.Err(err)
-	}
-
-	refresh_token := r.FormValue("refresh_token")
-	redirect_uri := r.FormValue("redirect_uri")
-	secret := r.FormValue("secret")
-	nonce := r.FormValue("nonce")
-
-	//state := r.FormValue("state")
-	//client_id := r.FormValue("client_id")
-
-	aud := parsedJwt["aud"].([]interface{})[0].(string)
-	var at = AuthToken{
-		//iss:   client_id,
-		//sub:   client_id,
-		Aud:   aud,
-		Nonce: nonce,
-		//exp:       scope,
-		//iat:       state,
-		//auth_time: response_type,
-		//acr:       scope,
-		//azp:       state,
-	}
-	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, "credential", secret, refresh_token, scope, code, redirect_uri, groups, at, r)
+	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, refresh_token, scope, code, redirect_uri, at, r)
 	if err != nil {
 		renderJSON(w, err, 200)
 	}
 	if returncode != 200 {
 		renderJSON(w, err, 200)
 	}
-
 	renderJSON(w, resp, 200)
 
 }
@@ -97,11 +63,11 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Err(err)
 	}
-	if r.Header["Accept"][0] == "application/json" {
+	/* 	if r.Header["Accept"][0] == "application/json" {
 
-	} else if r.Header["Accept"][0] == "application/jwt" {
+	   	} else if r.Header["Accept"][0] == "application/jwt" {
 
-	}
+	   	} */
 
 	if len(token) > 0 {
 		we := map[string]bool{
@@ -164,7 +130,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 			err = bs.verifier.StoreClientDelete(jsonMap.Client_name)
-			fmt.Println(err)
 
 		default:
 			fmt.Println("Too far away.")
@@ -177,7 +142,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
-	fmt.Println("+++++")
 
 	var aud, response_type, nonce, redirect_uri, state string
 	var scope []string
@@ -191,23 +155,20 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		state = r.URL.Query()["state"][0]
 	}
 
-	fmt.Println(aud)
 	usernameSlice, ok := r.Form["name"]
 	passwordSlice, ok := r.Form["password"]
 
 	if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
 	}
-	fmt.Println(usernameSlice)
-	fmt.Println(passwordSlice)
+
 	username := usernameSlice[0]
 	password := passwordSlice[0]
 	groups, err := bs.verifier.ValidateUser(username, password, scope[0], r)
-	if err != nil {
 
+	if err != nil {
+		fmt.Println(groups)
 	}
-	fmt.Println(r.URL.Query())
-	fmt.Println(groups)
 
 	//fmt.Println(redirect_uri)
 	//fmt.Println(response_type)
