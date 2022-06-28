@@ -71,7 +71,7 @@ func TestTokenEndpointPW(t *testing.T) {
 				log.Fatal(err)
 			}
 
-			if s.IDtoken == "" || s.Token != "" {
+			if s.IDtoken == "" || s.Token == "" {
 				t.Errorf("got %v want %v", s.IDtoken, s.Token)
 			}
 
