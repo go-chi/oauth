@@ -59,57 +59,6 @@ type postData struct {
 	value string
 }
 
-func TestTokenEndpoint(t *testing.T) {
-	assertCorrectMessage := func(t testing.TB, got, want map[string]interface{}) {
-		t.Helper()
-
-		form := url.Values{}
-		form.Add("name", "tester")
-		form.Add("password", "testpw")
-		form.Add("grant_type", "password")
-
-		req, err := http.NewRequest("POST", "/oauth/token", nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		req.PostForm = form
-
-		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(bs.TokenEndpoint)
-
-		//call ServeHTTP method and pass  Request and ResponseRecorder.
-		handler.ServeHTTP(rr, req)
-		bodybytes := rr.Body
-		jmap, err := gohelper.StructToJson(bodybytes)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		jsonStr, err := json.Marshal(jmap)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(jsonStr))
-
-		// convert json to struct
-		s := Registration{}
-		err = json.Unmarshal(jsonStr, &s)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	t.Run("Registration Test 1", func(t *testing.T) {
-		got := map[string]interface{}{"name": "tester"}
-		want := map[string]interface{}{"name": "tester"}
-		assertCorrectMessage(t, got, want)
-	})
-
-}
-
 func TestGenJWKS(t *testing.T) {}
 
 func TestGetConfig(t *testing.T) {}
@@ -168,7 +117,7 @@ func TestRegistrationGet(t *testing.T) {
 
 	for _, e := range theTests {
 		if e.method == "GET" && e.name == "config12" {
-			fmt.Println("!!!!")
+
 			fmt.Println(ts.URL)
 			resp, err := ts.Client().Get(ts.URL + e.url)
 			if err != nil {
@@ -183,7 +132,6 @@ func TestRegistrationGet(t *testing.T) {
 			fmt.Println(err, buf)
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
 
-			fmt.Println("###")
 			fmt.Println(resp)
 		} else if e.name == "config2" {
 			fmt.Println(ts.URL + e.url)
