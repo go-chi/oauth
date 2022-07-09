@@ -193,7 +193,7 @@ func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registratio
 	return respInterface, nil
 }
 
-func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
+func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
 
 	//var respInterface map[string]interface{}
 	/* inrec, _ := json.Marshal(clientId)
@@ -201,7 +201,18 @@ func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
 	ee := oauth.Registration{}
 	var i []interface{}
 	i = append(i, ee)
-	return i, nil
+	return nil, nil
+}
+
+func (*TestUserVerifier) StoreClientsGet(client string) (map[string]map[string]interface{}, error) {
+
+	//var respInterface map[string]interface{}
+	/* inrec, _ := json.Marshal(clientId)
+	json.Unmarshal(inrec, &respInterface)  */
+	ee := oauth.Registration{}
+	var i []interface{}
+	i = append(i, ee)
+	return nil, nil
 }
 
 func (*TestUserVerifier) StoreClientDelete(clientId string) error {

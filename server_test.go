@@ -128,7 +128,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet(client string) (map[string]map[string]interface{}, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
 		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},
@@ -137,6 +137,11 @@ func (*TestUserVerifier) StoreClientsGet(client string) ([]interface{}, error) {
 	var respInterface map[string]interface{}
 	inrec, _ := json.Marshal(Cjson)
 	json.Unmarshal(inrec, &respInterface)
+
+	return nil, nil
+}
+
+func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
 
 	return nil, nil
 }
