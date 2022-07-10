@@ -34,7 +34,7 @@ func (*TestUserVerifier) StoreClient(clientname string, clientData Registration,
 	return respInterface, nil
 }
 
-func (*TestUserVerifier) StoreClientDelete(clientId string) error {
+func (*TestUserVerifier) StoreClientDelete(clientId []string) error {
 	return nil
 }
 
@@ -146,7 +146,7 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 	return nil, nil
 }
 
-func StoreClientDelete(client string) {}
+func StoreClientDelete(client []string) {}
 
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)

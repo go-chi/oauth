@@ -215,6 +215,6 @@ func (*TestUserVerifier) StoreClientsGet(client string) (map[string]map[string]i
 	return nil, nil
 }
 
-func (*TestUserVerifier) StoreClientDelete(clientId string) error {
+func (*TestUserVerifier) StoreClientDelete(clientId []string) error {
 	return nil
 }
