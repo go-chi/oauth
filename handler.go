@@ -87,10 +87,13 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	//Authorization: Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0
 	authH := r.Header.Get("Authorization")
+
 	udate, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
+	fmt.Println(udate)
 
 	if len(udate) == 1 {
 		switch r.Method {
@@ -98,7 +101,9 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			cId := chi.URLParam(r, "id")
 			var clientConfig interface{}
 			var err error
-
+			u := strings.TrimPrefix(r.URL.Path, "github.com")
+			fmt.Println(u)
+			fmt.Println("**")
 			clientConfig, err = bs.verifier.StoreClientsGet(cId)
 
 			rc := 200
