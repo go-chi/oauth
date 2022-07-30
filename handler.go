@@ -86,15 +86,13 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	authH := r.Header.Get("Authorization")
-	fmt.Println(authH)
-	udate, err := bs.verifier.ExtractJWTtoUserGroup(authH)
-
+	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
-	fmt.Println(udate)
-	fmt.Println("ooo")
-	if len(udate) == 1 {
+
+	iamAdmin := slices.Contains(groups, "group1")
+	if iamAdmin {
 		switch r.Method {
 		case "GET":
 			cId := chi.URLParam(r, "id")

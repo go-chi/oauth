@@ -116,7 +116,7 @@ func (TestUserVerifier) AddProperties(tokenType TokenType, credential, tokenID, 
 func (TestUserVerifier) ExtractJWTtoUserGroup(jwt string) ([]string, error) {
 	fmt.Println(jwt)
 	fmt.Println("ee")
-	groups := []string{"e0", "rrr"}
+	groups := []string{"group1", "group2"}
 	return groups, nil
 }
 
