@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
@@ -95,15 +94,14 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	if iamAdmin {
 		switch r.Method {
 		case "GET":
-			cId := chi.URLParam(r, "id")
 			var clientConfig interface{}
 			var err error
-			//u := strings.TrimPrefix(r.URL.Path, "github.com")
 			path := r.URL.Path
 			base := strings.LastIndex(path, "/")
-			fmt.Println(base)
+			clientID := path[base+1:]
+			fmt.Println(clientID)
 			fmt.Println("**")
-			clientConfig, err = bs.verifier.StoreClientsGet(cId)
+			clientConfig, err = bs.verifier.StoreClientsGet(clientID)
 
 			rc := 200
 			if err != nil {

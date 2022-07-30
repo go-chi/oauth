@@ -43,22 +43,25 @@ var theTests = []struct {
 	Host               string
 	Authorization      string
 }{
-	{"config1", "/oauth/clients/s6BhdRkqt3", "GET",
+	{
+		"config1", "/oauth/clients", "POST",
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer " + signedToken,
 	},
-	{"config2", "/oauth/clients", "GET",
+	{
+		"config2", "/oauth/clients/testclient1", "GET",
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer " + signedToken,
 	},
-	{"config3", "/oauth/clients", "POST",
+	{
+		"config3", "/oauth/clients", "GET",
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer " + signedToken,
 	},
 }
 
 var client = Registration{
-	Client_id:      "client1",
+	Client_id:      "testclient1",
 	Redirect_uris:  []string{"http://test.de"},
 	Response_types: "POST",
 }
@@ -133,8 +136,9 @@ func TestRegistrationGet(t *testing.T) {
 
 	ts := httptest.NewTLSServer(mux)
 
-	for _, e := range theTests {
-		if e.method == "GET" && e.name == "config12" {
+	for i, e := range theTests {
+		fmt.Println(i)
+		if e.method == "GET" {
 
 			fmt.Println(ts.URL)
 			resp, err := ts.Client().Get(ts.URL + e.url)
@@ -144,24 +148,15 @@ func TestRegistrationGet(t *testing.T) {
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
-		} else if e.method == "POST3" {
+		} else if e.method == "POST" {
 			var buf bytes.Buffer
 			err := json.NewEncoder(&buf).Encode(client)
 			fmt.Println(err, buf)
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
 
 			fmt.Println(resp)
-		} else if e.name == "config2" {
-			fmt.Println(ts.URL + e.url)
-			resp, err := ts.Client().Get(ts.URL + e.url)
-
-			if err != nil {
-				t.Log(err)
-			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
-			}
 		}
+
 		t.Error()
 	}
 	defer ts.Close()
