@@ -58,6 +58,16 @@ var theTests = []struct {
 		[]postData{}, http.StatusOK, "c2id.com",
 		"Bearer " + signedToken,
 	},
+	{
+		"config4", "/oauth/clients/testclient1", "DELETE",
+		[]postData{}, http.StatusOK, "c2id.com",
+		"Bearer " + signedToken,
+	},
+	{
+		"config5", "/oauth/clients/testclient1", "GET",
+		[]postData{}, http.StatusOK, "c2id.com",
+		"Bearer " + signedToken,
+	},
 }
 
 var client = Registration{
@@ -147,13 +157,26 @@ func TestRegistrationGet(t *testing.T) {
 		} else if e.method == "POST" {
 			var buf bytes.Buffer
 			err := json.NewEncoder(&buf).Encode(client)
-			fmt.Println(err, buf)
+			if err != nil {
+				t.Errorf("json encoding failed %v", err)
+			}
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
+			if resp.StatusCode != e.expectedStatusCode {
+				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+			}
+		} else if e.method == "DELETE" {
+			fmt.Println(e.method)
+			var buf bytes.Buffer
+			err := json.NewEncoder(&buf).Encode(client)
+			fmt.Println(err, buf)
+			fmt.Println(client.Client_id)
+			resp, err := ts.Client().Post(ts.URL+"/oauth/clients/"+client.Client_id, "application/json", &buf)
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
 		}
 	}
+	t.Error()
 	defer ts.Close()
 }
 

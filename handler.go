@@ -131,7 +131,12 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
+			fmt.Println("??????")
 			err = bs.verifier.StoreClientDelete([]string{jsonMap.Client_name})
+			if err != nil {
+				renderJSON(w, jsonMap, 500)
+			}
+			renderJSON(w, jsonMap, 200)
 
 		default:
 			fmt.Println("Too far away.")
