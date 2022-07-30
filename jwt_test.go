@@ -23,14 +23,14 @@ func TestCreateJWT(t *testing.T) {
 		t.Helper()
 
 		signedToken, err := CreateJWT(got.Method, got.Claims, bs.Kc)
-		fmt.Println(signedToken)
+
 		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		pub := &bs.Kc.Pk.PublicKey
 		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
 		if err != nil {
 			t.Error(err)
 		}
-		if token.Valid {
+		if !token.Valid {
 			t.Error(token.Valid)
 		}
 
@@ -42,7 +42,7 @@ func TestCreateJWT(t *testing.T) {
 		assertCorrectMessage(t, got, want)
 	})
 	t.Run("Registration Test 1", func(t *testing.T) {
-		got := ClientConfig{Method: "HS256", Claims: claims, Kid: sig.String()}
+		got := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
@@ -95,9 +95,11 @@ func TestJwtGroup(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to get groups - Error:%s", err.Error())
 	}
-	
+
 	for _, v := range groups {
 		fmt.Println(v)
 	}
-	t.Error()
+	if len(groups) < 1 {
+		t.Error()
+	}
 }
