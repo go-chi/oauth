@@ -14,8 +14,26 @@ import (
 	gohelper "github.com/christhirst/gohelper/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v4"
 )
 
+var claims = MyCustomClaims{
+	Foo:    "cn",
+	Nonce:  "nonce",
+	Groups: []string{"group1"},
+	RegisteredClaims: jwt.RegisteredClaims{
+		// A usual scenario is to set the expiration time relative to the current time
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		NotBefore: jwt.NewNumericDate(time.Now()),
+		Issuer:    "baseURL" + "",
+		Subject:   "somebody",
+		ID:        "1",
+		Audience:  []string{"rrr"},
+	},
+}
+var clientConfig = ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+var signedToken, _ = CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 var theTests = []struct {
 	name               string
 	url                string
@@ -27,15 +45,15 @@ var theTests = []struct {
 }{
 	{"config1", "/oauth/clients/s6BhdRkqt3", "GET",
 		[]postData{}, http.StatusOK, "c2id.com",
-		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+		"Bearer " + signedToken,
 	},
 	{"config2", "/oauth/clients", "GET",
 		[]postData{}, http.StatusOK, "c2id.com",
-		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+		"Bearer " + signedToken,
 	},
 	{"config3", "/oauth/clients", "POST",
 		[]postData{}, http.StatusOK, "c2id.com",
-		"Bearer SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+		"Bearer " + signedToken,
 	},
 }
 
@@ -268,9 +286,13 @@ func TestRegistrationGets(t *testing.T) {
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
+
+		clientConfig := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+		signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
+
 		//pass request to handler with nil as parameter
 		req, err := http.NewRequest("GET", "/oauth/clients", bytes.NewBuffer(empJSON))
-		req.Header.Set("Authorization", "Bearer ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6")
+		req.Header.Set("Authorization", "Bearer "+signedToken)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -281,6 +303,7 @@ func TestRegistrationGets(t *testing.T) {
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(rr, req)
 		bodybytes := rr.Body
+
 		jmap, err := gohelper.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {

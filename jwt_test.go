@@ -18,13 +18,18 @@ func TestGenKid(t *testing.T) {
 }
 
 func TestCreateJWT(t *testing.T) {
-	clientConfig := ClientConfig{Method: "RS256", Claims: nil, Kid: sig.String()}
-	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io"+"/oauth/keys", keyfunc.Options{})
-	if err != nil {
+
+	clientConfig := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+	//jwks, err := keyfunc.Get("https://8080-christhirst-oauth-zwobklkfgxv.ws-eu54.gitpod.io"+"/oauth/keys", keyfunc.Options{})
+	/* if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
-	}
+	} */
+
 	signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
-	token, err := jwt.Parse(signedToken, jwks.Keyfunc)
+	fmt.Println(signedToken)
+	//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
+	pub := &bs.Kc.Pk.PublicKey
+	token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
 	if err != nil {
 		t.Error(err)
 	}

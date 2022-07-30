@@ -162,11 +162,11 @@ func (*TestUserVerifier) AddProperties(tokenType oauth.TokenType, credential, to
 	return props, nil
 }
 
-func (*TestUserVerifier) ExtractJWTtoUserGroup(jwt string) (map[string][]string, error) {
+func (*TestUserVerifier) ExtractJWTtoUserGroup(jwt string) ([]string, error) {
 	fmt.Println(jwt)
 	fmt.Println("jwt")
 
-	userResp := map[string][]string{"Testuser": []string{"group1", "group2"}}
+	userResp := []string{"group1", "group2"}
 
 	return userResp, nil
 }

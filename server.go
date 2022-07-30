@@ -29,7 +29,7 @@ type CredentialsVerifier interface {
 	// Provide additional information to the authorization server response
 	AddProperties(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Optionally validate previously stored tokenID during refresh request
-	ExtractJWTtoUserGroup(jwt string) (map[string][]string, error)
+	ExtractJWTtoUserGroup(jwt string) ([]string, error)
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
@@ -219,6 +219,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 		}
 
 		if _, err = bs.verifier.ExtractJWTtoUserGroup(refreshToken); err != nil {
+
 			return nil, 200
 		}
 
