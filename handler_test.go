@@ -20,7 +20,7 @@ import (
 var claims = MyCustomClaims{
 	Foo:    "cn",
 	Nonce:  "nonce",
-	Groups: []string{"group1"},
+	Groups: []string{"group1", "group2"},
 	RegisteredClaims: jwt.RegisteredClaims{
 		// A usual scenario is to set the expiration time relative to the current time
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -179,12 +179,12 @@ func TestRegistrationPost(t *testing.T) {
 			t.Fatal(err)
 		}
 		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-		rr := httptest.NewRecorder()
+		httpRecorder := httptest.NewRecorder()
 		handler := http.HandlerFunc(bs.Registration)
 
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
-		handler.ServeHTTP(rr, req)
-		bodybytes := rr.Body
+		handler.ServeHTTP(httpRecorder, req)
+		bodybytes := httpRecorder.Body
 		jmap, err := gohelper.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {

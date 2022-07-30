@@ -80,6 +80,21 @@ func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	return jwt.MapClaims{}, err
 }
 
+func ExtractJWTtoUserGroup(jwtToken string, kc *rsa.PublicKey) ([]string, error) {
+	parsedToken, err := ParseJWT(jwtToken, kc)
+	if err != nil {
+		return nil, err
+	}
+	groupsInterface := parsedToken["groups"]
+
+	groups := []string{}
+	for _, v := range groupsInterface.([]interface{}) {
+		groups = append(groups, v.(string))
+	}
+
+	return groups, nil
+}
+
 /*
 the "typ" value used SHOULD be   "at+jwt"
 

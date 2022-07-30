@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/MicahParks/keyfunc"
@@ -18,26 +19,6 @@ func TestGenKid(t *testing.T) {
 }
 
 func TestCreateJWT(t *testing.T) {
-	/*
-		clientConfig := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
-		//jwks, err := keyfunc.Get("https://8080-christhirst-oauth-zwobklkfgxv.ws-eu54.gitpod.io"+"/oauth/keys", keyfunc.Options{})
-		 if err != nil {
-			log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
-		}
-
-		signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
-		fmt.Println(signedToken)
-		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
-		pub := &bs.Kc.Pk.PublicKey
-		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
-		if err != nil {
-			t.Error(err)
-		}
-		if token.Valid {
-			t.Error(token.Valid)
-		}
-	*/
-
 	assertCorrectMessage := func(t testing.TB, got ClientConfig, want map[string]interface{}) {
 		t.Helper()
 
@@ -61,7 +42,7 @@ func TestCreateJWT(t *testing.T) {
 		assertCorrectMessage(t, got, want)
 	})
 	t.Run("Registration Test 1", func(t *testing.T) {
-		got := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+		got := ClientConfig{Method: "HS256", Claims: claims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
@@ -74,29 +55,24 @@ func TestJwtValidate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var authParameter = AuthToken{
-		//iss:   client_id,
-		//sub:   client_id,
-		Aud:   "aud",
-		Nonce: "nonce",
-		//exp:       scope,
-		//iat:       state,
-		//auth_time: response_type,
-		//acr:       scope,
-		//azp:       state,
-	}
 
-	jw, err := CreateJWT("RS256", CreateClaims(authParameter, bs.nonce, req), bs.Kc)
+	jw, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/"+"/oauth/keys", keyfunc.Options{})
+	httpRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(bs.ReturnKeys)
+	handler.ServeHTTP(httpRecorder, req)
+	//jwks, err := keyfunc.Get("https://8080-christhirst-oauth-k190qu9sfa8.ws-eu46.gitpod.io/"+"/oauth/keys", keyfunc.Options{})
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
 
+	bodybytes := httpRecorder.Body
+	jwks, err := keyfunc.NewJSON(bodybytes.Bytes())
+
 	token, err := jwt.Parse(jw, jwks.Keyfunc)
+
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
@@ -104,4 +80,24 @@ func TestJwtValidate(t *testing.T) {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
 
+	if !token.Valid {
+		t.Error()
+	}
+}
+
+func TestJwtGroup(t *testing.T) {
+	jw, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
+	if err != nil {
+		log.Fatalf("Failed to create JWT - Error:%s", err.Error())
+	}
+
+	groups, err := ExtractJWTtoUserGroup(jw, &bs.Kc.Pk.PublicKey)
+	if err != nil {
+		log.Fatalf("Failed to get groups - Error:%s", err.Error())
+	}
+	
+	for _, v := range groups {
+		fmt.Println(v)
+	}
+	t.Error()
 }
