@@ -102,7 +102,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(clientID)
 			fmt.Println("**")
 			clientConfig, err = bs.verifier.StoreClientsGet(clientID)
-
+			fmt.Println(clientConfig)
 			rc := 200
 			if err != nil {
 				log.Err(err)

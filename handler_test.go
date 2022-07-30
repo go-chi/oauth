@@ -135,11 +135,8 @@ func TestRegistrationGet(t *testing.T) {
 
 	ts := httptest.NewTLSServer(mux)
 
-	for i, e := range theTests {
-		fmt.Println(i)
+	for _, e := range theTests {
 		if e.method == "GET" {
-
-			fmt.Println(ts.URL)
 			resp, err := ts.Client().Get(ts.URL + e.url)
 			if err != nil {
 				t.Log(err)
@@ -152,11 +149,10 @@ func TestRegistrationGet(t *testing.T) {
 			err := json.NewEncoder(&buf).Encode(client)
 			fmt.Println(err, buf)
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
-
-			fmt.Println(resp)
+			if resp.StatusCode != e.expectedStatusCode {
+				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+			}
 		}
-
-		t.Error()
 	}
 	defer ts.Close()
 }
@@ -216,7 +212,7 @@ func TestRegistrationPost(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -227,7 +223,7 @@ func TestRegistrationPost(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -242,7 +238,7 @@ func TestRegistrationPost(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -253,7 +249,7 @@ func TestRegistrationPost(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -329,7 +325,7 @@ func TestRegistrationGets(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -340,7 +336,7 @@ func TestRegistrationGets(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -355,7 +351,7 @@ func TestRegistrationGets(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
@@ -366,7 +362,7 @@ func TestRegistrationGets(t *testing.T) {
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "My Cool App",
+			Client_name:                "MyCoolApp",
 			Logo_uri:                   "https://client.example.org/logo.png",
 			Token_endpoint_auth_method: "client_secret_basic",
 			Contacts:                   []string{"admin@example.org"},
