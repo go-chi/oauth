@@ -130,7 +130,6 @@ func TestSignIn(t *testing.T) {}
 func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
 	mux.Get("/oauth/clients/{id}", bs.Registration)
-	//mux.Get("/oauth/clients", bs.Registration)
 	mux.Post("/oauth/clients", bs.Registration)
 	mux.Get("/oauth/clients", bs.Registration)
 
