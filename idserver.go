@@ -92,6 +92,10 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		if err != nil {
+			log.Err(err)
+		}
+
 		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
 
 		if err != nil {
