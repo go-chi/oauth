@@ -103,7 +103,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			rc := 200
 			if err != nil {
 				log.Err(err)
-				rc = 400
+				rc = 500
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
