@@ -194,11 +194,21 @@ func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cook
 		fmt.Println(foo, "###")
 	}
 
-	cookies, err := r.Cookie(cookieID)
-	if err == nil && cookies.Value == "testing" {
-		fmt.Println(cookies)
+	return true, err
+}
+
+func (*TestUserVerifier) GetSession(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+	store, err := session.Start(context.Background(), w, r)
+
+	session.Start(context.Background(), w, r)
+	store.Set("foo", "bar")
+	foo, ok := store.Get("foo")
+	if ok {
+		fmt.Println(foo, "###")
 	}
-	return true, nil
+	fmt.Println(foo)
+	fmt.Println("++++")
+	return true, err
 }
 
 func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {

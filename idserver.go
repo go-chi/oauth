@@ -29,7 +29,7 @@ type Cookie struct {
 }
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
@@ -111,6 +111,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		*/
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
+
+		bs.verifier.SaveCookie(w, r, "dotcom_user")
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
 		if err != nil {
 			log.Err(err)

@@ -11,7 +11,7 @@ import (
 
 func TestGenerateIdToken4Password(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "", "", "", "", at, new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
@@ -27,7 +27,7 @@ func TestGenerateIdToken4Password(t *testing.T) {
 
 func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "", "", "", "", at, new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}

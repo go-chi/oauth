@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	session "github.com/go-session/session/v3"
 	"github.com/rs/zerolog/log"
 )
 
@@ -127,6 +128,24 @@ func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, r
 
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
+}
+
+func (*TestUserVerifier) GetSession(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+	store, err := session.Start(context.Background(), w, r)
+
+	session.Start(context.Background(), w, r)
+	store.Set("foo", "bar")
+	foo, ok := store.Get("foo")
+	if ok {
+		fmt.Println(foo, "###")
+	}
+	fmt.Println(foo)
+	fmt.Println("++++")
+	cookies, err := r.Cookie(cookieID)
+	if err == nil && cookies.Value == "testing" {
+		fmt.Println(cookies)
+	}
+	return true, nil
 }
 
 func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {

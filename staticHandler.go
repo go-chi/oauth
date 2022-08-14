@@ -30,19 +30,32 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, j, 200)
 }
 
-func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	cookieCheck, _ := bs.verifier.SaveCookie(w, r, "dotcom_user")
-	if cookieCheck {
-		state := r.URL.Query()["state"][0]
-		access_token, err := JWTCreateAccessT(bs, r)
-		if err != nil {
-			log.Err(err)
-		}
+func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
+	state := r.URL.Query()["state"][0]
+	access_token, err := JWTCreateAccessT(bs, r)
+	if err != nil {
+		log.Err(err)
+	}
+	location := redirect_uri + "?code=" + access_token + "&state=" + state
+	w.Header().Add("Location", location)
+	http.Redirect(w, r, location, 302)
+}
 
-		location := redirect_uri + "?code=" + access_token + "&state=" + state
-		fmt.Println(location)
-		w.Header().Add("Location", location)
-		http.Redirect(w, r, location, 302)
+/* func GetSession(bs *BearerServer, w http.ResponseWriter, r *http.Request) (bool, error) {
+	store, err := session.Start(context.Background(), w, r)
+	_, ok := store.Get("foo")
+	fmt.Println(ok)
+	return ok, err
+
+} */
+
+func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ok")
+	ok, _ := bs.verifier.GetSession(w, r, "dotcom_user")
+	fmt.Println(ok)
+	fmt.Println("üüü")
+	if ok {
+		RedirectAccess(bs, w, r)
 	}
 	fmt.Fprintf(w, `<h1>Login</h1>
     <form method="post" action="/oauth/auth?%s">

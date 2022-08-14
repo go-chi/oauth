@@ -40,7 +40,7 @@ type CredentialsVerifier interface {
 	ValidateJwt(token string) (bool, error)
 
 	UserLookup(username, password, scope string) (map[string]string, error)
-
+	GetSession(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error)
 	SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error)
 
 	StoreClientDelete(client []string) error
