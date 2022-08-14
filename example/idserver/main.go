@@ -184,20 +184,20 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 	return nil, nil
 }
 
-func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
 	store, err := session.Start(context.Background(), w, r)
 
 	session.Start(context.Background(), w, r)
 	store.Set("foo", "bar")
-	foo, ok := store.Get("foo")
+	cookie, ok := store.Get("foo")
 	if ok {
-		fmt.Println(foo, "###")
+		fmt.Println(cookie)
 	}
 
-	return true, err
+	return ok, err
 }
 
-func (*TestUserVerifier) GetSession(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
 	store, err := session.Start(context.Background(), w, r)
 
 	session.Start(context.Background(), w, r)
