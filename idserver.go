@@ -112,7 +112,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
 
-		bs.verifier.SaveCookie(w, r, "dotcom_user")
+		bs.verifier.SaveCookie(w, r, credential)
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
 		if err != nil {
 			log.Err(err)
