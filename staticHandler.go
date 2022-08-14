@@ -30,20 +30,8 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, j, 200)
 }
 
-func SaveCookie(w http.ResponseWriter, r *http.Request) (bool, error) {
-	cookies, err := r.Cookie("goID")
-	if err == nil && cookies.Value == "testing" {
-		fmt.Println(cookies)
-	}
-	return true, nil
-}
-func (bs *BearerServer) SaveCookie(w http.ResponseWriter, r *http.Request) (bool, error) {
-
-	return true, nil
-}
-
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	cookieCheck, _ := SaveCookie(w, r)
+	cookieCheck, _ := bs.verifier.SaveCookie(w, r, "goID")
 	if cookieCheck {
 		state := r.URL.Query()["state"][0]
 		access_token, err := JWTCreateAccessT(bs, r)

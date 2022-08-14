@@ -129,6 +129,14 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
+func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+	cookies, err := r.Cookie(cookieID)
+	if err == nil && cookies.Value == "testing" {
+		fmt.Println(cookies)
+	}
+	return true, nil
+}
+
 func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{}, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",

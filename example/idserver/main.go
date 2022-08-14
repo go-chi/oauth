@@ -182,6 +182,14 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 	return nil, nil
 }
 
+func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+	cookies, err := r.Cookie(cookieID)
+	if err == nil && cookies.Value == "testing" {
+		fmt.Println(cookies)
+	}
+	return true, nil
+}
+
 func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
