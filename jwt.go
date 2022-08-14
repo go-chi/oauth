@@ -63,6 +63,29 @@ func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 	return claims
 }
 
+func JWTCreateAccessT(bs *BearerServer, r *http.Request) (string, error) {
+
+	aud := r.URL.Query()["client_id"][0]
+	nonce := r.URL.Query()["nonce"][0]
+	bs.nonce = nonce
+	redirect_uri = r.URL.Query()["redirect_uri"][0]
+	var authParameter = AuthToken{
+		//iss:   client_id,
+		//sub:   client_id,
+		Aud:   aud,
+		Nonce: nonce,
+		//exp:       scope,
+		//iat:       state,
+		//auth_time: response_type,
+		//acr:       scope,
+		//azp:       state,
+	}
+	claims := CreateClaims(authParameter, nonce, r)
+	access_token, err := CreateJWT("RS256", claims, bs.Kc)
+
+	return access_token, err
+}
+
 func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
 	if err != nil {

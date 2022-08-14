@@ -3,6 +3,8 @@ package oauth
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +30,32 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, j, 200)
 }
 
+func SaveCookie(w http.ResponseWriter, r *http.Request) (bool, error) {
+	cookies, err := r.Cookie("goID")
+	if err == nil && cookies.Value == "testing" {
+		fmt.Println(cookies)
+	}
+	return true, nil
+}
+func (bs *BearerServer) SaveCookie(w http.ResponseWriter, r *http.Request) (bool, error) {
+
+	return true, nil
+}
+
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
+	cookieCheck, _ := SaveCookie(w, r)
+	if cookieCheck {
+		state := r.URL.Query()["state"][0]
+		access_token, err := JWTCreateAccessT(bs, r)
+		if err != nil {
+			log.Err(err)
+		}
+
+		location := redirect_uri + "?code=" + access_token + "&state=" + state
+		fmt.Println(location)
+		w.Header().Add("Location", location)
+		http.Redirect(w, r, location, 302)
+	}
 	fmt.Fprintf(w, `<h1>Login</h1>
     <form method="post" action="/oauth/auth?%s">
         <label for="name">User name</label>

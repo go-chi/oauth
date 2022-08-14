@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-var scheme = "http://"
+var scheme = "https://"
 
 type TokenType string
 

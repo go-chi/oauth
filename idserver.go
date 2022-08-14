@@ -10,6 +10,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Cookie struct {
+	Name       string
+	Value      string
+	Path       string
+	Domain     string
+	Expires    time.Time
+	RawExpires string
+
+	// MaxAge=0 means no 'Max-Age' attribute specified.
+	// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
+	// MaxAge>0 means Max-Age attribute present and given in seconds
+	MaxAge   int
+	Secure   bool
+	HttpOnly bool
+	Raw      string
+	Unparsed []string // Raw text of unparsed attribute-value pairs
+}
+
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, r *http.Request) (interface{}, int, error) {
 	var resp *TokenResponse
@@ -53,6 +71,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		return "Token generation failed, check security provider", http.StatusInternalServerError, err
 	} */
 	case AuthCodeGrant:
+
 		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
 		if err != nil {
 			log.Err(err)
@@ -61,8 +80,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		redirect_uri = r.FormValue("redirect_uri")
 		nonce := r.FormValue("nonce")
 		state := r.FormValue("state")
-		client_id := r.FormValue("client_id")
-
+		//client_id := r.FormValue("client_id")
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
 		at = AuthToken{
 			//iss:   client_id,
@@ -75,10 +93,12 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 			//acr:       scope,
 			//azp:       state,
 		}
-		if err := bs.verifier.ValidateClient(client_id, secret, scope, r); err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
+
+		/* if err := bs.verifier.ValidateClient(client_id, secret, scope, r); err != nil {
+			return "Not authorized", http.StatusOK, err
+		} */
 		refresh_token = r.FormValue("refresh_token")
+
 		/* codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized, nil

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
@@ -33,14 +34,16 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 	//code = r.FormValue("code")
+
 	scope := r.FormValue("scope")
 
 	var code string
-	if len(r.URL.Query()["client_id"]) > 0 {
+	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
 
 	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", grant_type, refresh_token, scope, code, redirect_uri, at, r)
+
 	if err != nil {
 		renderJSON(w, err, 200)
 	}
@@ -140,6 +143,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
+
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
@@ -202,13 +206,22 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: "goID", Value: "testing", Expires: expiration, HttpOnly: true}
+
+	fmt.Println("iiiiiiii")
+	http.SetCookie(w, &cookie)
+
 	switch response_type {
 	case "id_token":
 		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code":
 		if slices.Contains(scope, "openid") {
+			fmt.Println("ssss")
+
 			location := redirect_uri + "?code=" + access_token + "&state=" + state
+			fmt.Println(location)
 			w.Header().Add("Location", location)
 			http.Redirect(w, r, location, 302)
 		}
@@ -257,7 +270,6 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	hh, err := ParseJWT(token[1], &bs.Kc.Pk.PublicKey)
 	fmt.Println(hh)
-	fmt.Println(err)
 	jsonPayload, rc, contentType, err := UserData()
 	if err != nil {
 		log.Err(err)
