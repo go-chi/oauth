@@ -13,3 +13,5 @@ require (
 )
 
 require github.com/christhirst/gohelper v0.0.3
+
+require github.com/go-session/session/v3 v3.1.7 // indirect

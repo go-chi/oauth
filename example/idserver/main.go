@@ -12,7 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-session/session"
+	session "github.com/go-session/session/v3"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -191,10 +191,8 @@ func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cook
 	store.Set("foo", "bar")
 	foo, ok := store.Get("foo")
 	if ok {
-		fmt.Fprintf(w, "foo:%s", foo)
-		return
+		fmt.Println(foo, "###")
 	}
-	fmt.Fprint(w, "does not exist")
 
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
