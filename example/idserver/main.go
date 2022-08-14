@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,42 +12,43 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-session/session"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
 
 /*
-   Authorization Server Example
+	   Authorization Server Example
 
-    Generate Token using username & password
+	    Generate Token using username & password
 
-    	POST http://localhost:3000/token
-		User-Agent: Fiddler
-		Host: localhost:3000
-		Content-Length: 50
-		Content-Type: application/x-www-form-urlencoded
+	    	POST http://localhost:3000/token
+			User-Agent: Fiddler
+			Host: localhost:3000
+			Content-Length: 50
+			Content-Type: application/x-www-form-urlencoded
 
-		grant_type=password&username=user01&password=12345
+			grant_type=password&username=user01&password=12345
 
-	Generate Token using clientID & secret
+		Generate Token using clientID & secret
 
-    	POST http://localhost:3000/auth
-		User-Agent: Fiddler
-		Host: localhost:3000
-		Content-Length: 66
-		Content-Type: application/x-www-form-urlencoded
+	    	POST http://localhost:3000/auth
+			User-Agent: Fiddler
+			Host: localhost:3000
+			Content-Length: 66
+			Content-Type: application/x-www-form-urlencoded
 
-		grant_type=client_credentials&client_id=abcdef&client_secret=12345
+			grant_type=client_credentials&client_id=abcdef&client_secret=12345
 
-	RefreshTokenGrant Token
+		RefreshTokenGrant Token
 
-		POST http://localhost:3000/token
-		User-Agent: Fiddler
-		Host: localhost:3000
-		Content-Length: 50
-		Content-Type: application/x-www-form-urlencoded
+			POST http://localhost:3000/token
+			User-Agent: Fiddler
+			Host: localhost:3000
+			Content-Length: 50
+			Content-Type: application/x-www-form-urlencoded
 
-		grant_type=refresh_token&refresh_token={the refresh_token obtained in the previous response}
+			grant_type=refresh_token&refresh_token={the refresh_token obtained in the previous response}
 */
 func main() {
 	r := chi.NewRouter()
@@ -183,6 +185,17 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 }
 
 func (*TestUserVerifier) SaveCookie(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+	store, err := session.Start(context.Background(), w, r)
+
+	session.Start(context.Background(), w, r)
+	store.Set("foo", "bar")
+	foo, ok := store.Get("foo")
+	if ok {
+		fmt.Fprintf(w, "foo:%s", foo)
+		return
+	}
+	fmt.Fprint(w, "does not exist")
+
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
 		fmt.Println(cookies)

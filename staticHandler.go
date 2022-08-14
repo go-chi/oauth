@@ -31,7 +31,7 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	cookieCheck, _ := bs.verifier.SaveCookie(w, r, "goID")
+	cookieCheck, _ := bs.verifier.SaveCookie(w, r, "dotcom_user")
 	if cookieCheck {
 		state := r.URL.Query()["state"][0]
 		access_token, err := JWTCreateAccessT(bs, r)
