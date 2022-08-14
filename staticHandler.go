@@ -50,10 +50,11 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 } */
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ok")
-	ok, _ := bs.verifier.SessionGet(w, r, "dotcom_user")
+	ok, err := bs.verifier.SessionGet(w, r, "dotcom_user")
+	if err != nil {
+		log.Err(err)
+	}
 	fmt.Println(ok)
-	fmt.Println("üüü")
 	if ok {
 		RedirectAccess(bs, w, r)
 	}
