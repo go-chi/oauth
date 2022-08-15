@@ -52,7 +52,7 @@ func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Second * 2)),
 			Issuer:    baseURL + at.Iss,
 			Subject:   sub,
 			ID:        id,
