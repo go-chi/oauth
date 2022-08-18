@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -39,7 +40,7 @@ func TestReturnKeys(t *testing.T) {
 	}
 
 	for _, v := range tsa.Keys {
-		for ii, _ := range v {
+		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
 				t.Error(err)
 				t.Errorf("expected other key: %s but got: ", ii)
@@ -48,4 +49,25 @@ func TestReturnKeys(t *testing.T) {
 		}
 	}
 
+}
+
+func TestGenJWKS(t *testing.T) {
+	ii := bs.Kc.Keys.Keys
+	/*
+		for _, v := range ii {
+			fmt.Println(v)
+		} */
+	//GenJWKS(bs.Kc)
+	var keys []string
+
+	for _, v := range ii {
+		for ii := range v {
+			keys = append(keys, ii)
+		}
+
+	}
+	if len(keys) != 6 {
+		fmt.Println(keys)
+		t.Error()
+	}
 }

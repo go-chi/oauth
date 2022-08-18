@@ -74,14 +74,6 @@ func TestGenerateIdTokens(t *testing.T) {
 }
 
 func TestCryptIdTokens(t *testing.T) {
-
-	/* bs := NewBearerServer(
-		"mySecretKey-10101",
-		time.Second*120,
-		&TestUserVerifier{},
-		nil,
-	) */
-
 	var token *Token
 	token.Claims = map[string]string{}
 	token.CreationDate = time.Now()

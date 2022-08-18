@@ -16,7 +16,6 @@ func GenJWKS(kc *KeyContainer) {
 
 	}
 	kc.Keys = Keys{[]map[string]string{{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": signature.String(), "n": sEnc[:len(sEnc)-2], "e": eEnc[:len(eEnc)-2]}}}
-
 }
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
