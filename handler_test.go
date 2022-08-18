@@ -78,19 +78,10 @@ var client = Registration{
 
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
-var bs = NewBearerServer(
-	"mySecretKey-10101",
-	time.Second*120,
-	&TestUserVerifier{},
-	nil,
-)
-
 type postData struct {
 	key   string
 	value string
 }
-
-func TestGenJWKS(t *testing.T) {}
 
 func TestGetConfig(t *testing.T) {}
 
@@ -136,7 +127,7 @@ func TestOpenidConfig(t *testing.T) {}
 
 func TestSignIn(t *testing.T) {}
 
-//req.Header.Add("Bearer","eee")
+// req.Header.Add("Bearer","eee")
 func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
 	mux.Get("/oauth/clients/{id}", bs.Registration)
