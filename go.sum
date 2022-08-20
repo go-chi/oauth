@@ -2,6 +2,8 @@ github.com/MicahParks/keyfunc v1.1.0 h1:9NcnRwS0ciuVeVNi+vTdYVMTmk62OID7VlG6y9Bg
 github.com/MicahParks/keyfunc v1.1.0/go.mod h1:a4yfunv77gZ0RgTNw7tOYS+bjtHk5565e+1dPz+YJI8=
 github.com/christhirst/gohelper v0.0.3 h1:yMgi14JuWb7DUQ0V4yqTiwRMFoMqh2bsUX/iT9pmu+w=
 github.com/christhirst/gohelper v0.0.3/go.mod h1:9Yt500iU96s3obRLaRprWu+CjgBY7cdGKsHGk0R7m7Y=
+github.com/christhirst/sessions v0.0.0-20220820152153-e9da793f4b71 h1:kq7ySoLsZA+uGFaVnk0GjSz9yaNOO9tcUfZQX1/L0UQ=
+github.com/christhirst/sessions v0.0.0-20220820152153-e9da793f4b71/go.mod h1:A4gGmsFTIEUgdha+//ogosn5I8xQeJ/F8/fFLnibjIo=
 github.com/coreos/go-systemd/v22 v22.3.2/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/go-chi/chi/v5 v5.0.4 h1:5e494iHzsYBiyXQAHHuI4tyJS9M3V84OuX3ufIIGHFo=
 github.com/go-chi/chi/v5 v5.0.4/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=

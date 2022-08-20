@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
@@ -162,7 +161,18 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	usernameSlice, ok := r.Form["name"]
+	if ok {
+		if err != nil {
+			log.Error().Bool("", ok).Msg("Not in Form")
+		}
+	}
+
 	passwordSlice, ok := r.Form["password"]
+	if ok {
+		if err != nil {
+			log.Error().Bool("", ok).Msg("Not in Form")
+		}
+	}
 
 	if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
@@ -205,16 +215,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	claims := CreateClaims(authParameter, bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-
-	expiration := time.Now().Add(365 * 24 * time.Hour)
-
-	cookie := http.Cookie{Name: "goID", Value: "testing", Expires: expiration, HttpOnly: true}
-
-	fmt.Println("iiiiiiii")
-	http.SetCookie(w, &cookie)
-
-	c, err := r.Cookie("goID")
-	fmt.Println(c)
 
 	switch response_type {
 	case "id_token":
