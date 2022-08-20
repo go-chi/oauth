@@ -17,6 +17,12 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+var bs = NewBearerServer(
+	"mySecretKey-10101",
+	time.Second*120,
+	&TestUserVerifier{},
+	nil,
+)
 var claims = MyCustomClaims{
 	Foo:    "cn",
 	Nonce:  "nonce",

@@ -207,10 +207,14 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
 	expiration := time.Now().Add(365 * 24 * time.Hour)
+
 	cookie := http.Cookie{Name: "goID", Value: "testing", Expires: expiration, HttpOnly: true}
 
 	fmt.Println("iiiiiiii")
 	http.SetCookie(w, &cookie)
+
+	c, err := r.Cookie("goID")
+	fmt.Println(c)
 
 	switch response_type {
 	case "id_token":
