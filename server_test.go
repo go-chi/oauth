@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	session "github.com/go-session/session/v3"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,7 +26,11 @@ type TestUserVerifier struct {
 func (*TestUserVerifier) StoreClient(clientname string, clientData Registration, methode string) (map[string]interface{}, error) {
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(clientData)
-	json.Unmarshal(inrec, &respInterface)
+	if err != nil {
+		log.Err(err)
+	}
+
+	err = json.Unmarshal(inrec, &respInterface)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
@@ -56,8 +59,8 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	// Add something to the request context, so we can access it in the claims and props funcs.
 
 	ctx := r.Context()
-	ctx = context.WithValue(ctx, "oauth.claims.test", "test")
-	ctx = context.WithValue(ctx, "oauth.props.test", "test")
+	ctx = context.WithValue(ctx, "claims.test", "test")
+	ctx = context.WithValue(ctx, "props.test", "test")
 	*r = *r.Clone(ctx)
 
 	switch {
@@ -131,15 +134,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 }
 
 func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
-	store, err := session.Start(context.Background(), w, r)
 
-	session.Start(context.Background(), w, r)
-	store.Set("foo", "bar")
-	foo, ok := store.Get("foo")
-	if ok {
-		fmt.Println(foo, "###")
-	}
-	fmt.Println(foo)
 	fmt.Println("++++")
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
@@ -164,8 +159,10 @@ func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{},
 
 	var respInterface map[string]interface{}
 	inrec, _ := json.Marshal(Cjson)
-	json.Unmarshal(inrec, &respInterface)
-
+	err := json.Unmarshal(inrec, &respInterface)
+	if err != nil {
+		log.Err(err)
+	}
 	return nil, nil
 }
 

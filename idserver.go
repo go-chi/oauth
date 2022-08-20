@@ -76,7 +76,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		if err != nil {
 			log.Err(err)
 		}
-		secret = r.FormValue("secret")
+		Secret = r.FormValue("secret")
 		redirect_uri = r.FormValue("redirect_uri")
 		nonce := r.FormValue("nonce")
 		state := r.FormValue("state")
@@ -112,7 +112,11 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
 
-		bs.verifier.SessionSave(w, r, credential, "goID")
+		_, err = bs.verifier.SessionSave(w, r, credential, "goID")
+		if err != nil {
+			log.Err(err)
+		}
+
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, r)
 		if err != nil {
 			log.Err(err)
@@ -214,6 +218,9 @@ func (bs *BearerServer) cryptIdTokens(token string, refresh *RefreshToken, idTok
 func IntToBytes(n int) []byte {
 	x := int32(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
-	binary.Write(bytesBuffer, binary.BigEndian, x)
+	err := binary.Write(bytesBuffer, binary.BigEndian, x)
+	if err != nil {
+		log.Err(err)
+	}
 	return bytesBuffer.Bytes()
 }

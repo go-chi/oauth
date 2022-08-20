@@ -84,11 +84,6 @@ var client = Registration{
 
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
-type postData struct {
-	key   string
-	value string
-}
-
 func TestGetConfig(t *testing.T) {}
 
 func TestTokenIntrospect(t *testing.T) {
@@ -119,7 +114,7 @@ func TestTokenIntrospect(t *testing.T) {
 	}
 
 	for _, v := range tsa.Keys {
-		for ii, _ := range v {
+		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
 				t.Error(err)
 				t.Errorf("expected other key: %s but got: ", ii)
@@ -158,6 +153,9 @@ func TestRegistrationGet(t *testing.T) {
 				t.Errorf("json encoding failed %v", err)
 			}
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
+			if err != nil {
+				t.Errorf("json encoding failed %v", err)
+			}
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
@@ -168,6 +166,9 @@ func TestRegistrationGet(t *testing.T) {
 			fmt.Println(err, buf)
 			fmt.Println(client.Client_id)
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients/"+client.Client_id, "application/json", &buf)
+			if err != nil {
+				t.Errorf("json encoding failed %v", err)
+			}
 			if resp.StatusCode != e.expectedStatusCode {
 				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
@@ -214,12 +215,17 @@ func TestRegistrationPost(t *testing.T) {
 			}
 		}
 		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Println(string(jsonStr))
 
 		// convert json to struct
 		s := Registration{}
-		json.Unmarshal(jsonStr, &s)
-
+		err = json.Unmarshal(jsonStr, &s)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if get.Client_id != want.Client_id {
 			t.Errorf("got %q want %q", get, want)
 		}
@@ -299,7 +305,9 @@ func TestRegistrationGets(t *testing.T) {
 
 		clientConfig := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
 		signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
-
+		if err != nil {
+			log.Fatal(err)
+		}
 		//pass request to handler with nil as parameter
 		req, err := http.NewRequest("GET", "/oauth/clients", bytes.NewBuffer(empJSON))
 		req.Header.Set("Authorization", "Bearer "+signedToken)
@@ -327,12 +335,17 @@ func TestRegistrationGets(t *testing.T) {
 			}
 		}
 		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Println(string(jsonStr))
 
 		// convert json to struct
 		s := Registration{}
-		json.Unmarshal(jsonStr, &s)
-
+		err = json.Unmarshal(jsonStr, &s)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if get.Client_id != want.Client_id {
 			t.Errorf("got %q want %q", get, want)
 		}
@@ -429,11 +442,17 @@ func TestGetRedirect(t *testing.T) {
 		}
 
 		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			t.Errorf("json encoding failed %v", err)
+		}
 		fmt.Println(string(jsonStr))
 
 		// convert json to struct
 		s := Registration{}
-		json.Unmarshal(jsonStr, &s)
+		err = json.Unmarshal(jsonStr, &s)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 	}
 

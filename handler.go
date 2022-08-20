@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -25,7 +25,7 @@ func getFormData(formValues []string, r *http.Request) {
 
 }
 
-var refresh_token, redirect_uri, secret, code string
+var refresh_token, redirect_uri, Secret, code string
 var at AuthToken
 
 // UserCredentials manages password grant type requests
@@ -36,7 +36,6 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	scope := r.FormValue("scope")
 
-	var code string
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
@@ -109,7 +108,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
-			body, err := ioutil.ReadAll(r.Body)
+			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
 			}
@@ -119,9 +118,12 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to read body")
+			}
 			renderJSON(w, regResp, 200)
 		case "DELETE":
-			body, err := ioutil.ReadAll(r.Body)
+			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
 			}
@@ -174,14 +176,14 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
+	/* if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
 
-	}
+	} */
 
 	username := usernameSlice[0]
 	password := passwordSlice[0]
 
-	ok, err = bs.verifier.SessionSave(w, r, "goID", username)
+	_, err = bs.verifier.SessionSave(w, r, "goID", username)
 	if err != nil {
 		log.Err(err)
 	}
@@ -279,6 +281,9 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 
 	hh, err := ParseJWT(token[1], &bs.Kc.Pk.PublicKey)
+	if err != nil {
+		log.Err(err)
+	}
 	fmt.Println(hh)
 	jsonPayload, rc, contentType, err := UserData()
 	if err != nil {

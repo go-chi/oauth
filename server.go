@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 type GrantType string
@@ -74,9 +75,9 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 	kc := KeyContainer{Pk: privatekey}
 	GenJWKS(&kc)
 
-	if formatter == nil {
+	/* if formatter == nil {
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
-	}
+	} */
 	clients := InitClientConfig()
 	return &BearerServer{
 		secretKey: secretKey,
@@ -158,6 +159,9 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 	switch grantType {
 	case PasswordGrant:
 		e, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		if err != nil {
+			log.Err(err)
+		}
 		if err := e; err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}

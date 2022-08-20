@@ -79,7 +79,7 @@ func (tp *TokenProvider) decrypt(token string) ([]byte, error) {
 
 type RC4TokenSecureFormatter struct {
 	key    []byte
-	cipher *rc4.Cipher
+	Cipher *rc4.Cipher
 }
 
 func NewRC4TokenSecurityProvider(key []byte) *RC4TokenSecureFormatter {
@@ -109,7 +109,7 @@ func (sc *RC4TokenSecureFormatter) DecryptToken(source []byte) ([]byte, error) {
 
 type SHA256RC4TokenSecureFormatter struct {
 	key    []byte
-	cipher *rc4.Cipher
+	Cipher *rc4.Cipher
 }
 
 func NewSHA256RC4TokenSecurityProvider(key []byte) *SHA256RC4TokenSecureFormatter {
