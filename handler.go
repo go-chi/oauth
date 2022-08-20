@@ -181,7 +181,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	username := usernameSlice[0]
 	password := passwordSlice[0]
 
-	ok, err := bs.verifier.SessionSave(w, r, "goID", username)
+	ok, err = bs.verifier.SessionSave(w, r, "goID", username)
 	if err != nil {
 		log.Err(err)
 	}
