@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	session "github.com/go-session/session/v3"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -185,37 +183,23 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 }
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
-	store, err := session.Start(context.Background(), w, r)
 
-	session.Start(context.Background(), w, r)
-	store.Set("foo", "bar")
-	cookie, ok := store.Get("foo")
-	if ok {
-		fmt.Println(cookie)
-	}
-
-	return ok, err
+	return true, nil
 }
 
-func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
-	store, err := session.Start(context.Background(), w, r)
+func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
 
-	session.Start(context.Background(), w, r)
-	store.Set("foo", "bar")
-	foo, ok := store.Get("foo")
-	if ok {
-		fmt.Println(foo, "###")
-	}
-	fmt.Println(foo)
-	fmt.Println("++++")
-	return true, err
+	return true, nil
 }
 
 func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {
 
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(client)
-	json.Unmarshal(inrec, &respInterface)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to marshal file")
+	}
+	err = json.Unmarshal(inrec, &respInterface)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
@@ -230,7 +214,8 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 	ee := oauth.Registration{}
 	var i []interface{}
 	i = append(i, ee)
-	return nil, nil
+	newMap := map[string]interface{}{"ee": i}
+	return newMap, nil
 }
 
 func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{}, error) {
@@ -241,7 +226,8 @@ func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{},
 	ee := oauth.Registration{}
 	var i []interface{}
 	i = append(i, ee)
-	return nil, nil
+	newMap := map[string]interface{}{"ee": i}
+	return newMap, nil
 }
 
 func (*TestUserVerifier) StoreClientDelete(clientId []string) error {

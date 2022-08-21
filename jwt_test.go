@@ -23,7 +23,9 @@ func TestCreateJWT(t *testing.T) {
 		t.Helper()
 
 		signedToken, err := CreateJWT(got.Method, got.Claims, bs.Kc)
-
+		if err != nil {
+			t.Error(err)
+		}
 		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		pub := &bs.Kc.Pk.PublicKey
 		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
@@ -70,7 +72,9 @@ func TestJwtValidate(t *testing.T) {
 
 	bodybytes := httpRecorder.Body
 	jwks, err := keyfunc.NewJSON(bodybytes.Bytes())
-
+	if err != nil {
+		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
+	}
 	token, err := jwt.Parse(jw, jwks.Keyfunc)
 
 	if err != nil {

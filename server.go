@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 type GrantType string
@@ -40,7 +41,7 @@ type CredentialsVerifier interface {
 	ValidateJwt(token string) (bool, error)
 
 	UserLookup(username, password, scope string) (map[string]string, error)
-	SessionGet(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error)
+	SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error)
 	SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error)
 
 	StoreClientDelete(client []string) error
@@ -158,6 +159,9 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 	switch grantType {
 	case PasswordGrant:
 		e, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		if err != nil {
+			log.Err(err)
+		}
 		if err := e; err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}

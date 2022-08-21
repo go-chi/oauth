@@ -27,7 +27,11 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	tokens := jwt.NewWithClaims(rt, claims)
 	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
 	signedToken, err := tokens.SignedString(kc.Pk)
-	ParseJWT(signedToken, &kc.Pk.PublicKey)
+	if err != nil {
+		fmt.Printf("failed to parse token: %e", err)
+	}
+	ss, err := ParseJWT(signedToken, &kc.Pk.PublicKey)
+	fmt.Println(ss)
 	if err != nil {
 		fmt.Printf("failed to parse token: %e", err)
 	}
@@ -100,7 +104,7 @@ func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	//sub := val.(string)
 	return claims, err
 	//}
-	return jwt.MapClaims{}, err
+	//return jwt.MapClaims{}, err
 }
 
 func ExtractJWTtoUserGroup(jwtToken string, kc *rsa.PublicKey) ([]string, error) {

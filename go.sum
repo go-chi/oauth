@@ -2,15 +2,11 @@ github.com/MicahParks/keyfunc v1.1.0 h1:9NcnRwS0ciuVeVNi+vTdYVMTmk62OID7VlG6y9Bg
 github.com/MicahParks/keyfunc v1.1.0/go.mod h1:a4yfunv77gZ0RgTNw7tOYS+bjtHk5565e+1dPz+YJI8=
 github.com/christhirst/gohelper v0.0.3 h1:yMgi14JuWb7DUQ0V4yqTiwRMFoMqh2bsUX/iT9pmu+w=
 github.com/christhirst/gohelper v0.0.3/go.mod h1:9Yt500iU96s3obRLaRprWu+CjgBY7cdGKsHGk0R7m7Y=
-github.com/christhirst/sessions v0.0.0-20220820152153-e9da793f4b71 h1:kq7ySoLsZA+uGFaVnk0GjSz9yaNOO9tcUfZQX1/L0UQ=
-github.com/christhirst/sessions v0.0.0-20220820152153-e9da793f4b71/go.mod h1:A4gGmsFTIEUgdha+//ogosn5I8xQeJ/F8/fFLnibjIo=
 github.com/coreos/go-systemd/v22 v22.3.2/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/go-chi/chi/v5 v5.0.4 h1:5e494iHzsYBiyXQAHHuI4tyJS9M3V84OuX3ufIIGHFo=
 github.com/go-chi/chi/v5 v5.0.4/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-chi/cors v1.2.0 h1:tV1g1XENQ8ku4Bq3K9ub2AtgG+p16SmzeMSGTwrOKdE=
 github.com/go-chi/cors v1.2.0/go.mod h1:sSbTewc+6wYHBBCW7ytsFSn836hqM7JxpglAy2Vzc58=
-github.com/go-session/session/v3 v3.1.7 h1:itIpJrGInZ4TCcxHM0JhrcQmbAuDTxBKs/RusiZqB/U=
-github.com/go-session/session/v3 v3.1.7/go.mod h1:PieA4nuP9myN/vnXEOMZasQZ28cj77KP2K0SyLiZ6dk=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=

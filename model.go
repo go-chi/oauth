@@ -18,6 +18,10 @@ const (
 	ClientToken TokenType = "C"
 )
 
+type postData struct {
+	Key   string
+	Value string
+}
 type OpenidConfig struct {
 	Issuer                                        string   `json:"issuer"`
 	Authorization_endpoint                        string   `json:"authorization_endpoint"`
@@ -51,7 +55,7 @@ type TokenResponse struct {
 	ExpiresIn    int64             `json:"expires_in"` // secs
 	Properties   map[string]string `json:"properties"`
 	IDtoken      string            `json:"id_token"`
-	scope        string            `json:"scope"`
+	Scope        string            `json:"scope"`
 }
 
 type MyCustomClaims struct {
@@ -114,7 +118,7 @@ type ClientConfig struct {
 	Kid    string     `json:"kid"`
 }
 
-type User struct {
+/* type User struct {
 	sub                string
 	name               string
 	given_name         string
@@ -142,7 +146,7 @@ type User struct {
 	// [ country ] {string} Country name component.
 	// [ updated_at ] {number} Time the end-user's information was last updated, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time.
 
-}
+} */
 
 type Keys struct {
 	Keys []map[string]string `json:"keys"`
@@ -152,17 +156,20 @@ type KeyContainer struct {
 	Pk   *rsa.PrivateKey
 	Keys Keys
 }
-type RedirectParameter struct {
-	code          string
-	state         string
-	nonce         string
-	response_type string
-	scope         string
-	redirect_uri  string
-	client_id     string
-	username      string
-	credential    string
-}
+
+/*
+	 type RedirectParameter struct {
+		code          string
+		state         string
+		nonce         string
+		response_type string
+		scope         string
+		redirect_uri  string
+		client_id     string
+		username      string
+		credential    string
+	}
+*/
 type Registration struct {
 	Client_id                       string   `json:"client_id,omitempty"`
 	Client_secret                   string   `json:"client_secret,omitempty"`

@@ -7,20 +7,24 @@ import (
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 func TestGenerateIdToken4Password(t *testing.T) {
 	var at = AuthToken{}
 	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
+	if err != nil {
+		log.Err(err)
+	}
+
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
 	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
 		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
-	if err != nil {
 
-	}
 	t.Logf("Token response: %v", resp)
 	t.Error()
 }
@@ -28,15 +32,17 @@ func TestGenerateIdToken4Password(t *testing.T) {
 func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
 	var at = AuthToken{}
 	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
+	if err != nil {
+		log.Err(err)
+	}
+
 	if code != 200 {
 		t.Fatalf("Error StatusCode = %d", code)
 	}
 	if resp.(*TokenResponse).Properties["ctx_value"] != "test" {
 		t.Fatalf("Error ctx_value invalid = %s", resp.(*TokenResponse).Properties["ctx_value"])
 	}
-	if err != nil {
 
-	}
 	t.Logf("Token response: %v", resp)
 
 }
