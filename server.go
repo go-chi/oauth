@@ -75,9 +75,9 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 	kc := KeyContainer{Pk: privatekey}
 	GenJWKS(&kc)
 
-	/* if formatter == nil {
+	 if formatter == nil {
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
-	} */
+	} 
 	clients := InitClientConfig()
 	return &BearerServer{
 		secretKey: secretKey,
