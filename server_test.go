@@ -133,7 +133,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
 
 	fmt.Println("++++")
 	cookies, err := r.Cookie(cookieID)

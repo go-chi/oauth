@@ -187,7 +187,7 @@ func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, use
 	return true, nil
 }
 
-func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
 
 	return true, nil
 }
