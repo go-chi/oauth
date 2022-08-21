@@ -112,7 +112,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
 
-		_, err = bs.verifier.SessionSave(w, r, credential, "goID")
+		_, err = bs.verifier.SessionSave(w, r, credential, "user_session")
 		if err != nil {
 			log.Err(err)
 		}
