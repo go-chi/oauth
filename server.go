@@ -42,7 +42,7 @@ type CredentialsVerifier interface {
 
 	UserLookup(username, password, scope string) (map[string]string, error)
 	SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error)
-	SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error)
+	SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error)
 
 	StoreClientDelete(client []string) error
 	StoreClient(clientname string, registration Registration, methode string) (map[string]interface{}, error)

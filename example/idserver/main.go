@@ -182,7 +182,7 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 	return nil, nil
 }
 
-func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
 
 	return true, nil
 }
