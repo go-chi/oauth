@@ -52,7 +52,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	ok, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("")
 	}
 	if ok {
 		RedirectAccess(bs, w, r)
