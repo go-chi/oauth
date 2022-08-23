@@ -184,12 +184,12 @@ func (*TestUserVerifier) UserLookup(username, password, scope string) (map[strin
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
 
-	return true, nil
+	return "", nil
 }
 
 func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error) {
 
-	return true, nil
+	return "", true, nil
 }
 
 func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {

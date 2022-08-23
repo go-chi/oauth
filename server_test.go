@@ -133,22 +133,22 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error) {
 
 	fmt.Println("++++")
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
 		fmt.Println(cookies)
 	}
-	return true, nil
+	return "", true, nil
 }
 
-func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (bool, error) {
+func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
 		fmt.Println(cookies)
 	}
-	return true, nil
+	return "", nil
 }
 
 func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{}, error) {
