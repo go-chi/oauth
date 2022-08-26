@@ -179,7 +179,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case ClientCredentialsGrant:
-		if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
+		if err := bs.verifier.ValidateClient(credential, secret); err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
