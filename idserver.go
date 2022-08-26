@@ -70,8 +70,9 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 	if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
 		return "Token generation failed, check security provider", http.StatusInternalServerError, err
 	} */
-	case AuthCodeGrant:
 
+	//--------------------------->to Function and RedirectAccess -->takes that func
+	case AuthCodeGrant:
 		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
 		if err != nil {
 			log.Err(err)
