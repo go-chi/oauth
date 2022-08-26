@@ -76,7 +76,7 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 }
 
 // Validate clientID and secret returning an error if the client credentials are wrong
-func (TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *http.Request) error {
+func (TestUserVerifier) ValidateClient(clientID, clientSecret string) error {
 	// Add something to the request context, so we can access it in the claims and props funcs.
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "oauth.claims.test", "test")

@@ -132,7 +132,7 @@ func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.
 }
 
 // ValidateClient validates clientID and secret returning an error if the client credentials are wrong
-func (*TestUserVerifier) ValidateClient(clientID, clientSecret, scope string, r *http.Request) error {
+func (*TestUserVerifier) ValidateClient(clientID, clientSecret string) error {
 	if clientID == "abcdef" && clientSecret == "12345" {
 		return nil
 	}

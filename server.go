@@ -24,7 +24,7 @@ type CredentialsVerifier interface {
 	// Validate username and password returning an error if the user credentials are wrong
 	ValidateUser(username, password, scope string, r *http.Request) ([]string, error)
 	// Validate clientID and secret returning an error if the client credentials are wrong
-	ValidateClient(clientID, clientSecret, scope string, r *http.Request) error
+	ValidateClient(clientID, clientSecret string) error
 	// Provide additional claims to the token
 	AddClaims(tokenType TokenType, credential, tokenID, scope string, r *http.Request) (map[string]string, error)
 	// Provide additional information to the authorization server response
@@ -36,7 +36,7 @@ type CredentialsVerifier interface {
 	// Provide additional claims to the idtoken
 	AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
-	CreateClaims(username, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
+	CreateClaims(username, nonce string, groups []sValidateClienttring, at AuthToken, r *http.Request) MyCustomClaims
 
 	ValidateJwt(token string) (bool, error)
 
