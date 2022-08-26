@@ -218,7 +218,7 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 	return newMap, nil
 }
 
-func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet() (map[string]interface{}, error) {
 
 	//var respInterface map[string]interface{}
 	/* inrec, _ := json.Marshal(clientId)

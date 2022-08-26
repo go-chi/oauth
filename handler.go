@@ -100,7 +100,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			path := r.URL.Path
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]
-			clientConfig, err = bs.verifier.StoreClientsGet(clientID)
+			clientConfig, err = bs.verifier.StoreClientGet(clientID)
 			rc := 200
 			if err != nil {
 				log.Err(err)
