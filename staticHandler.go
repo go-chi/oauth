@@ -40,7 +40,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		response_type := r.URL.Query()["response_type"][0]
 		scope := strings.Split(r.URL.Query()["scope"][0], ",")
 		nonce := r.URL.Query()["nonce"][0]
-		redirect_uri = r.URL.Query()["redirect_uri"][0]
+		redirect_uri := r.URL.Query()["redirect_uri"][0]
 		state = r.URL.Query()["state"][0]
 		fmt.Println(aud)
 		fmt.Println(nonce)
