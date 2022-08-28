@@ -194,10 +194,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(groups)
 	}
 
-	//fmt.Println(redirect_uri)
-	//fmt.Println(response_type)
-	//fmt.Println(r.URL.Query())
-
 	var authParameter = AuthToken{
 		//iss:   client_id,
 		//sub:   client_id,
@@ -223,6 +219,11 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	claims := CreateClaims(authParameter, bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
+	OpenIDConnectFlows(response_type, id_token, state, access_token, scope, w, r)
+
+}
+
+func OpenIDConnectFlows(response_type, id_token, state, access_token string, scope []string, w http.ResponseWriter, r *http.Request) {
 
 	switch response_type {
 	case "id_token":
@@ -231,7 +232,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	case "code":
 		if slices.Contains(scope, "openid") {
 			fmt.Println("ssss")
-
 			location := redirect_uri + "?code=" + access_token + "&state=" + state
 			fmt.Println(location)
 			w.Header().Add("Location", location)
