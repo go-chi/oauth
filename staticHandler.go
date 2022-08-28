@@ -33,21 +33,23 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query()["state"][0]
-
+	u, _, err := bs.verifier.SessionGet(w, r, "user_session")
 	if len(r.URL.Query()["client_id"]) > 0 {
-		aud = r.URL.Query()["client_id"][0]
+		aud := r.URL.Query()["client_id"][0]
 		bs.nonce = r.URL.Query()["nonce"][0]
-		response_type = r.URL.Query()["response_type"][0]
-		scope = strings.Split(r.URL.Query()["scope"][0], ",")
-		nonce = r.URL.Query()["nonce"][0]
+		response_type := r.URL.Query()["response_type"][0]
+		scope := strings.Split(r.URL.Query()["scope"][0], ",")
+		nonce := r.URL.Query()["nonce"][0]
 		redirect_uri = r.URL.Query()["redirect_uri"][0]
 		state = r.URL.Query()["state"][0]
+		fmt.Println(aud)
+		fmt.Println(nonce)
+		fmt.Println(redirect_uri)
+		fmt.Println(state)
+		fmt.Println(response_type)
+		fmt.Println(scope)
 	}
-	fmt.Println(aud)
-	fmt.Println(nonce)
-	fmt.Println(redirect_uri)
-	fmt.Println(state)
-
+	fmt.Println(u)
 	access_token, err := JWTCreateAccessT(bs, r)
 	if err != nil {
 		log.Err(err)
@@ -68,7 +70,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
-		log.Error().Err(err).Msg(s)
+		log.Error().Err(err).Msg(userID)
 	}
 	if ok {
 		RedirectAccess(bs, w, r)
