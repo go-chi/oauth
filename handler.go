@@ -219,11 +219,11 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	claims := CreateClaims(authParameter, bs.nonce, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	OpenIDConnectFlows(response_type, id_token, state, access_token, scope, w, r)
+	OpenIDConnectFlows(response_type, id_token, access_token, state, scope, w, r)
 
 }
 
-func OpenIDConnectFlows(response_type, id_token, state, access_token string, scope []string, w http.ResponseWriter, r *http.Request) {
+func OpenIDConnectFlows(response_type, id_token, access_token, state string, scope []string, w http.ResponseWriter, r *http.Request) {
 
 	switch response_type {
 	case "id_token":
