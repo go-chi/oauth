@@ -3,6 +3,7 @@ package oauth
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 )
@@ -32,6 +33,21 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query()["state"][0]
+
+	if len(r.URL.Query()["client_id"]) > 0 {
+		aud = r.URL.Query()["client_id"][0]
+		bs.nonce = r.URL.Query()["nonce"][0]
+		response_type = r.URL.Query()["response_type"][0]
+		scope = strings.Split(r.URL.Query()["scope"][0], ",")
+		nonce = r.URL.Query()["nonce"][0]
+		redirect_uri = r.URL.Query()["redirect_uri"][0]
+		state = r.URL.Query()["state"][0]
+	}
+	fmt.Println(aud)
+	fmt.Println(nonce)
+	fmt.Println(redirect_uri)
+	fmt.Println(state)
+
 	access_token, err := JWTCreateAccessT(bs, r)
 	if err != nil {
 		log.Err(err)
