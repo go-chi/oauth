@@ -178,8 +178,8 @@ func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tok
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
-func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
-	return nil, nil
+func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
+	return nil, nil, nil
 }
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {

@@ -33,12 +33,12 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query()["state"][0]
-	u, _, err := bs.verifier.SessionGet(w, r, "user_session")
+	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
 	//if len(r.URL.Query()["client_id"]) > 0 {
 	aud := r.URL.Query()["client_id"][0]
 	bs.nonce = r.URL.Query()["nonce"][0]
 	response_type := r.URL.Query()["response_type"][0]
-	scope := strings.Split(r.URL.Query()["scope"][0], ",")
+	scopes := strings.Split(r.URL.Query()["scope"][0], ",")
 	nonce := r.URL.Query()["nonce"][0]
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
 	state = r.URL.Query()["state"][0]
@@ -47,9 +47,9 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(redirect_uri)
 	fmt.Println(state)
 	fmt.Println(response_type)
-	fmt.Println(scope)
+	fmt.Println(scopes)
 	//}
-	fmt.Println(u)
+	fmt.Println(userID)
 	//access_token, err := JWTCreateAccessT(bs, r)
 	if err != nil {
 		log.Err(err)
@@ -58,14 +58,15 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Aud:   aud,
 		Nonce: nonce,
 	}
-	claims := CreateClaims(authParameter, bs.nonce, r)
+	_, groups, err := bs.verifier.UserLookup(userID, scopes)
+	claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	//location := redirect_uri + "?code=" + access_token + "&state=" + state
 	//w.Header().Add("Location", location)
 	//http.Redirect(w, r, location, 302)
 
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	OpenIDConnectFlows(response_type, id_token, access_token, redirect_uri, state, scope, w, r)
+	OpenIDConnectFlows(response_type, id_token, access_token, redirect_uri, state, scopes, w, r)
 }
 
 /* func GetSession(bs *BearerServer, w http.ResponseWriter, r *http.Request) (bool, error) {

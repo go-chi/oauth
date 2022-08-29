@@ -42,8 +42,8 @@ func (*TestUserVerifier) StoreClientDelete(clientId []string) error {
 	return nil
 }
 
-func (*TestUserVerifier) UserLookup(username, password, scope string) (map[string]string, error) {
-	return nil, nil
+func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
+	return nil, nil, nil
 }
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil

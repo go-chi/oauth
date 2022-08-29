@@ -42,7 +42,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	return signedToken, err
 }
 
-func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
+func CreateClaims(at AuthToken, nonce string, groups []string, r *http.Request) MyCustomClaims {
 	baseURL := scheme + r.Host
 
 	sub := "somebody"
@@ -51,7 +51,7 @@ func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 	claims := MyCustomClaims{
 		"bars",
 		nonce,
-		[]string{"admin"},
+		groups,
 		jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -67,7 +67,7 @@ func CreateClaims(at AuthToken, nonce string, r *http.Request) MyCustomClaims {
 	return claims
 }
 
-func JWTCreateAccessT(bs *BearerServer, r *http.Request) (string, error) {
+func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (string, error) {
 
 	aud := r.URL.Query()["client_id"][0]
 	nonce := r.URL.Query()["nonce"][0]
@@ -84,7 +84,7 @@ func JWTCreateAccessT(bs *BearerServer, r *http.Request) (string, error) {
 		//acr:       scope,
 		//azp:       state,
 	}
-	claims := CreateClaims(authParameter, nonce, r)
+	claims := CreateClaims(authParameter, nonce, groups, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 
 	return access_token, err

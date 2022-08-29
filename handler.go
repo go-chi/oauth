@@ -216,7 +216,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		"aud":           aud,
 	} */
 
-	claims := CreateClaims(authParameter, bs.nonce, r)
+	claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scope, w, r)
