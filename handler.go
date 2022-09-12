@@ -35,7 +35,9 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	//code = r.FormValue("code")
 
 	scope := r.FormValue("scope")
-
+	aud := r.FormValue("client_id")
+	fmt.Println(aud)
+	fmt.Println("client_id")
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
