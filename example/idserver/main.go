@@ -100,7 +100,7 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
-func (TestUserVerifier) CreateClaims(username, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := oauth.MyCustomClaims{

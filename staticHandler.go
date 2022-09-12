@@ -59,7 +59,9 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Nonce: nonce,
 	}
 	_, groups, err := bs.verifier.UserLookup(userID, scopes)
+
 	claims := CreateClaims(authParameter, bs.nonce, groups, r)
+	claims = bs.verifier.CreateClaims(userID, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	//location := redirect_uri + "?code=" + access_token + "&state=" + state
 	//w.Header().Add("Location", location)

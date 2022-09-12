@@ -36,7 +36,7 @@ type CredentialsVerifier interface {
 	// Provide additional claims to the idtoken
 	AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
-	CreateClaims(username, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
+	CreateClaims(username, aud, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
 
 	ValidateJwt(token string) (bool, error)
 
