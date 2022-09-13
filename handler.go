@@ -163,6 +163,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		redirect_uri = r.URL.Query()["redirect_uri"][0]
 		state = r.URL.Query()["state"][0]
 	}
+	fmt.Println(aud)
 
 	usernameSlice, ok := r.Form["name"]
 	if ok {
