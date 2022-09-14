@@ -60,7 +60,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	}
 	_, groups, err := bs.verifier.UserLookup(userID, scopes)
 
-	claims := CreateClaims(authParameter, bs.nonce, groups, r)
+	//claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	claims = bs.verifier.CreateClaims(userID, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	//location := redirect_uri + "?code=" + access_token + "&state=" + state
@@ -81,6 +81,8 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
+	fmt.Println(userID)
+	fmt.Println("oooo")
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
 	}
