@@ -34,6 +34,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 	fmt.Println("r.Form")
 	fmt.Println(r.Form)
 	fmt.Println(r.FormValue("client_id"))
+	fmt.Println(r.URL.Query())
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
