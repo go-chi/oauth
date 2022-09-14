@@ -220,7 +220,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		"aud":           aud,
 	} */
 
-	claims := CreateClaims(authParameter, bs.nonce, groups, r)
+	//claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	claims = bs.verifier.CreateClaims(username, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
