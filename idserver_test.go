@@ -13,7 +13,7 @@ import (
 
 func TestGenerateIdToken4Password(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", PasswordGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", "", PasswordGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
 	if err != nil {
 		log.Err(err)
 	}
@@ -31,7 +31,7 @@ func TestGenerateIdToken4Password(t *testing.T) {
 
 func TestGenerateIdTokenAuthCodeGrant(t *testing.T) {
 	var at = AuthToken{}
-	resp, code, err := _sut.GenerateIdTokenResponse("RS256", ClientCredentialsGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
+	resp, code, err := _sut.GenerateIdTokenResponse("RS256", "", ClientCredentialsGrant, "", "", "", "", at, *new(http.ResponseWriter), new(http.Request))
 	if err != nil {
 		log.Err(err)
 	}
@@ -51,7 +51,7 @@ func TestGenerateRefreshTokenGrant(t *testing.T) {}
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	var at = AuthToken{}
 	r := new(http.Request)
-	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", UserToken, "user111", "openid", []string{"group1"}, at, r)
+	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", "", UserToken, "user111", "openid", []string{"group1"}, at, r)
 
 	if idtoken == "nil" {
 		fmt.Println(idtoken)

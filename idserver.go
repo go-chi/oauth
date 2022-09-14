@@ -30,7 +30,7 @@ type Cookie struct {
 }
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	fmt.Println("r.Form")
 	fmt.Println(r.Form)
 	fmt.Println(r.FormValue("client_id"))
@@ -45,7 +45,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, groups, at, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}
@@ -128,7 +128,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, grantType GrantTy
 			log.Err(err)
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", UserToken, credential, scope, groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, groups, at, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
@@ -181,7 +181,7 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(method string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
+func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
 	//claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
 	claims := bs.verifier.CreateClaims(username, "CLIENT_ID", bs.nonce, groups, at, r)
 	//claims := CreateClaims(at, bs.nonce, r)
