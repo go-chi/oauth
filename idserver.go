@@ -190,7 +190,7 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 
 func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
 	//claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
-	claims := bs.verifier.CreateClaims(username, "CLIENT_ID", bs.nonce, groups, at, r)
+	claims := bs.verifier.CreateClaims(username, aud, bs.nonce, groups, at, r)
 	//claims := CreateClaims(at, bs.nonce, r)
 
 	token, _ := CreateJWT(method, claims, bs.Kc)

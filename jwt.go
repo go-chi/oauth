@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
@@ -42,7 +41,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	return signedToken, err
 }
 
-func CreateClaims(at AuthToken, nonce string, groups []string, r *http.Request) MyCustomClaims {
+/* func CreateClaims(at AuthToken, nonce string, groups []string, r *http.Request) MyCustomClaims {
 	baseURL := scheme + r.Host
 
 	sub := "somebody"
@@ -65,7 +64,7 @@ func CreateClaims(at AuthToken, nonce string, groups []string, r *http.Request) 
 	}
 
 	return claims
-}
+} */
 
 func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (string, error) {
 
@@ -73,7 +72,7 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 	nonce := r.URL.Query()["nonce"][0]
 	bs.nonce = nonce
 	redirect_uri = r.URL.Query()["redirect_uri"][0]
-	var authParameter = AuthToken{
+	/* var authParameter = AuthToken{
 		//iss:   client_id,
 		//sub:   client_id,
 		Aud:   aud,
@@ -83,8 +82,9 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 		//auth_time: response_type,
 		//acr:       scope,
 		//azp:       state,
-	}
-	claims := CreateClaims(authParameter, nonce, groups, r)
+	} */
+	claims := bs.verifier.CreateClaims("username", aud, bs.nonce, groups, at, r)
+	//claims := CreateClaims(authParameter, nonce, groups, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 
 	return access_token, err
