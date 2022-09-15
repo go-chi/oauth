@@ -31,10 +31,16 @@ type Cookie struct {
 
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	fmt.Println("r.Form")
+
 	fmt.Println(r.Form)
-	fmt.Println(r.FormValue("client_id"))
+
 	fmt.Println(r.URL.Query())
+	fmt.Println("r.Form")
+	fmt.Println(r.FormValue("code"))
+	authcode := r.FormValue("code")
+	ii, err := ParseJWT(authcode, &bs.Kc.Pk.PublicKey)
+	fmt.Println(ii, err)
+	fmt.Println(grantType)
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
