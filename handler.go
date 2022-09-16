@@ -110,6 +110,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
+
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
