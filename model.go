@@ -170,6 +170,12 @@ type KeyContainer struct {
 		credential    string
 	}
 */
+
+type Mapping struct {
+	Client_name string                `json:"client_name,omitempty"`
+	Mapping     []map[string][]string `json:"mapping,omitempty"`
+}
+
 type Registration struct {
 	Client_id                       string   `json:"client_id,omitempty"`
 	Client_secret                   string   `json:"client_secret,omitempty"`

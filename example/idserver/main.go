@@ -75,6 +75,7 @@ func registerAPI(r *chi.Mux) {
 	r.Get("/users/sign_in", s.SignIn)
 	r.HandleFunc("/oauth/clients/{id}", s.Registration)
 	r.Get("/oauth/clients", s.Registration)
+	r.HandleFunc("/oauth/mappings/{id}", s.Registration)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Get("/oauth/keys", s.ReturnKeys)
