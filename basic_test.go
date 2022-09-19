@@ -3,24 +3,39 @@ package oauth
 import (
 	"encoding/base64"
 	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 )
 
-func TestGetBasicAuthentication(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/token", nil)
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:password123456")))
+func TestA(t *testing.T) {
+	slowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(20 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer slowServer.Close()
+	http.Get(slowServer.URL)
 
-	username, password, err := GetBasicAuthentication(req)
-	if err != nil {
-		t.Fatalf("Error %s", err.Error())
-	} else {
-		if username != "admin" {
-			t.Fatalf("Wrong Username = %s", username)
+}
+
+func TestGetBasicAuthentication(t *testing.T) {
+
+	httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:password123456")))
+		username, password, err := GetBasicAuthentication(r)
+
+		if err != nil {
+			t.Fatalf("Error %s", err.Error())
+		} else {
+			if username != "admin" {
+				t.Fatalf("Wrong Username = %s", username)
+			}
+			if password != "password123456" {
+				t.Fatalf("Wrong Username = %s", password)
+			}
 		}
-		if password != "password123456" {
-			t.Fatalf("Wrong Username = %s", password)
-		}
-	}
+
+	}))
 }
 
 func TestVoidBasicAuthentication(t *testing.T) {
