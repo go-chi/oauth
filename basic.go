@@ -22,7 +22,7 @@ func GetBasicAuthentication(r *http.Request) (username, password string, err err
 			}
 		}
 	}
-	return "", "", nil
+	return "", "", errors.New("No user found")
 }
 
 // Check Basic Authorization header credentials

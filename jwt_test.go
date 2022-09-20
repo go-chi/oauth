@@ -39,12 +39,12 @@ func TestCreateJWT(t *testing.T) {
 	}
 
 	t.Run("Registration Test 1", func(t *testing.T) {
-		got := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+		got := ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
 	t.Run("Registration Test 1", func(t *testing.T) {
-		got := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+		got := ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})

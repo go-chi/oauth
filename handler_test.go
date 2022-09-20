@@ -23,7 +23,7 @@ var bs = NewBearerServer(
 	&TestUserVerifier{},
 	nil,
 )
-var claims = MyCustomClaims{
+var testclaims = MyCustomClaims{
 	Foo:    "cn",
 	Nonce:  "nonce",
 	Groups: []string{"group1", "group2"},
@@ -33,12 +33,12 @@ var claims = MyCustomClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    "baseURL" + "",
-		Subject:   "somebody",
+		Subject:   "testSubject",
 		ID:        "1",
 		Audience:  []string{"rrr"},
 	},
 }
-var clientConfig = ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+var clientConfig = ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 var signedToken, _ = CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 var theTests = []struct {
 	name               string
@@ -303,7 +303,7 @@ func TestRegistrationGets(t *testing.T) {
 			log.Fatalf(err.Error())
 		}
 
-		clientConfig := ClientConfig{Method: "RS256", Claims: claims, Kid: sig.String()}
+		clientConfig := ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 		signedToken, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 		if err != nil {
 			log.Fatal(err)
