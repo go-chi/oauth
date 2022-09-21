@@ -2,6 +2,8 @@ package oauth
 
 import (
 	"bytes"
+	"crypto/rand"
+	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,6 +19,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+var pk, _ = rsa.GenerateKey(rand.Reader, 4096)
 var bs = NewBearerServer(
 	"mySecretKey-10101",
 	time.Second*120,

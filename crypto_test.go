@@ -1,16 +1,12 @@
 package oauth
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
-
-var pk, _ = rsa.GenerateKey(rand.Reader, 2048)
 
 func TestReturnKeys(t *testing.T) {
 	//pass request to handler with nil as parameter
@@ -27,12 +23,11 @@ func TestReturnKeys(t *testing.T) {
 
 	// Check the status code is what we expect.
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
+		t.Errorf("Handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-
-	bodybytes := rr.Body
-	decoder := json.NewDecoder(bodybytes)
+	//ee := []map[string]string{{"alg": "ee"}, {"e": "ee"}, {"n": "ee"}, {"kid": "ee"}, {"kty": "ee"}, {"use": "ee"}}
+	decoder := json.NewDecoder(rr.Body)
 	var tsa Keys
 	err = decoder.Decode(&tsa)
 	if err != nil {

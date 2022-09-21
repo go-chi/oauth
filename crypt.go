@@ -20,6 +20,5 @@ func GenJWKS(kc *KeyContainer) {
 }
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
-
-	renderJSON(w, bs.Kc.Keys, 200)
+	renderJSON(w, bs.Kc.Keys, http.StatusOK)
 }

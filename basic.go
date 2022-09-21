@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var ErrNoUserFound = errors.New("No user found")
+
 // GetBasicAuthentication get username and password from Authorization header
 func GetBasicAuthentication(r *http.Request) (username, password string, err error) {
 	if header := r.Header.Get("Authorization"); header != "" {
@@ -22,11 +24,11 @@ func GetBasicAuthentication(r *http.Request) (username, password string, err err
 			}
 		}
 	}
-	return "", "", errors.New("No user found")
+	return "", "", ErrNoUserFound
 }
 
 // Check Basic Authorization header credentials
-func CheckBasicAuthentication(username, password string, r *http.Request) error {
+/* func CheckBasicAuthentication(username, password string, r *http.Request) error {
 	u, p, err := GetBasicAuthentication(r)
 	if err != nil {
 		return err
@@ -36,3 +38,4 @@ func CheckBasicAuthentication(username, password string, r *http.Request) error 
 	}
 	return nil
 }
+*/
