@@ -61,17 +61,15 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 		log.Err(err)
 	}
 	token := r.PostForm["token"]
-	_, err = bs.verifier.ValidateJwt(token[0])
+	ok, err := bs.verifier.ValidateJwt(token[0])
+	fmt.Println(token)
+	fmt.Println(ok)
+
 	if err != nil {
 		log.Err(err)
 	}
-	/* 	if r.Header["Accept"][0] == "application/json" {
 
-	   	} else if r.Header["Accept"][0] == "application/jwt" {
-
-	   	} */
-
-	if len(token) > 0 {
+	if len(token) > 0 || ok == false {
 		we := map[string]bool{
 			"active": true,
 		}

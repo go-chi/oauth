@@ -29,7 +29,7 @@ var bs = NewBearerServer(
 var testclaims = MyCustomClaims{
 	Foo:    "cn",
 	Nonce:  "nonce",
-	Groups: []string{"group1", "group2"},
+	Groups: []string{"testgroup1", "testgroup2"},
 	RegisteredClaims: jwt.RegisteredClaims{
 		// A usual scenario is to set the expiration time relative to the current time
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -54,27 +54,27 @@ var theTests = []struct {
 }{
 	{
 		"config1", "/oauth/clients", "POST",
-		[]postData{}, http.StatusOK, "c2id.com",
+		[]postData{}, http.StatusOK, "localhost",
 		"Bearer " + signedToken,
 	},
 	{
 		"config2", "/oauth/clients/testclient1", "GET",
-		[]postData{}, http.StatusOK, "c2id.com",
+		[]postData{}, http.StatusOK, "localhost",
 		"Bearer " + signedToken,
 	},
 	{
 		"config3", "/oauth/clients", "GET",
-		[]postData{}, http.StatusOK, "c2id.com",
+		[]postData{}, http.StatusOK, "localhost",
 		"Bearer " + signedToken,
 	},
 	{
 		"config4", "/oauth/clients/testclient1", "DELETE",
-		[]postData{}, http.StatusOK, "c2id.com",
+		[]postData{}, http.StatusOK, "localhost",
 		"Bearer " + signedToken,
 	},
 	{
 		"config5", "/oauth/clients/testclient1", "GET",
-		[]postData{}, http.StatusOK, "c2id.com",
+		[]postData{}, http.StatusOK, "localhost",
 		"Bearer " + signedToken,
 	},
 }
@@ -90,20 +90,24 @@ var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 func TestGetConfig(t *testing.T) {}
 
 func TestTokenIntrospect(t *testing.T) {
-	//pass request to handler with nil as parameter
-	req, err := http.NewRequest("POST", "/oauth/introspect", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(bs.TokenIntrospect)
+	t.Run("Get jwt from Header", func(t *testing.T) {
+		mux := chi.NewRouter()
+		mux.Post("/oauth/introspect", bs.TokenIntrospect)
+		ts := httptest.NewTLSServer(mux)
+		dd := url.Values{"token": {"test", "test2"}}
+		ee, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
+		if err != nil {
+			t.Errorf("json encoding failed %v", err)
+		}
+		t.Error(ee)
+		//assertResponseBody(t, got, want)
+	})
 
 	//call ServeHTTP method and pass  Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
+	//handler.ServeHTTP(rr, req)
 
 	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusOK {
+	/* if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
@@ -115,7 +119,6 @@ func TestTokenIntrospect(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-
 	for _, v := range tsa.Keys {
 		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
@@ -124,7 +127,7 @@ func TestTokenIntrospect(t *testing.T) {
 			}
 
 		}
-	}
+	} */
 
 }
 func TestOpenidConfig(t *testing.T) {}

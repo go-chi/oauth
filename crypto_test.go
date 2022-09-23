@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -48,21 +47,15 @@ func TestReturnKeys(t *testing.T) {
 
 func TestGenJWKS(t *testing.T) {
 	ii := bs.Kc.Keys.Keys
-	/*
-		for _, v := range ii {
-			fmt.Println(v)
-		} */
-	//GenJWKS(bs.Kc)
+	GenJWKS(bs.Kc)
 	var keys []string
 
 	for _, v := range ii {
 		for ii := range v {
 			keys = append(keys, ii)
 		}
-
 	}
 	if len(keys) != 6 {
-		fmt.Println(keys)
 		t.Error()
 	}
 }

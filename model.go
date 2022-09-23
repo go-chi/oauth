@@ -47,6 +47,10 @@ type OpenidConfig struct {
 	Request_object_signing_alg_values_supported   []string `json:"request_object_signing_alg_values_supported"`
 }
 
+type TokenRequest struct {
+	Token string `json:"token"`
+}
+
 // TokenResponse is the authorization server response
 type TokenResponse struct {
 	Token        string            `json:"access_token"`
