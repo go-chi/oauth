@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,14 +26,8 @@ func TestReturnKeys(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-	//ee := []map[string]string{{"alg": "ee"}, {"e": "ee"}, {"n": "ee"}, {"kid": "ee"}, {"kty": "ee"}, {"use": "ee"}}
-	decoder := json.NewDecoder(rr.Body)
 	var tsa Keys
-	err = decoder.Decode(&tsa)
-	if err != nil {
-		panic(err)
-	}
-
+	ConvertBuff(rr.Body, &tsa)
 	for _, v := range tsa.Keys {
 		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
@@ -57,5 +52,13 @@ func TestGenJWKS(t *testing.T) {
 	}
 	if len(keys) != 6 {
 		t.Error()
+	}
+}
+
+func ConvertBuff[k any](buff io.Reader, target k) {
+	decoder := json.NewDecoder(buff)
+	err := decoder.Decode(&target)
+	if err != nil {
+		panic(err)
 	}
 }

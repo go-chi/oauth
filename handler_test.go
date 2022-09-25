@@ -6,7 +6,6 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -105,10 +104,8 @@ func TestTokenIntrospect(t *testing.T) {
 		if err != nil {
 			t.Errorf("json encoding failed %v", err)
 		}
-
 		obj := make(map[string]interface{})
-		respByte, _ := io.ReadAll(resp.Body)
-		err = json.Unmarshal(respByte[5:], &obj)
+		ConvertBuff(resp.Body, &obj)
 		for i, v := range obj {
 			if (i != "sub") && (i != "iat") && (i != "iss") && (i != "jti") && (i != "active") && (i != "scope") && (i != "client_id") {
 				if i == "active" && v != true {
