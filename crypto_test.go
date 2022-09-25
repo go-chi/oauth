@@ -27,7 +27,7 @@ func TestReturnKeys(t *testing.T) {
 			status, http.StatusOK)
 	}
 	var tsa Keys
-	ConvertBuff(rr.Body, &tsa)
+	ConvertIOReader(rr.Body, &tsa)
 	for _, v := range tsa.Keys {
 		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
@@ -54,8 +54,7 @@ func TestGenJWKS(t *testing.T) {
 		t.Error()
 	}
 }
-
-func ConvertBuff[k any](buff io.Reader, target k) {
+func ConvertIOReader[k any](buff io.Reader, target k) {
 	decoder := json.NewDecoder(buff)
 	err := decoder.Decode(&target)
 	if err != nil {

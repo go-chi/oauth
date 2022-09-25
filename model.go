@@ -82,10 +82,13 @@ type IntroSpectReturn struct {
 	Active     string   `json:"active"`
 	Scope      []string `json:"scope"`
 	Client_id  string   `json:"client_id"`
+	Username   string   `json:"username"`
 	Token_type string   `json:"token_type"`
 	Exp        string   `json:"exp"`
 	Iat        string   `json:"iat"`
+	Nbf        string   `json:"nbf"`
 	Sub        string   `json:"sub"`
+	Aud        string   `json:"aud"`
 	Iss        string   `json:"iss"`
 	Jti        string   `json:"jti"`
 }

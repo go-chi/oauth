@@ -33,12 +33,9 @@ var at AuthToken
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
-	//code = r.FormValue("code")
 
 	scope := r.FormValue("scope")
 	aud := r.FormValue("client_id")
-	fmt.Println(aud)
-	fmt.Println("client_id")
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
@@ -64,7 +61,7 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	token := r.PostForm["token"]
 	parsedToken, err := JWTvalid(token[0], &bs.Kc.Pk.PublicKey)
 	if err != nil {
-		log.Err(err)
+		log.Err(err).Msg("Token is invalid")
 		renderJSON(w, nil, 401)
 		return
 	}
@@ -72,29 +69,32 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 	//getting scope
 	scopes, err := parseScopes(parsedToken)
 	if err != nil {
-		log.Err(err)
+		log.Err(err).Msg("Parsing scopes failed")
 	}
 	client_id, err := parseClientid(parsedToken)
 	if err != nil {
-		log.Err(err)
+		log.Err(err).Msg("Parsing client_id failed")
 	}
 	if client_id == "" {
+		log.Err(err).Msg("No Client_id")
 		renderJSON(w, nil, 401)
 		return
 	}
 
 	if unauthorized, _ := Unauthorized(bs, client_id); unauthorized {
+		log.Err(err).Msg("Wrong client_id, unauthorized")
 		renderJSON(w, nil, 401)
 		return
 	}
 
 	if unallowed, _ := Forbidden(parsedToken.Claims); unallowed {
+		log.Err(err).Msg("Wrong claims, unallowed")
 		renderJSON(w, nil, 401)
 		return
 	}
 
 	if err == nil && len(token) > 0 && parsedToken.Valid {
-		qq := IntroSpectReturn{Active: "true", Scope: scopes, Client_id: client_id, Token_type: ""}
+		qq := IntroSpectReturn{Active: "true", Scope: scopes, Client_id: client_id, Username: "", Token_type: ""}
 		renderJSON(w, qq, 200)
 		return
 	} else if !false {

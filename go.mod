@@ -13,5 +13,3 @@ require (
 )
 
 require github.com/christhirst/gohelper v0.0.3
-
-require github.com/alexedwards/scs/v2 v2.5.0 // indirect
