@@ -105,7 +105,7 @@ func TestTokenIntrospect(t *testing.T) {
 			t.Errorf("json encoding failed %v", err)
 		}
 		obj := make(map[string]interface{})
-		ConvertBuff(resp.Body, &obj)
+		ConvertIOReader(resp.Body, &obj)
 		for i, v := range obj {
 			if (i != "sub") && (i != "iat") && (i != "iss") && (i != "jti") && (i != "active") && (i != "scope") && (i != "client_id") {
 				if i == "active" && v != true {
