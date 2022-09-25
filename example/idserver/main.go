@@ -101,13 +101,38 @@ type TestUserVerifier struct {
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
+
+// delete request for hostname
 func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
+
 	claims := oauth.MyCustomClaims{
 		Foo:    "bars",
 		Nonce:  nonce,
 		Groups: groups,
+
+		RegisteredClaims: jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    baseURL + "",
+			Subject:   "somebody",
+			ID:        "1",
+			Audience:  []string{at.Aud},
+		},
+	}
+	return claims
+}
+
+func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
+
+	fmt.Println("+++++++++++++")
+	scheme := "https://"
+	baseURL := scheme + r.Host
+
+	claims := oauth.MyCustomClaimss{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -124,7 +149,7 @@ func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []strin
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
-
+	fmt.Println("ddddd")
 	if username == "Aaliyah" && password == "12345" {
 		return []string{"group1", "group2", "group3", "group4"}, nil
 	}
@@ -209,14 +234,7 @@ func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registratio
 
 func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
 
-	//var respInterface map[string]interface{}
-	/* inrec, _ := json.Marshal(clientId)
-	json.Unmarshal(inrec, &respInterface)  */
-	ee := oauth.Registration{}
-	var i []interface{}
-	i = append(i, ee)
-	newMap := map[string]interface{}{"ee": i}
-	return newMap, nil
+	return nil, nil
 }
 
 func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{}, error) {

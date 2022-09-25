@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -55,8 +57,15 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		log.Err(err)
 	}
 	var authParameter = AuthToken{
-		Aud:   aud,
-		Nonce: nonce,
+		Iss:       "iss",
+		Sub:       "sub",
+		Aud:       aud,
+		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		Iat:       "",
+		Jti:       "",
+		Client_id: "Testclient_id",
+		Scope:     []string{"scope1", "scope2"},
+		Nonce:     nonce,
 	}
 	_, groups, err := bs.verifier.UserLookup(userID, scopes)
 

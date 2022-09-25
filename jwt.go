@@ -90,13 +90,19 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 	return access_token, err
 }
 
-func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
+func JWTvalid(jwtToken string, kc *rsa.PublicKey) (*jwt.Token, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
 	if err != nil {
 		return nil, err
 	}
-	if !parsedToken.Valid {
-		return jwt.MapClaims{}, errors.New("Token invalid")
+	return parsedToken, err
+}
+
+func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
+	parsedToken, err := JWTvalid(jwtToken, kc)
+	fmt.Println(err)
+	if err != nil && !parsedToken.Valid {
+		return nil, errors.New("Token invalid")
 	}
 
 	claims := parsedToken.Claims.(jwt.MapClaims)

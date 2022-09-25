@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -53,11 +54,31 @@ func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []strin
 
 	return MyCustomClaims{}
 }
+func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
+	scheme := "https://"
+	baseURL := scheme + r.Host
+	fmt.Println("+++++++++++++")
+	claims := MyCustomClaimss{
+		Client_id: client_id,
+		Scope:     scope,
+		RegisteredClaims: jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Second * 2)),
+			Issuer:    baseURL + "",
+			Subject:   "somebody",
+			ID:        "1",
+			Audience:  []string{at.Aud},
+		}}
+
+	return claims
+}
 
 // Validate username and password returning an error if the user credentials are wrong
 func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
 	// Add something to the request context, so we can access it in the claims and props funcs.
-
+	fmt.Println("ddddd")
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "claims.test", "test")
 	ctx = context.WithValue(ctx, "props.test", "test")
@@ -131,6 +152,7 @@ func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, r
 }
 
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
+	fmt.Println("dee")
 	return false, nil
 }
 
@@ -168,8 +190,30 @@ func (*TestUserVerifier) StoreClientsGet(client string) (map[string]interface{},
 }
 
 func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
+	fmt.Println("eweere")
+	ee := Registration{
+		Client_id:     "testClientID",
+		Client_secret: "testClientSecret",
+		Redirect_uris: []string{
+			"https://client.example.org/callback",
+			"https://client.example.org/callback2",
+		},
+		Grant_types:                  "openid",
+		Response_types:               "openid",
+		Id_token_signed_response_alg: "rs256",
+		Subject_type:                 "test",
+		Application_type:             "web",
+		Client_name:                  "MyCoolApp",
+		Logo_uri:                     "https://client.example.org/logo.png",
+		Token_endpoint_auth_method:   "client_secret_basic",
+		Contacts:                     []string{"admin@example.org"},
+		Registration_access_token:    "testRegToken",
+	}
 
-	return nil, nil
+	var respInterface map[string]interface{}
+	inrec, _ := json.Marshal(ee)
+	json.Unmarshal(inrec, &respInterface)
+	return respInterface, nil
 }
 
 func StoreClientDelete(client []string) {}

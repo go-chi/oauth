@@ -20,7 +20,7 @@ func TestGetBasicAuthentication(t *testing.T) {
 			t.Fatalf("Error %s", err.Error())
 		}
 
-		assertResponseBody(t, got, want)
+		assertDeepBody(t, got, want)
 	})
 
 	t.Run("Get jwt no user found", func(t *testing.T) {
@@ -39,9 +39,8 @@ func TestGetBasicAuthentication(t *testing.T) {
 	})
 }
 
-func assertResponseBody(t testing.TB, got, want []string) {
+func assertDeepBody[k any](t testing.TB, got, want k) {
 	t.Helper()
-
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
 	}

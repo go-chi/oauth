@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
@@ -61,27 +62,62 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 		log.Err(err)
 	}
 	token := r.PostForm["token"]
-	ok, err := bs.verifier.ValidateJwt(token[0])
-	fmt.Println(token)
-	fmt.Println(ok)
+	parsedToken, err := JWTvalid(token[0], &bs.Kc.Pk.PublicKey)
+	if err != nil {
+		log.Err(err)
+		renderJSON(w, nil, 401)
+		return
+	}
 
+	//getting scope
+	scopes, err := parseScopes(parsedToken)
 	if err != nil {
 		log.Err(err)
 	}
-
-	if len(token) > 0 || ok == false {
-		we := map[string]bool{
-			"active": true,
-		}
-		s := make(map[string]interface{}, len(we))
-		for i, v := range we {
-			s[i] = v
-		}
-		renderJSON(w, s, 200)
-	} else {
-		renderJSON(w, nil, 400)
+	client_id, err := parseClientid(parsedToken)
+	if err != nil {
+		log.Err(err)
+	}
+	if client_id == "" {
+		renderJSON(w, nil, 401)
+		return
 	}
 
+	if unauthorized, _ := Unauthorized(bs, client_id); unauthorized {
+		renderJSON(w, nil, 401)
+		return
+	}
+
+	if unallowed, _ := Forbidden(parsedToken.Claims); unallowed {
+		renderJSON(w, nil, 401)
+		return
+	}
+
+	if err == nil && len(token) > 0 && parsedToken.Valid {
+		qq := IntroSpectReturn{Active: "true", Scope: scopes, Client_id: client_id, Token_type: ""}
+		renderJSON(w, qq, 200)
+		return
+	} else if !false {
+	} else {
+		renderJSON(w, nil, 400)
+		return
+	}
+	//401 Unauthorized
+	//403 Forbidden
+
+}
+
+func Unauthorized(bs *BearerServer, client_id string) (bool, error) {
+	client, err := bs.verifier.StoreClientGet(client_id)
+	if client != nil {
+		return false, err
+	}
+	return true, err
+
+}
+
+func Forbidden(scope jwt.Claims) (bool, error) {
+	return false, nil
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +126,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
-
 	iamAdmin := slices.Contains(groups, "group1")
 	if iamAdmin {
 		switch r.Method {
@@ -108,7 +143,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
-
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
@@ -139,7 +173,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, jsonMap, 200)
 		default:
-			fmt.Println("Too far away.")
+			log.Error().Msg("failed")
 		}
 	}
 }
@@ -162,9 +196,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		redirect_uri = r.URL.Query()["redirect_uri"][0]
 		state = r.URL.Query()["state"][0]
 	}
-	fmt.Println("iiii")
-	fmt.Println(aud)
-	fmt.Println(r.URL.Query()["client_id"])
 	usernameSlice, ok := r.Form["name"]
 	if ok {
 		if err != nil {
@@ -190,7 +221,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
-
 	groups, err := bs.verifier.ValidateUser(username, password, scope[0], r)
 
 	if err != nil {
@@ -219,23 +249,20 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		"aud":           aud,
 	} */
 
-	//claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scope, w, r)
 
+	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scope, w, r)
 }
 
 func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
-
 	switch response_type {
 	case "id_token":
 		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code":
 		if slices.Contains(scope, "openid") {
-			fmt.Println("ssss")
 			location := redirect_uri + "?code=" + access_token + "&state=" + state
 			fmt.Println(location)
 			w.Header().Add("Location", location)

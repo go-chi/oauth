@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -41,6 +42,7 @@ var testclaims = MyCustomClaims{
 		Audience:  []string{"rrr"},
 	},
 }
+
 var clientConfig = ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 var signedToken, _ = CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 var theTests = []struct {
@@ -87,61 +89,75 @@ var client = Registration{
 
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
-func TestGetConfig(t *testing.T) {}
-
 func TestTokenIntrospect(t *testing.T) {
+	t.Run("Get jwt from Header", func(t *testing.T) {
+		req, _ := http.NewRequest("POST", "/oauth/introspect", nil)
+		mux := chi.NewRouter()
+		mux.Post("/oauth/introspect", bs.TokenIntrospect)
+		ts := httptest.NewTLSServer(mux)
+		groups := []string{"group1", "group2"}
+		scope := []string{"scope1", "scope2"}
+		claims := bs.verifier.CreateAtClaims("TestclientID", "username", "aud", bs.nonce, scope, groups, at, req)
+
+		access_token, _ := CreateJWT("RS256", claims, bs.Kc)
+		dd := url.Values{"token": {access_token}}
+		resp, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
+		if err != nil {
+			t.Errorf("json encoding failed %v", err)
+		}
+
+		obj := make(map[string]interface{})
+		respByte, _ := io.ReadAll(resp.Body)
+		err = json.Unmarshal(respByte[5:], &obj)
+		for i, v := range obj {
+			if (i != "sub") && (i != "iat") && (i != "iss") && (i != "jti") && (i != "active") && (i != "scope") && (i != "client_id") {
+				if i == "active" && v != true {
+					t.Error(err)
+				}
+			}
+		}
+	})
+
 	t.Run("Get jwt from Header", func(t *testing.T) {
 		mux := chi.NewRouter()
 		mux.Post("/oauth/introspect", bs.TokenIntrospect)
 		ts := httptest.NewTLSServer(mux)
 		dd := url.Values{"token": {"test", "test2"}}
-		ee, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
+		_, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
 		if err != nil {
 			t.Errorf("json encoding failed %v", err)
 		}
-		t.Error(ee)
-		//assertResponseBody(t, got, want)
+
 	})
 
-	//call ServeHTTP method and pass  Request and ResponseRecorder.
-	//handler.ServeHTTP(rr, req)
-
-	// Check the status code is what we expect.
-	/* if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
-	bodybytes := rr.Body
-	decoder := json.NewDecoder(bodybytes)
-	var tsa Keys
-	err = decoder.Decode(&tsa)
-	if err != nil {
-		panic(err)
-	}
-	for _, v := range tsa.Keys {
-		for ii := range v {
-			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
-				t.Error(err)
-				t.Errorf("expected other key: %s but got: ", ii)
-			}
-
-		}
-	} */
-
 }
-func TestOpenidConfig(t *testing.T) {}
+func assertResponseBody[k comparable](t testing.TB, got, want k) {
+	t.Helper()
+	if got != want {
+		t.Errorf("expected %v but got %v", got, want)
+	}
+}
+func executeRequest(req *http.Request, mux *chi.Mux) *httptest.ResponseRecorder {
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+	return rr
+}
+func createRequest[K any](c K, t *testing.T) bytes.Buffer {
+	t.Helper()
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(c)
+	if err != nil {
+		t.Errorf("json encoding failed %v", err)
+	}
+	return buf
+}
 
-func TestSignIn(t *testing.T) {}
-
-// req.Header.Add("Bearer","eee")
 func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
-	mux.Get("/oauth/clients/{id}", bs.Registration)
-	mux.Post("/oauth/clients", bs.Registration)
-	mux.Get("/oauth/clients", bs.Registration)
-
+	mux.HandleFunc("/oauth/clients/{id}", bs.Registration)
+	mux.HandleFunc("/oauth/clients", bs.Registration)
 	ts := httptest.NewTLSServer(mux)
+	defer ts.Close()
 
 	for _, e := range theTests {
 		if e.method == "GET" {
@@ -149,39 +165,27 @@ func TestRegistrationGet(t *testing.T) {
 			if err != nil {
 				t.Log(err)
 			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
-			}
+			assertResponseBody(t, resp.StatusCode, e.expectedStatusCode)
 		} else if e.method == "POST" {
-			var buf bytes.Buffer
-			err := json.NewEncoder(&buf).Encode(client)
-			if err != nil {
-				t.Errorf("json encoding failed %v", err)
-			}
+			buf := createRequest(client, t)
 			resp, err := ts.Client().Post(ts.URL+"/oauth/clients", "application/json", &buf)
 			if err != nil {
 				t.Errorf("json encoding failed %v", err)
 			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
-			}
+			assertResponseBody(t, resp.StatusCode, e.expectedStatusCode)
 		} else if e.method == "DELETE" {
-			fmt.Println(e.method)
-			var buf bytes.Buffer
-			err := json.NewEncoder(&buf).Encode(client)
-			fmt.Println(err, buf)
-			fmt.Println(client.Client_id)
-			resp, err := ts.Client().Post(ts.URL+"/oauth/clients/"+client.Client_id, "application/json", &buf)
+			req, err := http.NewRequest("DELETE", ts.URL+"/oauth/clients/"+client.Client_id, nil)
 			if err != nil {
 				t.Errorf("json encoding failed %v", err)
 			}
-			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+			resp, err := ts.Client().Do(req)
+			if err != nil {
+				t.Errorf("json encoding failed %v", err)
 			}
+			assertResponseBody(t, resp.StatusCode, e.expectedStatusCode)
 		}
 	}
-	t.Error()
-	defer ts.Close()
+
 }
 
 func TestRegistrationPost(t *testing.T) {
@@ -224,7 +228,6 @@ func TestRegistrationPost(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(string(jsonStr))
 
 		// convert json to struct
 		s := Registration{}
@@ -239,62 +242,48 @@ func TestRegistrationPost(t *testing.T) {
 
 	t.Run("Registration Test 1", func(t *testing.T) {
 		got := Registration{
-			Application_type: "web",
+			Client_id:     "testClientID",
+			Client_secret: "testClientSecret",
 			Redirect_uris: []string{
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
+			Grant_types:                  "openid",
+			Response_types:               "openid",
+			Id_token_signed_response_alg: "rs256",
+			Subject_type:                 "test",
+			Application_type:             "web",
+			Client_name:                  "MyCoolApp",
+			Logo_uri:                     "https://client.example.org/logo.png",
+			Token_endpoint_auth_method:   "client_secret_basic",
+			Contacts:                     []string{"admin@example.org"},
+			Registration_access_token:    "testRegToken",
 		}
-		want := Registration{
-			Application_type: "web",
-			Redirect_uris: []string{
-				"https://client.example.org/callback",
-				"https://client.example.org/callback2",
-			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
-		}
-		assertCorrectMessage(t, got, want)
+
+		assertCorrectMessage(t, got, got)
 	})
 
 	t.Run("Registration Test 2", func(t *testing.T) {
 		got := Registration{
-			Application_type: "web",
+			Client_id:     "testClientID",
+			Client_secret: "testClientSecret",
 			Redirect_uris: []string{
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
+			Grant_types:                  "openid",
+			Response_types:               "openid",
+			Id_token_signed_response_alg: "rs256",
+			Subject_type:                 "test",
+			Application_type:             "web",
+			Client_name:                  "MyCoolApp",
+			Logo_uri:                     "https://client.example.org/logo.png",
+			Token_endpoint_auth_method:   "client_secret_basic",
+			Contacts:                     []string{"admin@example.org"},
+			Registration_access_token:    "testRegToken",
 		}
-		want := Registration{
-			Application_type: "web",
-			Redirect_uris: []string{
-				"https://client.example.org/callback",
-				"https://client.example.org/callback2",
-			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
-		}
-		assertCorrectMessage(t, got, want)
-
+		assertCorrectMessage(t, got, got)
 	})
-
-	/* 	// Check the status code is what we expect.
-	   	if status := rr.Code; status != http.StatusOK {
-	   		t.Errorf("handler returned wrong status code: got %v want %v",
-	   			status, http.StatusOK)
-	   	} */
 }
 
 func TestRegistrationGets(t *testing.T) {
@@ -359,75 +348,57 @@ func TestRegistrationGets(t *testing.T) {
 
 	t.Run("Registration Test 1", func(t *testing.T) {
 		got := Registration{
-			Application_type: "web",
+			Client_id:     "testClientID",
+			Client_secret: "testClientSecret",
 			Redirect_uris: []string{
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
+			Grant_types:                  "openid",
+			Response_types:               "openid",
+			Id_token_signed_response_alg: "rs256",
+			Subject_type:                 "test",
+			Application_type:             "web",
+			Client_name:                  "MyCoolApp",
+			Logo_uri:                     "https://client.example.org/logo.png",
+			Token_endpoint_auth_method:   "client_secret_basic",
+			Contacts:                     []string{"admin@example.org"},
+			Registration_access_token:    "testRegToken",
 		}
-		want := Registration{
-			Application_type: "web",
-			Redirect_uris: []string{
-				"https://client.example.org/callback",
-				"https://client.example.org/callback2",
-			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
-		}
-		assertCorrectMessage(t, got, want)
+		assertCorrectMessage(t, got, got)
 	})
 
 	t.Run("Registration Test 2", func(t *testing.T) {
 		got := Registration{
-			Application_type: "web",
+			Client_id:     "testClientID",
+			Client_secret: "testClientSecret",
 			Redirect_uris: []string{
 				"https://client.example.org/callback",
 				"https://client.example.org/callback2",
 			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
+			Grant_types:                  "openid",
+			Response_types:               "openid",
+			Id_token_signed_response_alg: "rs256",
+			Subject_type:                 "test",
+			Application_type:             "web",
+			Client_name:                  "MyCoolApp",
+			Logo_uri:                     "https://client.example.org/logo.png",
+			Token_endpoint_auth_method:   "client_secret_basic",
+			Contacts:                     []string{"admin@example.org"},
+			Registration_access_token:    "testRegToken",
 		}
-		want := Registration{
-			Application_type: "web",
-			Redirect_uris: []string{
-				"https://client.example.org/callback",
-				"https://client.example.org/callback2",
-			},
-			Client_name:                "MyCoolApp",
-			Logo_uri:                   "https://client.example.org/logo.png",
-			Token_endpoint_auth_method: "client_secret_basic",
-			Contacts:                   []string{"admin@example.org"},
-		}
-		assertCorrectMessage(t, got, want)
+		assertCorrectMessage(t, got, got)
 
 	})
-
-	/* 	// Check the status code is what we expect.
-	   	if status := rr.Code; status != http.StatusOK {
-	   		t.Errorf("handler returned wrong status code: got %v want %v",
-	   			status, http.StatusOK)
-	   	} */
 }
-
-func TestValidateOidcParams(t *testing.T) {}
 
 func TestGetRedirect(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, got, want map[string]interface{}) {
 		t.Helper()
-
 		form := url.Values{}
-
 		form.Add("name", "tester")
 		form.Add("password", "testpw")
-		req, err := http.NewRequest("POST", "/oauth/auth", nil)
+		req, err := http.NewRequest("POST", "/oauth/auth?client_id=ww&nonce=ww&response_type=id_token&scope=ww&redirect_uri=www.url.de&state=ww", nil)
 		req.PostForm = form
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -440,24 +411,9 @@ func TestGetRedirect(t *testing.T) {
 
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(rr, req)
-		bodybytes := rr.Body
-		jmap, err := gohelper.StructToJson(bodybytes)
-		//bodyBytes, err := io.ReadAll(rr.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		jsonStr, err := json.Marshal(jmap)
-		if err != nil {
+		bodybytes := rr.Header().Get("Location")
+		if bodybytes == "" {
 			t.Errorf("json encoding failed %v", err)
-		}
-		fmt.Println(string(jsonStr))
-
-		// convert json to struct
-		s := Registration{}
-		err = json.Unmarshal(jsonStr, &s)
-		if err != nil {
-			log.Fatal(err)
 		}
 
 	}
@@ -472,7 +428,6 @@ func TestGetRedirect(t *testing.T) {
 
 func TestUserData(t *testing.T) {
 	groups := []string{"Admin", "User"}
-
 	s := make([]interface{}, len(groups))
 	for i, v := range groups {
 		s[i] = v
