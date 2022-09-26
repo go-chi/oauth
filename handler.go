@@ -259,9 +259,11 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
 	switch response_type {
 	case "id_token":
+		fmt.Println(111)
 		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 	case "code":
+		fmt.Println(222)
 		if slices.Contains(scope, "openid") {
 			location := redirect_uri + "?code=" + access_token + "&state=" + state
 			fmt.Println(location)
