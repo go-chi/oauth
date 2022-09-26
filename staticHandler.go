@@ -97,8 +97,8 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	if ok {
 		RedirectAccess(bs, w, r)
-	}
-	fmt.Fprintf(w, `<h1>Login</h1>
+	} else {
+		fmt.Fprintf(w, `<h1>Login</h1>
     <form method="post" action="/oauth/auth?%s">
         <label for="name">User name</label>
         <input type="text" id="name" name="name">
@@ -106,4 +106,5 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
         <input type="password" id="password" name="password">
         <button type="submit">Login</button>
     </form>  `, r.URL.RawQuery)
+	}
 }
