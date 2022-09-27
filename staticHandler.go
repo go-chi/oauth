@@ -77,7 +77,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, location, 302)
 
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	OpenIDConnectFlows(response_type, id_token, access_token, redirect_uri, state, scopes, w, r)
+	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scopes, w, r)
 }
 
 /* func GetSession(bs *BearerServer, w http.ResponseWriter, r *http.Request) (bool, error) {
