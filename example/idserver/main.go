@@ -78,6 +78,7 @@ func registerAPI(r *chi.Mux) {
 	r.HandleFunc("/oauth/mappings/{id}", s.Registration)
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
+	r.Post("/oauth/revoke", s.TokenRevocation)
 	r.Get("/oauth/keys", s.ReturnKeys)
 	r.HandleFunc("/oauth/auth", s.GetRedirect)
 	r.Get("/oauth/authorize", s.SignIn)
@@ -85,6 +86,7 @@ func registerAPI(r *chi.Mux) {
 	r.Get("/oauth/userinfo", s.UserInfo)
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
 	r.Get("/login", s.SignIn)
+
 	//fs := http.FileServer(http.Dir("./static/"))
 	// Set up static file serving
 	//staticPath, _ := filepath.Abs("./static/login.html")

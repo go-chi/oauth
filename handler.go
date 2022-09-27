@@ -107,6 +107,10 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 
 }
 
+func (bs *BearerServer) TokenRevocation(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func Unauthorized(bs *BearerServer, client_id string) (bool, error) {
 	client, err := bs.verifier.StoreClientGet(client_id)
 	if client != nil {
@@ -289,6 +293,7 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 	default:
 		fmt.Println("default")
 	}
+	//todo: OAuth client credentials flow; OAuth device flow
 
 }
 
