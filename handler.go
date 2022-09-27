@@ -262,6 +262,7 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 		fmt.Println(111)
 		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
+		http.Redirect(w, r, location, 302)
 	case "code":
 		fmt.Println(222)
 		if slices.Contains(scope, "openid") {
