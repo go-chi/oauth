@@ -67,7 +67,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 } */
 
 func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (string, error) {
-
+	var at AuthToken
 	aud := r.URL.Query()["client_id"][0]
 	nonce := r.URL.Query()["nonce"][0]
 	bs.nonce = nonce

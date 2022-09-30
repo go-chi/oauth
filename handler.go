@@ -2,35 +2,20 @@ package oauth
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
 
-func getFormData(formValues []string, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Err(err)
-	}
-	for key, values := range r.Form { // range over map
-		for _, value := range values { // range over []string
-			fmt.Println(key, value)
-		}
-	}
-
-}
-
 var refresh_token, redirect_uri, Secret, code string
-var at AuthToken
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+	var at AuthToken
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 
@@ -108,20 +93,30 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 }
 
 func (bs *BearerServer) TokenRevocation(w http.ResponseWriter, r *http.Request) {
+	/* 	400 Bad Request
+	Invalid or malformed request.
+			   	401 Unauthorized
+			   	500 Internal Server Error
+				 application/x-www-form-urlencoded
+				[ Issuer ]
+				Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 
-}
+				Body
+				access_token -- the token is an access token
 
-func Unauthorized(bs *BearerServer, client_id string) (bool, error) {
-	client, err := bs.verifier.StoreClientGet(client_id)
-	if client != nil {
-		return false, err
+		refresh_token -- the token is a refresh token
+		token=Ohw8choo.wii3ohCh.Eesh1AeDGong3eir
+	&token_type_hint=refresh_token
+	token=Ohw8choo.wii3ohCh.Eesh1AeDGong3eir
+	*/
+	if true {
+		switch r.Method {
+		case "GET":
+		default:
+			log.Error().Msg("failed")
+		}
 	}
-	return true, err
 
-}
-
-func Forbidden(scope jwt.Claims) (bool, error) {
-	return false, nil
 }
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
@@ -258,58 +253,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
 	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scope, w, r)
-}
-
-func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
-	switch response_type {
-	case "id_token":
-		fmt.Println(111)
-		location := redirect_uri + "?id_token=" + id_token + "&state=" + state
-		w.Header().Add("Location", location)
-		http.Redirect(w, r, location, 302)
-	case "code":
-		fmt.Println(222)
-		if slices.Contains(scope, "openid") {
-			location := redirect_uri + "?code=" + access_token + "&state=" + state
-			fmt.Println(location)
-			w.Header().Add("Location", location)
-			http.Redirect(w, r, location, 302)
-		}
-	case "id_token token": //insecure
-		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
-		w.Header().Add("Location", location)
-	case "code id_token":
-		location := redirect_uri + "&code=" + access_token + "&id_token=" + id_token + "&state=" + state
-		w.Header().Add("Location", location)
-	case "code token": //insecure
-		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + "token_type" + "&state=" + state
-		w.Header().Add("Location", location)
-		//"code id_token token"
-	case "code token id_token": //insecure
-		fmt.Println("ssss")
-		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
-		w.Header().Add("Location", location)
-		http.Redirect(w, r, location, 302)
-	default:
-		fmt.Println("default")
-	}
-	//todo: OAuth client credentials flow; OAuth device flow
-
-}
-
-func UserData() (map[string]interface{}, int, string, error) {
-	/* w.WriteHeader(401) // Unauthorized
-	w.WriteHeader(403) // Forbidden
-	w.WriteHeader(500) // Internal Server Error */
-
-	we := map[string]string{"sub": "dd", "la": "ss"}
-
-	s := make(map[string]interface{}, len(we))
-	for i, v := range we {
-		s[i] = v
-	}
-
-	return s, 200, "application/json", errors.New("")
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {

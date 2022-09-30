@@ -89,6 +89,7 @@ var client = Registration{
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
 func TestTokenIntrospect(t *testing.T) {
+	var at AuthToken
 	t.Run("Get jwt from Header", func(t *testing.T) {
 		req, _ := http.NewRequest("POST", "/oauth/introspect", nil)
 		mux := chi.NewRouter()
