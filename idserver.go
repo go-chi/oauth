@@ -178,41 +178,22 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 	return resp, http.StatusOK, nil
 }
 
-/* func GenToken(bs *BearerServer, username string, tokenType TokenType, scope string) *Token {
-	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
-	return token
-} */
-
 func refreshToken(tokenId string, username string, tokenType TokenType, scope string) *RefreshToken {
 	refreshToken := &RefreshToken{RefreshTokenID: uuid.Must(uuid.NewV4()).String(), TokenID: tokenId, CreationDate: time.Now().UTC(), Credential: username, TokenType: tokenType, Scope: scope}
 	return refreshToken
 }
 
 func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
-	//claims := bs.verifier.CreateClaims(username, bs.nonce, groups, at, r)
 	claims := bs.verifier.CreateClaims(username, aud, bs.nonce, groups, at, r)
-	//claims := CreateClaims(at, bs.nonce, r)
 
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
 	refreshToken := refreshToken("token.ID", username, tokenType, scope)
 
-	/* 	if bs.verifier != nil {
-		claims, err := bs.verifier.AddClaims("token.TokenType", username, "token.ID", "token.Scope", r)
-		if err != nil {
-			return nil, nil, "nil", err
-		}
-		token.Claims = claims
-	} */
-
 	return token, refreshToken, idtoken, nil
 }
 
 func (bs *BearerServer) cryptIdTokens(token string, refresh *RefreshToken, idToken string, r *http.Request) (*TokenResponse, error) {
-	/* cToken, err := bs.provider.CryptToken(token)
-	if err != nil {
-		return nil, err
-	} */
 	cRefreshToken, err := bs.provider.CryptRefreshToken(refresh)
 	if err != nil {
 		return nil, err
