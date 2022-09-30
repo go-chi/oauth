@@ -34,25 +34,24 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
-	state := r.URL.Query()["state"][0]
+
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
-	//if len(r.URL.Query()["client_id"]) > 0 {
 	aud := r.URL.Query()["client_id"][0]
 	bs.nonce = r.URL.Query()["nonce"][0]
 	response_type := r.URL.Query()["response_type"][0]
 	scopes := strings.Split(r.URL.Query()["scope"][0], ",")
 	nonce := r.URL.Query()["nonce"][0]
 	redirect_uri := r.URL.Query()["redirect_uri"][0]
-	state = r.URL.Query()["state"][0]
+	state := r.URL.Query()["state"][0]
 	fmt.Println(aud)
 	fmt.Println(nonce)
 	fmt.Println(redirect_uri)
 	fmt.Println(state)
 	fmt.Println(response_type)
 	fmt.Println(scopes)
-	//}
+
 	fmt.Println(userID)
-	//access_token, err := JWTCreateAccessT(bs, r)
+
 	if err != nil {
 		log.Err(err)
 	}
@@ -68,25 +67,16 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Nonce:     nonce,
 	}
 	_, groups, err := bs.verifier.UserLookup(userID, scopes)
+	if err != nil {
+		log.Err(err).Msg("")
+	}
 
-	//claims := CreateClaims(authParameter, bs.nonce, groups, r)
 	claims := bs.verifier.CreateClaims(userID, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	//location := redirect_uri + "?code=" + access_token + "&state=" + state
-	//w.Header().Add("Location", location)
-	//http.Redirect(w, r, location, 302)
-
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
+
 	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scopes, w, r)
 }
-
-/* func GetSession(bs *BearerServer, w http.ResponseWriter, r *http.Request) (bool, error) {
-	store, err := session.Start(context.Background(), w, r)
-	_, ok := store.Get("foo")
-	fmt.Println(ok)
-	return ok, err
-
-} */
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
