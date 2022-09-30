@@ -4,11 +4,11 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/zerolog/log"
 )
 
 func GenKid() (string, error) {
@@ -20,13 +20,12 @@ func GenKid() (string, error) {
 }
 
 func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, error) {
-	//switch method {
-	//case "RS256":
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
 	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
 	signedToken, err := tokens.SignedString(kc.Pk)
 	if err != nil {
+		log.Err(err).Msg("")
 		fmt.Printf("failed to parse token: %e", err)
 	}
 	ss, err := ParseJWT(signedToken, &kc.Pk.PublicKey)
@@ -35,7 +34,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 		fmt.Printf("failed to parse token: %e", err)
 	}
 	if err != nil {
-		log.Fatalf("Failed to create JWKS from JSON.\nError:%s", err.Error())
+		log.Err(err).Msg("Failed to create JWKS from JSON.\nError")
 	}
 
 	return signedToken, err
