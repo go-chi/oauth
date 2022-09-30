@@ -12,10 +12,11 @@ import (
 )
 
 var refresh_token, redirect_uri, Secret, code string
+var at AuthToken
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-	var at AuthToken
+	//var at AuthToken
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 
