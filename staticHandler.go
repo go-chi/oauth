@@ -93,11 +93,11 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
 	}
-	aud := r.URL.Query()["client_id"][0]
-	client, err := bs.verifier.StoreClientGet(aud)
-	if client == nil {
-		http.Redirect(w, r, "http://error", 401)
-	}
+	/* 	aud := r.URL.Query()["client_id"][0]
+	   	client, err := bs.verifier.StoreClientGet(aud)
+	   	if client == nil {
+	   		http.Redirect(w, r, "http://error", 401)
+	   	} */
 
 	fmt.Println(userID)
 	fmt.Println("oooo")
