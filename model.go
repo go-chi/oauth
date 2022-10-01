@@ -186,8 +186,8 @@ type Keys struct {
 }
 
 type KeyContainer struct {
-	//Pk   map[string]*rsa.PrivateKey
-	Pk   *rsa.PrivateKey
+	Pk map[string]*rsa.PrivateKey
+	//Pk   *rsa.PrivateKey
 	Keys Keys
 }
 

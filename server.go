@@ -72,7 +72,7 @@ type BearerServer struct {
 // NewBearerServer creates new OAuth 2 bearer server
 func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	kc := KeyContainer{Pk: privatekey}
+	kc := KeyContainer{Pk: map[string]*rsa.PrivateKey{"test": privatekey}}
 	GenJWKS(&kc)
 
 	if formatter == nil {

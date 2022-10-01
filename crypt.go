@@ -13,8 +13,8 @@ import (
 )
 
 func GenJWKS(kc *KeyContainer) {
-	sEnc := base64.URLEncoding.EncodeToString(kc.Pk.N.Bytes())
-	bss := IntToBytes(kc.Pk.E)
+	sEnc := base64.URLEncoding.EncodeToString(kc.Pk["test"].N.Bytes())
+	bss := IntToBytes(kc.Pk["test"].E)
 	eEnc := base64.URLEncoding.EncodeToString(bss)
 	signature, err := uuid.NewV4()
 	if err != nil {

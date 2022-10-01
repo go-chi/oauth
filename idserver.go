@@ -38,7 +38,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 	fmt.Println("r.Form")
 	fmt.Println(r.FormValue("code"))
 	authcode := r.FormValue("code")
-	ii, err := ParseJWT(authcode, &bs.Kc.Pk.PublicKey)
+	ii, err := ParseJWT(authcode, &bs.Kc.Pk["test"].PublicKey)
 	fmt.Println(ii, err)
 	fmt.Println(grantType)
 	var resp *TokenResponse
@@ -84,7 +84,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 
 	//--------------------------->to Function and RedirectAccess -->takes that func
 	case AuthCodeGrant:
-		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk.PublicKey)
+		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
 		if err != nil {
 			log.Err(err)
 		}

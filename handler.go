@@ -46,7 +46,7 @@ func (bs *BearerServer) TokenIntrospect(w http.ResponseWriter, r *http.Request) 
 		log.Err(err)
 	}
 	token := r.PostForm["token"]
-	parsedToken, err := JWTvalid(token[0], &bs.Kc.Pk.PublicKey)
+	parsedToken, err := JWTvalid(token[0], &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
 		log.Err(err).Msg("Token is invalid")
 		renderJSON(w, nil, 401)
@@ -304,7 +304,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 
-	hh, err := ParseJWT(token[1], &bs.Kc.Pk.PublicKey)
+	hh, err := ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
 		log.Err(err)
 	}
