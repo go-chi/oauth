@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
@@ -49,4 +50,21 @@ func ParseRsaPrivateKeyFromPemStr(privPEM string) (*rsa.PrivateKey, error) {
 	}
 
 	return priv, nil
+}
+
+func PrivateKeyCreate(bitLength int) (privatekey *rsa.PrivateKey, err error) {
+	privatekey, err = rsa.GenerateKey(rand.Reader, bitLength)
+	return
+}
+
+func PrivateKeySave(privPEM string) {
+
+}
+
+func PrivateKeysLoad(privPEM string) {
+
+}
+
+func PrivateKeysDelete(privPEM string) {
+
 }

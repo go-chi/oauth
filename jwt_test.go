@@ -21,16 +21,13 @@ func TestGenKid(t *testing.T) {
 func TestCreateJWT(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, got ClientConfig, want map[string]interface{}) {
 		t.Helper()
-		fmt.Println("+++++++++++")
 		signedToken, err := CreateJWT(got.Method, got.Claims, bs.Kc)
 		if err != nil {
 			t.Error(err)
 		}
-		fmt.Println("+++++++++++")
 		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		pub := &bs.Kc.Pk["test"].PublicKey
 		fmt.Println(pub)
-		fmt.Println("+++++++++++")
 		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
 		if err != nil {
 			t.Error(err)
@@ -42,13 +39,11 @@ func TestCreateJWT(t *testing.T) {
 	}
 
 	t.Run("Registration Test 1", func(t *testing.T) {
-		fmt.Println("+++++++++++")
 		got := ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
 	t.Run("Registration Test 1", func(t *testing.T) {
-		fmt.Println("+++++++++++")
 		got := ClientConfig{Method: "RS256", Claims: testclaims, Kid: sig.String()}
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
