@@ -213,6 +213,7 @@ type Mapping struct {
 type Registration struct {
 	Client_id                       string   `json:"client_id,omitempty"`
 	Client_secret                   string   `json:"client_secret,omitempty"`
+	Kid                             string   `json:"kid,omitempty"`
 	Redirect_uris                   []string `json:"redirect_uris,omitempty"`
 	Response_types                  string   `json:"response_types,omitempty"`
 	Grant_types                     string   `json:"grant_types,omitempty"`
