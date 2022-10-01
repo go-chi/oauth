@@ -1,7 +1,11 @@
 package oauth
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
+	"errors"
 	"net/http"
 
 	"github.com/gofrs/uuid"
@@ -21,4 +25,28 @@ func GenJWKS(kc *KeyContainer) {
 
 func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, bs.Kc.Keys, http.StatusOK)
+}
+
+func ExportRsaPrivateKeyAsPemStr(privkey *rsa.PrivateKey) string {
+	privkey_bytes := x509.MarshalPKCS1PrivateKey(privkey)
+	privkey_pem := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: privkey_bytes,
+		},
+	)
+	return string(privkey_pem)
+}
+func ParseRsaPrivateKeyFromPemStr(privPEM string) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(privPEM))
+	if block == nil {
+		return nil, errors.New("failed to parse PEM block containing the key")
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return priv, nil
 }

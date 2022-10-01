@@ -79,11 +79,12 @@ func registerAPI(r *chi.Mux) {
 	r.Post("/oauth/token", s.TokenEndpoint)
 	r.Post("/oauth/introspect", s.TokenIntrospect)
 	r.Post("/oauth/revoke", s.TokenRevocation)
-	r.Get("/oauth/keys", s.ReturnKeys)
 	r.HandleFunc("/oauth/auth", s.GetRedirect)
 	r.Get("/oauth/authorize", s.SignIn)
-	r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
+	//r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
 	r.Get("/oauth/userinfo", s.UserInfo)
+	r.Get("/oauth/keys", s.ReturnKeys)
+	r.HandleFunc("/oauth/keys/{kid}", s.KeyEndpoint)
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
 	r.Get("/login", s.SignIn)
 
@@ -129,8 +130,6 @@ func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []strin
 }
 
 func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
-
-	fmt.Println("+++++++++++++")
 	scheme := "https://"
 	baseURL := scheme + r.Host
 

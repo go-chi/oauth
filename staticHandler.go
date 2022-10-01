@@ -32,7 +32,10 @@ func (bs *BearerServer) OpenidConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(w, j, 200)
 }
+func (bs *BearerServer) Jwk(w http.ResponseWriter, r *http.Request) {
 
+	renderJSON(w, nil, 200)
+}
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
