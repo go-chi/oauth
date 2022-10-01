@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
@@ -178,6 +179,46 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
+	authH := r.Header.Get("Authorization")
+	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
+	}
+	iamAdmin := slices.Contains(groups, "group1")
+	if iamAdmin {
+		switch r.Method {
+		case "GET":
+			var clientConfig interface{}
+			var err error
+			path := r.URL.Path
+			base := strings.LastIndex(path, "/")
+			clientID := path[base+1:]
+			clientConfig, err = bs.verifier.StoreClientGet(clientID)
+			rc := 200
+			if err != nil {
+				log.Err(err)
+				rc = 500
+			}
+			renderJSON(w, clientConfig, rc)
+		case "POST":
+			var keys map[string]map[string]string
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to read body")
+			}
+			err = json.Unmarshal(body, &keys)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+
+		case "DELETE":
+			kid := chi.URLParam(r, "kid")
+			keyDeleteKeyPair(bs.Kc, kid)
+
+		}
+	}
+}
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
