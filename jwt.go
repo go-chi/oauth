@@ -22,8 +22,11 @@ func GenKid() (string, error) {
 func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, error) {
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
+	fmt.Println("+++++++++++")
 	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
-	signedToken, err := tokens.SignedString(kc.Pk)
+	fmt.Println(kc.Keys.Keys[0]["kid"])
+	signedToken, err := tokens.SignedString(kc.Pk["test"])
+	fmt.Println(signedToken)
 	if err != nil {
 		log.Err(err).Msg("")
 		fmt.Printf("failed to parse token: %e", err)
