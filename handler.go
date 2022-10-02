@@ -210,7 +210,10 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 			fmt.Println(keys)
-			bs.verifier.StoreKey(keys)
+			err = bs.verifier.StoreKey(keys)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
 		case "DELETE":
 			/* path := r.URL.Path
 			base := strings.LastIndex(path, "/")
