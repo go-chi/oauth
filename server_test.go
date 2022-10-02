@@ -218,7 +218,7 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 
 func StoreClientDelete(client []string) {}
 
-func (*TestUserVerifier) StoreKeyDelete(kid string) error { return nil }
+func (*TestUserVerifier) StoreKeyDelete(kid []string) error { return nil }
 func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
 	fmt.Println("eese")
 	return nil

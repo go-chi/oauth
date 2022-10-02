@@ -223,7 +223,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("!!")
 			fmt.Println(kid)
 			fmt.Println(path)
-			bs.verifier.StoreKeyDelete(kid)
+			bs.verifier.StoreKeyDelete([]string{kid})
 		}
 	}
 }
