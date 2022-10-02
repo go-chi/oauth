@@ -256,4 +256,4 @@ func (*TestUserVerifier) StoreKeyDelete(kid []string) error
 func (*TestUserVerifier) StoreKey(map[string]string) error {
 	return nil
 }
-func (*TestUserVerifier) StoreKeysGet() (map[string]interface{}, error)
+func (*TestUserVerifier) StoreKeysGet() (map[string]string, error)

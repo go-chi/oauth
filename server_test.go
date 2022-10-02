@@ -223,7 +223,7 @@ func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
 	fmt.Println("eese")
 	return nil
 }
-func (*TestUserVerifier) StoreKeysGet() (map[string]interface{}, error) { return nil, nil }
+func (*TestUserVerifier) StoreKeysGet() (map[string]string, error) { return nil, nil }
 
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
