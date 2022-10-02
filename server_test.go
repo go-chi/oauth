@@ -218,6 +218,10 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 
 func StoreClientDelete(client []string) {}
 
+func (*TestUserVerifier) StoreKeyDelete(kid string) error
+func (*TestUserVerifier) StoreKey(keyString, kid string) error
+func (*TestUserVerifier) StoreKeysGet() (map[string]interface{}, error)
+
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
 	token, refresh, err := _sut.generateTokens(UserToken, "user111", "", r)

@@ -48,6 +48,10 @@ type CredentialsVerifier interface {
 	StoreClient(clientname string, registration Registration, methode string) (map[string]interface{}, error)
 	StoreClientGet(string) (map[string]interface{}, error)
 	StoreClientsGet(client string) (map[string]interface{}, error)
+
+	StoreKeyDelete(kid string) error
+	StoreKey(keyString, kid string) error
+	StoreKeysGet() (map[string]interface{}, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
