@@ -284,6 +284,106 @@ func TestRegistrationPost(t *testing.T) {
 	})
 }
 
+func TestKeyEndpointPost(t *testing.T) {
+	assertCorrectMessage := func(t testing.TB, get map[string]string, want map[string]string) {
+
+		empJSON, err := json.Marshal(get)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		//pass request to handler with nil as parameter
+		req, err := http.NewRequest("POST", "/oauth/keys", bytes.NewBuffer(empJSON))
+		req.Header.Set("Content-Type", "application/json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		httpRecorder := httptest.NewRecorder()
+		handler := http.HandlerFunc(bs.KeyEndpoint)
+
+		//call ServeHTTP method and pass  Request and ResponseRecorder.
+		handler.ServeHTTP(httpRecorder, req)
+		bodybytes := httpRecorder.Body
+		jmap, err := gohelper.StructToJson(bodybytes)
+		//bodyBytes, err := io.ReadAll(rr.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// convert json to struct
+		var keys map[string]string
+		err = json.Unmarshal(jsonStr, &keys)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	t.Run("Registration Test 1", func(t *testing.T) {
+		got := map[string]string{"s": `-----BEGIN RSA PRIVATE KEY-----
+		MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Qu
+		KUpRKfFLfRYC9AIKjbJTWit+CqvjWYzvQwECAwEAAQJAIJLixBy2qpFoS4DSmoEm
+		o3qGy0t6z09AIJtH+5OeRV1be+N4cDYJKffGzDa88vQENZiRm0GRq6a+HPGQMd2k
+		TQIhAKMSvzIBnni7ot/OSie2TmJLY4SwTQAevXysE2RbFDYdAiEBCUEaRQnMnbp7
+		9mxDXDf6AU0cN/RPBjb9qSHDcWZHGzUCIG2Es59z8ugGrDY+pxLQnwfotadxd+Uy
+		v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
+		/5OiPgoTdSy7bcF9IGpSE8ZgGKzgYQVZeN97YE00
+		-----END RSA PRIVATE KEY-----`}
+
+		assertCorrectMessage(t, got, got)
+	})
+}
+
+func TestKeyEndpointGet(t *testing.T) {
+	assertCorrectMessage := func(t testing.TB, get, want string) {
+
+		empJSON, err := json.Marshal(get)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		//pass request to handler with nil as parameter
+		req, err := http.NewRequest("GET", "/oauth/keys", bytes.NewBuffer(empJSON))
+		req.Header.Set("Content-Type", "application/json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+		httpRecorder := httptest.NewRecorder()
+		handler := http.HandlerFunc(bs.KeyEndpoint)
+
+		//call ServeHTTP method and pass  Request and ResponseRecorder.
+		handler.ServeHTTP(httpRecorder, req)
+		bodybytes := httpRecorder.Body
+		jmap, err := gohelper.StructToJson(bodybytes)
+		//bodyBytes, err := io.ReadAll(rr.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		jsonStr, err := json.Marshal(jmap)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// convert json to struct
+		var keys map[string]string
+		err = json.Unmarshal(jsonStr, &keys)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	t.Run("Registration Test 1", func(t *testing.T) {
+		got := ""
+
+		assertCorrectMessage(t, got, got)
+	})
+}
+
 func TestRegistrationGets(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, get Registration, want Registration) {
 		t.Helper()

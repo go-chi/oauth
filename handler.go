@@ -180,21 +180,18 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
-	authH := r.Header.Get("Authorization")
+	/* authH := r.Header.Get("Authorization")
 	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
-	iamAdmin := slices.Contains(groups, "group1")
-	if iamAdmin {
+	iamAdmin := slices.Contains(groups, "group1") */
+	if true {
 		switch r.Method {
 		case "GET":
 			var clientConfig interface{}
 			var err error
-			path := r.URL.Path
-			base := strings.LastIndex(path, "/")
-			clientID := path[base+1:]
-			clientConfig, err = bs.verifier.StoreClientGet(clientID)
+			clientConfig, err = bs.verifier.StoreKeysGet()
 			rc := 200
 			if err != nil {
 				log.Err(err)
@@ -202,7 +199,8 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST":
-			var keys map[string]map[string]string
+			fmt.Println("+++++++!+++++++++++")
+			var keys map[string]string
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
@@ -211,11 +209,15 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
-
+			fmt.Println(keys)
+			bs.verifier.StoreKey(keys)
 		case "DELETE":
+			/* path := r.URL.Path
+			base := strings.LastIndex(path, "/")
+			clientID := path[base+1:] */
 			kid := chi.URLParam(r, "kid")
 			keyDeleteKeyPair(bs.Kc, kid)
-
+			bs.verifier.StoreKeyDelete(kid)
 		}
 	}
 }

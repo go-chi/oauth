@@ -50,7 +50,7 @@ type CredentialsVerifier interface {
 	StoreClientsGet(client string) (map[string]interface{}, error)
 
 	StoreKeyDelete(kid string) error
-	StoreKey(keyString, kid string) error
+	StoreKey(keyString map[string]string) error
 	StoreKeysGet() (map[string]interface{}, error)
 }
 

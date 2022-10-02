@@ -29,15 +29,3 @@ func PrivateKeyCreate(bitLength int) (privatekey *rsa.PrivateKey, err error) {
 	privatekey, err = rsa.GenerateKey(rand.Reader, bitLength)
 	return
 }
-
-func PrivateKeySave(privPEM string) {
-
-}
-
-func PrivateKeysLoad(privPEM string) {
-
-}
-
-func PrivateKeysDelete(privPEM string) {
-
-}

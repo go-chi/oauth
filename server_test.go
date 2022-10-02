@@ -218,9 +218,12 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 
 func StoreClientDelete(client []string) {}
 
-func (*TestUserVerifier) StoreKeyDelete(kid string) error
-func (*TestUserVerifier) StoreKey(keyString, kid string) error
-func (*TestUserVerifier) StoreKeysGet() (map[string]interface{}, error)
+func (*TestUserVerifier) StoreKeyDelete(kid string) error { return nil }
+func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
+	fmt.Println("eese")
+	return nil
+}
+func (*TestUserVerifier) StoreKeysGet() (map[string]interface{}, error) { return nil, nil }
 
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
