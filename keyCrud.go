@@ -30,9 +30,3 @@ func keyDeleteKeyPair(kc *KeyContainer, kid string) error {
 	}
 	return nil
 }
-func keyStoreGet(kc *KeyContainer, kid string) {
-
-}
-func keyStoreSave(kc *KeyContainer, kid string) {
-
-}

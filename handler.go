@@ -219,7 +219,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:] */
 			kid := chi.URLParam(r, "kid")
-			keyDeleteKeyPair(bs.Kc, kid)
+			//keyDeleteKeyPair(bs.Kc, kid)
 			bs.verifier.StoreKeyDelete(kid)
 		}
 	}

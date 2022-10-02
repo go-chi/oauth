@@ -341,12 +341,23 @@ func TestKeyEndpointPost(t *testing.T) {
 func TestKeyEndpointGet(t *testing.T) {
 	assertCorrectMessage := func(t testing.TB, get, want string) {
 
+	}
+
+	t.Run("Registration Test 1", func(t *testing.T) {
+		got := ""
+
+		assertCorrectMessage(t, got, got)
+	})
+}
+
+func TestKeyEndpointDelete(t *testing.T) {
+	assertCorrectMessage := func(t testing.TB, get, want string) {
 		empJSON, err := json.Marshal(get)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
 		//pass request to handler with nil as parameter
-		req, err := http.NewRequest("GET", "/oauth/keys", bytes.NewBuffer(empJSON))
+		req, err := http.NewRequest("DELETE", "/oauth/keys/testkey", bytes.NewBuffer(empJSON))
 		req.Header.Set("Content-Type", "application/json")
 		if err != nil {
 			t.Fatal(err)
