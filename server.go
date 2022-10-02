@@ -49,7 +49,7 @@ type CredentialsVerifier interface {
 	StoreClientGet(string) (map[string]interface{}, error)
 	StoreClientsGet(client string) (map[string]interface{}, error)
 
-	StoreKeyDelete(kid string) error
+	StoreKeyDelete(kid []string) error
 	StoreKey(keyString map[string]string) error
 	StoreKeysGet() (map[string]interface{}, error)
 }
