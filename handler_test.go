@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
@@ -351,48 +352,25 @@ func TestKeyEndpointGet(t *testing.T) {
 }
 
 func TestKeyEndpointDelete(t *testing.T) {
+
 	assertCorrectMessage := func(t testing.TB, get, want string) {
-		empJSON, err := json.Marshal(get)
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-		//pass request to handler with nil as parameter
-		req, err := http.NewRequest("DELETE", "/oauth/keys/testkey", bytes.NewBuffer(empJSON))
-		req.Header.Set("Content-Type", "application/json")
-		if err != nil {
-			t.Fatal(err)
-		}
-		// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-		httpRecorder := httptest.NewRecorder()
-		handler := http.HandlerFunc(bs.KeyEndpoint)
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("DELETE", "/oauth/keys/{kid}", nil)
 
-		//call ServeHTTP method and pass  Request and ResponseRecorder.
-		handler.ServeHTTP(httpRecorder, req)
-		bodybytes := httpRecorder.Body
-		jmap, err := gohelper.StructToJson(bodybytes)
-		//bodyBytes, err := io.ReadAll(rr.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("kid", "testKid")
 
-		jsonStr, err := json.Marshal(jmap)
-		if err != nil {
-			log.Fatal(err)
-		}
+		r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+		handlers := http.HandlerFunc(bs.KeyEndpoint)
 
-		// convert json to struct
-		var keys map[string]string
-		err = json.Unmarshal(jsonStr, &keys)
-		if err != nil {
-			log.Fatal(err)
-		}
+		handlers(w, r)
 	}
-
 	t.Run("Registration Test 1", func(t *testing.T) {
 		got := ""
 
 		assertCorrectMessage(t, got, got)
 	})
+	t.Error()
 }
 
 func TestRegistrationGets(t *testing.T) {
