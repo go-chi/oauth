@@ -58,7 +58,6 @@ func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []strin
 func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
 	scheme := "https://"
 	baseURL := scheme + r.Host
-	fmt.Println("+++++++++++++")
 	claims := MyCustomClaimss{
 		Client_id: client_id,
 		Scope:     scope,
@@ -158,8 +157,6 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 }
 
 func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error) {
-
-	fmt.Println("++++")
 	cookies, err := r.Cookie(cookieID)
 	if err == nil && cookies.Value == "testing" {
 		fmt.Println(cookies)
