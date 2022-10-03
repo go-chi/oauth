@@ -288,16 +288,6 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       state,
 	}
 
-	/* userdata := map[string]string{
-		"client_id":     client_id,
-		"noce":          nonce,
-		"redirect_uri":  redirect_uri,
-		"response_type": response_type,
-		"state":         state,
-		"Subject":       usernameSlice[0],
-		"aud":           aud,
-	} */
-
 	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
