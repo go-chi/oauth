@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -223,7 +224,7 @@ func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
 	fmt.Println("eese")
 	return nil
 }
-func (*TestUserVerifier) StoreKeysGet() (map[string]string, error) { return nil, nil }
+func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error) { return nil, nil }
 
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)

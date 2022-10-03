@@ -51,7 +51,7 @@ type CredentialsVerifier interface {
 
 	StoreKeyDelete(kid []string) error
 	StoreKey(keyString map[string]string) error
-	StoreKeysGet() (map[string]string, error)
+	StoreKeysGet() (map[string]rsa.PrivateKey, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier

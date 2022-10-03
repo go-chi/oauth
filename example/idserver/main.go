@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -256,4 +257,4 @@ func (*TestUserVerifier) StoreKeyDelete(kid []string) error
 func (*TestUserVerifier) StoreKey(map[string]string) error {
 	return nil
 }
-func (*TestUserVerifier) StoreKeysGet() (map[string]string, error)
+func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error)
