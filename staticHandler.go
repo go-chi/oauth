@@ -87,16 +87,11 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg(userID)
 	}
 	aud := r.URL.Query()["client_id"][0]
-	fmt.Println(aud)
+	client_secret := r.URL.Query()["client_secret"][0]
 	client, err := bs.verifier.StoreClientGet(aud)
-	if client != nil || client == nil {
+	if (err != nil || client == nil) && client.Client_secret == client_secret {
+		log.Info().Msg("Client not found")
 		http.Redirect(w, r, "http://ClientNotFound", 401)
-	}
-
-	fmt.Println(userID)
-	fmt.Println("oooo")
-	if err != nil {
-		log.Error().Err(err).Msg(userID)
 	}
 	if ok {
 		RedirectAccess(bs, w, r)
