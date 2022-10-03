@@ -87,9 +87,8 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg(userID)
 	}
 	aud := r.URL.Query()["client_id"][0]
-	client_secret := r.URL.Query()["client_secret"][0]
-	err = bs.verifier.ValidateClient(aud, client_secret)
-	if err != nil {
+	client, err := bs.verifier.StoreClientGet(aud)
+	if err != nil && client == nil {
 		log.Info().Msg("Client not found")
 		http.Redirect(w, r, "http://ClientNotFound", 401)
 	}
