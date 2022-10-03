@@ -82,7 +82,6 @@ func registerAPI(r *chi.Mux) {
 	r.Post("/oauth/revoke", s.TokenRevocation)
 	r.HandleFunc("/oauth/auth", s.GetRedirect)
 	r.Get("/oauth/authorize", s.SignIn)
-	//r.Get("/oauth/oauth2/aus2yrcz7aMrmDAKZ1t7/v1/authorize", s.GetRedirect)
 	r.Get("/oauth/userinfo", s.UserInfo)
 	r.Get("/oauth/keys", s.ReturnKeys)
 	r.HandleFunc("/oauth/keys/{kid}", s.KeyEndpoint)
@@ -233,7 +232,7 @@ func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registratio
 	return respInterface, nil
 }
 
-func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClientGet(client string) (*oauth.Registration, error) {
 
 	return nil, nil
 }

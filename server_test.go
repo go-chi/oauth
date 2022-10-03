@@ -190,7 +190,7 @@ func (*TestUserVerifier) StoreClientsGet() (map[string]interface{}, error) {
 	return nil, nil
 }
 
-func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClientGet(client string) (*Registration, error) {
 	fmt.Println("eweere")
 	ee := Registration{
 		Client_id:     "testClientID",
@@ -210,11 +210,11 @@ func (*TestUserVerifier) StoreClientGet(client string) (map[string]interface{}, 
 		Contacts:                     []string{"admin@example.org"},
 		Registration_access_token:    "testRegToken",
 	}
-
-	var respInterface map[string]interface{}
-	inrec, _ := json.Marshal(ee)
-	json.Unmarshal(inrec, &respInterface)
-	return respInterface, nil
+	/*
+		var respInterface *Registration
+		inrec, _ := json.Marshal(ee)
+		json.Unmarshal(inrec, &respInterface) */
+	return &ee, nil
 }
 
 func StoreClientDelete(client []string) {}
