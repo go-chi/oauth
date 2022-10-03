@@ -237,15 +237,13 @@ func (*TestUserVerifier) StoreClientGet(client string) (*oauth.Registration, err
 	return nil, nil
 }
 
-func (*TestUserVerifier) StoreClientsGet() (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet() (map[string]*oauth.Registration, error) {
 
 	//var respInterface map[string]interface{}
 	/* inrec, _ := json.Marshal(clientId)
 	json.Unmarshal(inrec, &respInterface)  */
-	ee := oauth.Registration{}
-	var i []interface{}
-	i = append(i, ee)
-	newMap := map[string]interface{}{"ee": i}
+
+	newMap := map[string]*oauth.Registration{}
 	return newMap, nil
 }
 

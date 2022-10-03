@@ -172,7 +172,7 @@ func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, use
 	return "", nil
 }
 
-func (*TestUserVerifier) StoreClientsGet() (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClientsGet() (map[string]*Registration, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
 		Contacts: []string{"ee"}, Application_type: "", Grant_types: "a", Response_types: "", Redirect_uris: []string{"wwewe"},

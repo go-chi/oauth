@@ -47,7 +47,7 @@ type CredentialsVerifier interface {
 	StoreClientDelete(client []string) error
 	StoreClient(clientname string, registration Registration, methode string) (map[string]interface{}, error)
 	StoreClientGet(string) (*Registration, error)
-	StoreClientsGet() (map[string]interface{}, error)
+	StoreClientsGet() (map[string]*Registration, error)
 
 	StoreKeyDelete(kid []string) error
 	StoreKey(keyString map[string]string) error
