@@ -149,7 +149,7 @@ func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, s
 }
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
-func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
+func (*TestUserVerifier) ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error) {
 	if username == "Aaliyah" && password == "12345" {
 		return []string{"group1", "group2", "group3", "group4"}, nil
 	}
@@ -206,6 +206,10 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 }
 func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
 	return nil, nil, nil
+}
+
+func (*TestUserVerifier) GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, error) {
+	return "false", nil
 }
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {

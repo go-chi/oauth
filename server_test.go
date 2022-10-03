@@ -76,9 +76,8 @@ func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, s
 }
 
 // Validate username and password returning an error if the user credentials are wrong
-func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
+func (TestUserVerifier) ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error) {
 	// Add something to the request context, so we can access it in the claims and props funcs.
-	fmt.Println("ddddd")
 	ctx := r.Context()
 	ctx = context.WithValue(ctx, "claims.test", "test")
 	ctx = context.WithValue(ctx, "props.test", "test")
@@ -154,6 +153,10 @@ func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, r
 func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	fmt.Println("dee")
 	return false, nil
+}
+
+func (*TestUserVerifier) GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, error) {
+	return "false", nil
 }
 
 func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error) {

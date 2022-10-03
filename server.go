@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/rs/zerolog/log"
 )
 
 type GrantType string
@@ -22,7 +21,7 @@ const (
 // CredentialsVerifier defines the interface of the user and client credentials verifier.
 type CredentialsVerifier interface {
 	// Validate username and password returning an error if the user credentials are wrong
-	ValidateUser(username, password, scope string, r *http.Request) ([]string, error)
+	ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error)
 	// Validate clientID and secret returning an error if the client credentials are wrong
 	ValidateClient(clientID, clientSecret string) error
 	// Provide additional claims to the token
@@ -39,6 +38,8 @@ type CredentialsVerifier interface {
 	CreateClaims(username, aud, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
 	CreateAtClaims(username, client_id, aud, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
 	ValidateJwt(token string) (bool, error)
+
+	GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, error)
 
 	UserLookup(username string, scope []string) (map[string]string, []string, error)
 	SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error)
@@ -153,6 +154,10 @@ func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request
 			return
 		}
 	}
+	/* connection, err := bs.verifier.GetConnectionTarget(w, r)
+	if err != nil {
+		log.Err(err)
+	} */
 	resp, status := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, "", scope, code, redirectURI, r)
 	renderJSON(w, resp, status)
 }
@@ -162,14 +167,14 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
-		e, err := bs.verifier.ValidateUser(credential, secret, scope, r)
+		/* e, err := bs.verifier.ValidateUser(credential, secret, scope, connection, r)
 		if err != nil {
 			log.Err(err)
 		}
 		if err := e; err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
-
+		*/
 		token, refresh, err := bs.generateTokens(UserToken, credential, scope, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError
