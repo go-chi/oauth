@@ -91,18 +91,17 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	aud := r.URL.Query()["client_id"][0]
 	client, err := bs.verifier.StoreClientGet(aud)
-	if err != nil && client == nil {
+	if err != nil || client == nil {
 		log.Info().Msg("Client not found")
 		http.Redirect(w, r, "http://ClientNotFound", 401)
-	}
-	if ok {
+	} else if ok && userID != "" {
 		RedirectAccess(bs, w, r)
 	} else {
 
 		err := bs.verifier.SignInMethod(aud, w, r)
 		fmt.Println(err)
 
-		fmt.Fprintf(w, `<h1>Login</h1>
+		fmt.Fprintf(w, `<h1>Login!</h1>
     <form method="post" action="/oauth/auth?%s">
         <label for="name">User name</label>
         <input type="text" id="name" name="name">
