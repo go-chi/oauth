@@ -99,13 +99,5 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		err := bs.verifier.SignInMethod(aud, w, r)
 		fmt.Println(err)
 
-		fmt.Fprintf(w, `<h1>Login!</h1>
-    <form method="post" action="/oauth/auth?%s">
-        <label for="name">User name</label>
-        <input type="text" id="name" name="name">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password">
-        <button type="submit">Login</button>
-    </form>  `, r.URL.RawQuery)
 	}
 }
