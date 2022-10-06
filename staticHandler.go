@@ -81,8 +81,6 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scopes, w, r)
 }
 
-func srsr(http.Handler) http.Handler
-
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
