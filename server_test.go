@@ -225,7 +225,7 @@ func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
 	return nil
 }
 func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error) { return nil, nil }
-
+func (*TestUserVerifier) SignInMethod(clientId string) error               { return nil }
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
 	token, refresh, err := _sut.generateTokens(UserToken, "user111", "", r)

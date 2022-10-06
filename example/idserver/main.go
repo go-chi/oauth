@@ -259,3 +259,4 @@ func (*TestUserVerifier) StoreKey(map[string]string) error {
 	return nil
 }
 func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error)
+func (*TestUserVerifier) SignInMethod(string) error
