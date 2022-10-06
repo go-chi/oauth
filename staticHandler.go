@@ -99,7 +99,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		RedirectAccess(bs, w, r)
 	} else {
 
-		err := bs.verifier.SignInMethod(aud)
+		err := bs.verifier.SignInMethod(aud, w, r)
 		fmt.Println(err)
 
 		fmt.Fprintf(w, `<h1>Login</h1>
