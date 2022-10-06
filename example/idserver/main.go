@@ -88,6 +88,8 @@ func registerAPI(r *chi.Mux) {
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
 	r.Get("/login", s.SignIn)
 
+	//th := http.HandlerFunc(s.SignIn)
+	//r.Handle("/", spnego.SPNEGOKRB5Authenticate(th, kt))
 	//fs := http.FileServer(http.Dir("./static/"))
 	// Set up static file serving
 	//staticPath, _ := filepath.Abs("./static/login.html")
