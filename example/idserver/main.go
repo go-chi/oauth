@@ -65,6 +65,13 @@ func main() {
 	_ = http.ListenAndServe(":8090", r)
 }
 
+type MyHandler struct {
+}
+
+func (h *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//...use h.Session to query the database...
+}
+
 func registerAPI(r *chi.Mux) {
 
 	s := oauth.NewBearerServer(
@@ -73,6 +80,7 @@ func registerAPI(r *chi.Mux) {
 		&TestUserVerifier{},
 		nil,
 	)
+
 	r.Get("/users/sign_in", s.SignIn)
 	r.HandleFunc("/oauth/clients/{id}", s.Registration)
 	r.Get("/oauth/clients", s.Registration)
@@ -86,7 +94,8 @@ func registerAPI(r *chi.Mux) {
 	r.Get("/oauth/keys", s.ReturnKeys)
 	r.HandleFunc("/oauth/keys/{kid}", s.KeyEndpoint)
 	r.Get("/oauth/.well-known/openid-configuration", s.OpenidConfig)
-	r.Get("/login", s.SignIn)
+	//r.Get("/login", s.SignIn)
+	r.Handle("/login", s)
 
 	//th := http.HandlerFunc(s.SignIn)
 	//r.Handle("/", spnego.SPNEGOKRB5Authenticate(th, kt))

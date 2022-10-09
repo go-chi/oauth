@@ -75,6 +75,10 @@ type BearerServer struct {
 	Clients   map[string]*ClientConfig
 }
 
+func (b *BearerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	b.SignIn(w, r)
+}
+
 // NewBearerServer creates new OAuth 2 bearer server
 func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
