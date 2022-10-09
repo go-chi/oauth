@@ -269,11 +269,12 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
+	fmt.Println(authTarget, userstore)
 	_, err = bs.verifier.SessionSave(w, r, username, "user_session")
 	if err != nil {
 		log.Err(err)
 	}
-	groups, err := bs.verifier.ValidateUser(username, password, scope[0], connection, r)
+	groups, err := bs.verifier.ValidateUser(username, password, scope[0], userstore, r)
 
 	if err != nil {
 		fmt.Println(groups)

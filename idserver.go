@@ -47,8 +47,9 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 	case PasswordGrant:
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
-		authTarget, connection, _ := bs.verifier.GetConnectionTarget(r)
-		groups, err := bs.verifier.ValidateUser(credential, secret, scope, connection, r)
+		authTarget, userstore, _ := bs.verifier.GetConnectionTarget(r)
+		fmt.Println(authTarget, userstore)
+		groups, err := bs.verifier.ValidateUser(credential, secret, scope, userstore, r)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized, err
 		}
@@ -132,7 +133,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			log.Err(err)
 		}
 		authTarget, userstore, err := bs.verifier.GetConnectionTarget(r)
-		groups, err := bs.verifier.ValidateUser(credential, secret, scope, connection, r)
+		fmt.Println(authTarget, userstore)
+		groups, err := bs.verifier.ValidateUser(credential, secret, scope, userstore, r)
 		if err != nil {
 			log.Err(err)
 		}
