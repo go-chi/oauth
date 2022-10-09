@@ -33,7 +33,8 @@ type Cookie struct {
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
 	fmt.Println(r.Form)
-
+	nonce := r.URL.Query()["nonce"][0]
+	fmt.Println("dddddddddddddddddddd" + nonce)
 	fmt.Println(r.URL.Query())
 	fmt.Println("r.Form")
 	fmt.Println(r.FormValue("code"))
