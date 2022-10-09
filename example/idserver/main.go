@@ -210,8 +210,8 @@ func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string
 	return nil, nil, nil
 }
 
-func (*TestUserVerifier) GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, error) {
-	return "false", nil
+func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, string, error) {
+	return "false", "false", nil
 }
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
