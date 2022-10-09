@@ -20,7 +20,6 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	var at AuthToken
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
-
 	scope := r.FormValue("scope")
 	aud := r.FormValue("client_id")
 	if r.FormValue("code") != "" {
