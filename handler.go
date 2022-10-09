@@ -265,7 +265,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 
 	username := usernameSlice[0]
 	password := passwordSlice[0]
-	connection, err := bs.verifier.GetConnectionTarget(w, r)
+	authTarget, userstore, err := bs.verifier.GetConnectionTarget(r)
 	if err != nil {
 		log.Err(err)
 	}
@@ -318,6 +318,6 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	renderJSON(w, jsonPayload, rc)
 }
-func (bs *BearerServer) GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, error) {
-	return "false", nil
+func (bs *BearerServer) GetConnectionTarget(w http.ResponseWriter, r *http.Request) (string, string, error) {
+	return "false", "false", nil
 }
