@@ -485,10 +485,9 @@ func TestGetRedirect(t *testing.T) {
 		form := url.Values{}
 		form.Add("name", "tester")
 		form.Add("password", "testpw")
-		req, err := http.NewRequest("POST", "/oauth/auth?client_id=ww&nonce=ww&response_type=id_token&scope=ww&redirect_uri=www.url.de&state=ww", nil)
-		req.PostForm = form
+		req, err := http.NewRequest("POST", "/oauth/auth?client_id=ww&nonce=ww&response_type=id_token&scope=ww&redirect_uri=www.url.de&state=ww", bytes.NewBufferString(form.Encode()))
+		//req.PostForm = form
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -504,7 +503,7 @@ func TestGetRedirect(t *testing.T) {
 		}
 
 	}
-
+	t.Error()
 	t.Run("Registration Test 1", func(t *testing.T) {
 		got := map[string]interface{}{"name": "tester"}
 		want := map[string]interface{}{"name": "tester"}
