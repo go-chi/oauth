@@ -233,6 +233,10 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
 
+	fmt.Println(r.URL.Query())
+	fmt.Println(r.Form)
+	fmt.Println("####$$$$###")
+
 	var aud, response_type, nonce, state, redirect_uri string
 	var scope []string
 	if len(r.URL.Query()["client_id"]) > 0 {
