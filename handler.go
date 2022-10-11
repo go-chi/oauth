@@ -227,6 +227,11 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
+	r.Header.Del("Cookie")
+	r.Header.Del("Content-Length")
+	r.Header.Del("Cache-Control")
+	r.Header.Del("Accept-Language")
+	r.Header.Del("Accept")
 
 	err := r.ParseForm()
 	if err != nil {
