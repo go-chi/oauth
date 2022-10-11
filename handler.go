@@ -236,7 +236,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 	fmt.Println(r.Form)
 	fmt.Println("####$$$$###")
-
+	fmt.Println(r.Header)
 	var aud, response_type, nonce, state, redirect_uri string
 	var scope []string
 	if len(r.URL.Query()["client_id"]) > 0 {
