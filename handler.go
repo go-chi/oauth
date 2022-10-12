@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -226,63 +227,60 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
-	r.Header.Del("Cookie")
-	r.Header.Del("Content-Length")
-	r.Header.Del("Cache-Control")
-	r.Header.Del("Accept-Language")
-	r.Header.Del("Accept")
 
+func Extractor(r *http.Request) (map[string][]string, error) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
+	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
+	formMap := map[string][]string{}
+	for _, v := range formList {
+		if x := r.Form[v]; len(r.Form[v]) > 0 {
+			formMap[v] = x
+		}
+	}
 
+	if len(formList) == len(formMap) {
+		return formMap, nil
+	} else {
+		return nil, errors.New("One postForm Value not present")
+	}
+
+}
+
+func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 	fmt.Println(r.Form)
-	fmt.Println("####$$$$###")
 	fmt.Println(r.Header)
-	var aud, response_type, nonce, state, redirect_uri string
-	var scope []string
-	if len(r.URL.Query()["client_id"]) > 0 {
-		aud = r.URL.Query()["client_id"][0]
-		bs.nonce = r.URL.Query()["nonce"][0]
-		response_type = r.URL.Query()["response_type"][0]
-		scope = strings.Split(r.URL.Query()["scope"][0], ",")
-		nonce = r.URL.Query()["nonce"][0]
-		redirect_uri = r.URL.Query()["redirect_uri"][0]
-		state = r.URL.Query()["state"][0]
-	}
-	usernameSlice, ok := r.Form["name"]
-	if ok {
-		if err != nil {
-			log.Error().Bool("", ok).Msg("Not in Form")
-		}
-	}
-
-	passwordSlice, ok := r.Form["password"]
-	if ok {
-		if err != nil {
-			log.Error().Bool("", ok).Msg("Not in Form")
-		}
-	}
-
-	/* if !ok || len(usernameSlice) < 1 || len(passwordSlice) < 1 {
-
-	} */
-
-	username := usernameSlice[0]
-	password := passwordSlice[0]
-	authTarget, userstore, err := bs.verifier.GetConnectionTarget(r)
+	fmt.Println("####$$$$###")
+	/*
+		var aud, response_type, nonce, state, redirect_uri string
+		var scope []string
+		 if len(r.URL.Query()["client_id"]) > 0 {
+			aud = r.URL.Query()["client_id"][0]
+			bs.nonce = r.URL.Query()["nonce"][0]
+			response_type = r.URL.Query()["response_type"][0]
+			scope = strings.Split(r.URL.Query()["scope"][0], ",")
+			nonce = r.URL.Query()["nonce"][0]
+			redirect_uri = r.URL.Query()["redirect_uri"][0]
+			state = r.URL.Query()["state"][0]
+		} */
+	formMap, err := Extractor(r)
 	if err != nil {
 		log.Err(err)
 	}
-	fmt.Println(authTarget, userstore)
-	_, err = bs.verifier.SessionSave(w, r, username, "user_session")
+
+	_, userstore, err := bs.verifier.GetConnectionTarget(r)
 	if err != nil {
 		log.Err(err)
 	}
-	groups, err := bs.verifier.ValidateUser(username, password, scope[0], userstore, r)
+
+	_, err = bs.verifier.SessionSave(w, r, formMap["name"][0], "user_session")
+	if err != nil {
+		log.Err(err)
+	}
+	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userstore, r)
 
 	if err != nil {
 		fmt.Println(groups)
@@ -291,8 +289,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	var authParameter = AuthToken{
 		//iss:   client_id,
 		//sub:   client_id,
-		Aud:   aud,
-		Nonce: nonce,
+		Aud:   formMap["name"][0],
+		Nonce: formMap["nonce"][0],
 		//exp:       scope,
 		//iat:       state,
 		//auth_time: response_type,
@@ -300,11 +298,11 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       state,
 	}
 
-	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, authParameter, r)
+	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"][0], formMap["nonce"][0], groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
-	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scope, w, r)
+	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], redirect_uri, formMap["state"][0], formMap["scope"], w, r)
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
