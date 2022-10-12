@@ -288,19 +288,21 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.Form)
 	fmt.Println(r.Header)
 	fmt.Println("####$$$$###")
-	/*
-		var aud, response_type, nonce, state, redirect_uri string
-		var scope []string
-		 if len(r.URL.Query()["client_id"]) > 0 {
-			aud = r.URL.Query()["client_id"][0]
-			bs.nonce = r.URL.Query()["nonce"][0]
-			response_type = r.URL.Query()["response_type"][0]
-			scope = strings.Split(r.URL.Query()["scope"][0], ",")
-			nonce = r.URL.Query()["nonce"][0]
-			redirect_uri = r.URL.Query()["redirect_uri"][0]
-			state = r.URL.Query()["state"][0]
-		} */
 
+	/* var aud, response_type, nonce, state, redirect_uri string
+	var scope []string
+	if len(r.URL.Query()["client_id"]) > 0 {
+		aud = r.URL.Query()["client_id"][0]
+		bs.nonce = r.URL.Query()["nonce"][0]
+		response_type = r.URL.Query()["response_type"][0]
+		scope = strings.Split(r.URL.Query()["scope"][0], ",")
+		nonce = r.URL.Query()["nonce"][0]
+		redirect_uri = r.URL.Query()["redirect_uri"][0]
+		state = r.URL.Query()["state"][0]
+	}
+	*/
+	fmt.Println(r.URL.Query())
+	fmt.Println("!!!!")
 	formMap, err := formExtractor(r, []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"})
 	if err != nil {
 		log.Err(err)
