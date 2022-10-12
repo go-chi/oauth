@@ -302,7 +302,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
-	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], redirect_uri, formMap["state"][0], formMap["scope"], w, r)
+	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
