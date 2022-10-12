@@ -287,8 +287,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var authParameter = AuthToken{
-		//iss:   client_id,
-		//sub:   client_id,
+		Iss:   formMap["client_id"][0],
+		Sub:   formMap["client_id"][0],
 		Aud:   formMap["name"][0],
 		Nonce: formMap["nonce"][0],
 		//exp:       scope,
