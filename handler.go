@@ -234,6 +234,12 @@ func formExtractor(r *http.Request, formList []string) (map[string][]string, err
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
 
+	for i, v := range r.Form {
+		fmt.Println(i)
+		fmt.Println(v)
+
+	}
+
 	formMap := map[string][]string{}
 	for _, v := range formList {
 		if x := r.Form[v]; len(r.Form[v]) > 0 {
@@ -255,30 +261,12 @@ func formExtractor(r *http.Request, formList []string) (map[string][]string, err
 
 }
 
-func queryExtractor(r *http.Request) (map[string][]string, error) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to Parse Formdata")
-	}
+func queryExtractor(r *http.Request) {
 
-	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
-	formMap := map[string][]string{}
-	for _, v := range formList {
-		if x := r.Form[v]; len(r.Form[v]) > 0 {
-			formMap[v] = x
-		}
-	}
+	for i, v := range r.URL.Query() {
+		fmt.Println(i)
+		fmt.Println(v)
 
-	if len(formList) == len(formMap) {
-		return formMap, nil
-	} else {
-		var notPresent string
-		for i, v := range formMap {
-			if len(v) > 0 {
-				notPresent = i
-			}
-		}
-		return nil, errors.New("One postForm Value not present: " + notPresent)
 	}
 
 }
@@ -301,6 +289,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		state = r.URL.Query()["state"][0]
 	}
 	*/
+	queryExtractor(r)
 	fmt.Println(r.URL.Query())
 	fmt.Println("!!!!")
 	formMap, err := formExtractor(r, []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"})
