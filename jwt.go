@@ -42,31 +42,6 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	return signedToken, err
 }
 
-/* func CreateClaims(at AuthToken, nonce string, groups []string, r *http.Request) MyCustomClaims {
-	baseURL := scheme + r.Host
-
-	sub := "somebody"
-	id := "ww"
-	aud := []string{at.Aud}
-	claims := MyCustomClaims{
-		"bars",
-		nonce,
-		groups,
-		jwt.RegisteredClaims{
-			// A usual scenario is to set the expiration time relative to the current time
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Second * 2)),
-			Issuer:    baseURL + at.Iss,
-			Subject:   sub,
-			ID:        id,
-			Audience:  aud,
-		},
-	}
-
-	return claims
-} */
-
 func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (string, error) {
 	//var at AuthToken
 	aud := r.URL.Query()["client_id"][0]
@@ -85,7 +60,6 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 		//azp:       state,
 	} */
 	claims := bs.verifier.CreateClaims("username", aud, bs.nonce, groups, at, r)
-	//claims := CreateClaims(authParameter, nonce, groups, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 
 	return access_token, err

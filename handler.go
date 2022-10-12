@@ -228,11 +228,32 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Extractor(r *http.Request) (map[string][]string, error) {
+func formExtractor(r *http.Request, formList []string) (map[string][]string, error) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
+	formMap := map[string][]string{}
+	for _, v := range formList {
+		if x := r.Form[v]; len(r.Form[v]) > 0 {
+			formMap[v] = x
+		}
+	}
+
+	if len(formList) == len(formMap) {
+		return formMap, nil
+	} else {
+		return nil, errors.New("One postForm Value not present")
+	}
+
+}
+
+func queryExtractor(r *http.Request) (map[string][]string, error) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to Parse Formdata")
+	}
+
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
 	formMap := map[string][]string{}
 	for _, v := range formList {
@@ -266,7 +287,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 			redirect_uri = r.URL.Query()["redirect_uri"][0]
 			state = r.URL.Query()["state"][0]
 		} */
-	formMap, err := Extractor(r)
+
+	formMap, err := formExtractor(r, []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"})
 	if err != nil {
 		log.Err(err)
 	}
@@ -280,8 +302,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
-	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userstore, r)
 
+	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userstore, r)
 	if err != nil {
 		fmt.Println(groups)
 	}
@@ -291,17 +313,22 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		Sub:   formMap["client_id"][0],
 		Aud:   formMap["name"][0],
 		Nonce: formMap["nonce"][0],
-		//exp:       scope,
-		//iat:       state,
-		//auth_time: response_type,
-		//acr:       scope,
-		//azp:       state,
+		//exp:       exp,
+		//iat:       iat,
+		//auth_time: auth_time,
+		//acr:       acr,
+		//azp:       azp,
 	}
 
 	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"][0], formMap["nonce"][0], groups, authParameter, r)
-	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
-	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
-
+	access_token, err := CreateJWT("RS256", claims, bs.Kc)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to create access_token")
+	}
+	id_token, err := CreateJWT("RS256", claims, bs.Kc)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to create id_token")
+	}
 	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
 }
 
