@@ -233,6 +233,7 @@ func formExtractor(r *http.Request, formList []string) (map[string][]string, err
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Parse Formdata")
 	}
+
 	formMap := map[string][]string{}
 	for _, v := range formList {
 		if x := r.Form[v]; len(r.Form[v]) > 0 {
@@ -243,7 +244,13 @@ func formExtractor(r *http.Request, formList []string) (map[string][]string, err
 	if len(formList) == len(formMap) {
 		return formMap, nil
 	} else {
-		return nil, errors.New("One postForm Value not present")
+		var notPresent string
+		for i, v := range formMap {
+			if len(v) > 0 {
+				notPresent = i
+			}
+		}
+		return nil, errors.New("One postForm Value not present: " + notPresent)
 	}
 
 }
