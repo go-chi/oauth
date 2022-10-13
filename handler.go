@@ -246,6 +246,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
+	fmt.Println("####§§§§###")
 	fmt.Println(urlValues)
 	fmt.Println(formMap)
 
@@ -254,7 +255,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Err(err)
 	}
 
-	groups, err := bs.verifier.ValidateUser(urlValues["name"][0], urlValues["password"][0], formMap["scope"][0], userstore, r)
+	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], urlValues["scope"][0], userstore, r)
 	if err != nil {
 		fmt.Println(groups)
 	}
@@ -271,7 +272,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       azp,
 	}
 
-	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"][0], formMap["nonce"][0], groups, authParameter, r)
+	claims := bs.verifier.CreateClaims(formMap["name"][0], urlValues["client_id"][0], urlValues["nonce"][0], groups, authParameter, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create access_token")
@@ -280,7 +281,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
-	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
+	OpenIDConnectFlows(id_token, access_token, urlValues["response_type"][0], urlValues["redirect_uri"][0], urlValues["state"][0], urlValues["scope"], w, r)
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
