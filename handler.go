@@ -228,6 +228,10 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Err(err).Msg("Parsing Form failed")
+	}
 	fmt.Println(r.URL.Query())
 	fmt.Println(r.Form)
 	fmt.Println(r.Header)
@@ -235,11 +239,11 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
 	urlValues, err := urlExtractor(r, formList)
 	if err != nil {
-		log.Err(err)
+		log.Err(err).Msg("Url Value not present")
 	}
 	formMap, err := formExtractor(r, formList)
 	if err != nil {
-		log.Err(err)
+		log.Err(err).Msg("Form Value not present")
 	}
 
 	_, userstore, err := bs.verifier.GetConnectionTarget(r)
