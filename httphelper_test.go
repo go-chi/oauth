@@ -32,6 +32,7 @@ func TestFormExtractor(t *testing.T) {
 
 	t.Run("Registration Test 2", func(t *testing.T) {
 		formAddList(&form, formMap)
+		form.Del("scope")
 		want := map[string][]string{"name": {"name"}, "password": {"password"}, "client_id": {"client_id"}, "response_type": {"response_type"}, "redirect_uri": {"redirect_uri"}, "nonce": {"nonce"}, "state": {"state"}, "scope": {"scope"}}
 
 		req, err := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
