@@ -246,6 +246,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
+	fmt.Println(urlValues)
+	fmt.Println(formMap)
 
 	_, err = bs.verifier.SessionSave(w, r, formMap["name"][0], "user_session")
 	if err != nil {
