@@ -3,7 +3,6 @@ package oauth
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -39,46 +38,38 @@ func (bs *BearerServer) Jwk(w http.ResponseWriter, r *http.Request) {
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
-	aud := r.URL.Query()["client_id"][0]
-	bs.nonce = r.URL.Query()["nonce"][0]
-	response_type := r.URL.Query()["response_type"][0]
-	scopes := strings.Split(r.URL.Query()["scope"][0], ",")
-	nonce := r.URL.Query()["nonce"][0]
-	redirect_uri := r.URL.Query()["redirect_uri"][0]
-	state := r.URL.Query()["state"][0]
-	fmt.Println(aud)
-	fmt.Println(nonce)
-	fmt.Println(redirect_uri)
-	fmt.Println(state)
-	fmt.Println(response_type)
-	fmt.Println(scopes)
-
-	fmt.Println(userID)
-
 	if err != nil {
 		log.Err(err)
 	}
+	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope", "nonce", "scopes"}
+	urlValues, err := urlExtractor(r, formList)
+	if err != nil {
+		log.Err(err)
+	}
+
+	fmt.Println(userID)
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       "sub",
-		Aud:       aud,
+		Aud:       urlValues["client_id"][0],
 		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		Iat:       "",
 		Jti:       "",
 		Client_id: "Testclient_id",
 		Scope:     []string{"scope1", "scope2"},
-		Nonce:     nonce,
+		Nonce:     urlValues["nonce"][0],
 	}
-	_, groups, err := bs.verifier.UserLookup(userID, scopes)
+	_, groups, err := bs.verifier.UserLookup(userID, urlValues["scopes"])
 	if err != nil {
 		log.Err(err).Msg("")
 	}
 
-	claims := bs.verifier.CreateClaims(userID, aud, nonce, groups, authParameter, r)
+	claims := bs.verifier.CreateClaims(userID, urlValues["client_id"][0], urlValues["nonce"][0], groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
-	OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state, scopes, w, r)
+	OpenIDConnectFlows(id_token, access_token, urlValues["response_type"][0], urlValues["redirect_uri"][0],
+		urlValues["state"][0], urlValues["scopes"], w, r)
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
