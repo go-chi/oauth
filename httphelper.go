@@ -4,12 +4,80 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
 
+func formAddList(uv *url.Values, uvm map[string][]string) {
+	for i, v := range uvm {
+		for _, vv := range v {
+			uv.Add(i, vv)
+		}
+	}
+}
+
+func qAddList(r *http.Request, uvm map[string][]string) {
+	q := r.URL.Query()
+	for i, v := range uvm {
+		for _, vv := range v {
+			q.Add(i, vv)
+
+		}
+	}
+	r.URL.RawQuery = q.Encode()
+}
+
+func formExtractor(r *http.Request, formList []string) (map[string][]string, error) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Err(err).Msg("Token is invalid")
+	}
+	formMap := map[string][]string{}
+	for _, v := range formList {
+		if x := r.Form[v]; len(r.Form[v]) > 0 {
+			formMap[v] = x
+		}
+	}
+
+	if len(formList) == len(formMap) {
+		return formMap, nil
+	} else {
+		var notPresent string
+		for i, v := range formMap {
+			if len(v) == 0 {
+				notPresent = i
+			}
+		}
+		return nil, errors.New("One postForm Value not present: " + notPresent)
+	}
+
+}
+func urlExtractor(r *http.Request, formList []string) (queryListMap map[string][]string, err error) {
+	queryListMap = make(map[string][]string)
+	for i, v := range r.URL.Query() {
+		if len(v) > 0 {
+			queryListMap[i] = v
+		}
+	}
+
+	if len(formList) == len(queryListMap) {
+		err = nil
+		return
+	} else {
+		var notPresent string
+		for i, v := range queryListMap {
+			if len(v) == 0 {
+				notPresent = i
+			}
+			err = errors.New("One postForm Value not present: " + notPresent)
+		}
+		return
+	}
+
+}
 func getFormData(formValues []string, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -228,71 +227,17 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func formExtractor(r *http.Request, formList []string) (map[string][]string, error) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to Parse Formdata")
-	}
-
-	for i, v := range r.Form {
-		fmt.Println(i)
-		fmt.Println(v)
-
-	}
-
-	formMap := map[string][]string{}
-	for _, v := range formList {
-		if x := r.Form[v]; len(r.Form[v]) > 0 {
-			formMap[v] = x
-		}
-	}
-
-	if len(formList) == len(formMap) {
-		return formMap, nil
-	} else {
-		var notPresent string
-		for i, v := range formMap {
-			if len(v) > 0 {
-				notPresent = i
-			}
-		}
-		return nil, errors.New("One postForm Value not present: " + notPresent)
-	}
-
-}
-
-func queryExtractor(r *http.Request) {
-
-	for i, v := range r.URL.Query() {
-		fmt.Println(i)
-		fmt.Println(v)
-
-	}
-
-}
-
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 	fmt.Println(r.Form)
 	fmt.Println(r.Header)
 	fmt.Println("####$$$$###")
-
-	/* var aud, response_type, nonce, state, redirect_uri string
-	var scope []string
-	if len(r.URL.Query()["client_id"]) > 0 {
-		aud = r.URL.Query()["client_id"][0]
-		bs.nonce = r.URL.Query()["nonce"][0]
-		response_type = r.URL.Query()["response_type"][0]
-		scope = strings.Split(r.URL.Query()["scope"][0], ",")
-		nonce = r.URL.Query()["nonce"][0]
-		redirect_uri = r.URL.Query()["redirect_uri"][0]
-		state = r.URL.Query()["state"][0]
+	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
+	urlValues, err := urlExtractor(r, formList)
+	if err != nil {
+		log.Err(err)
 	}
-	*/
-	queryExtractor(r)
-	fmt.Println(r.URL.Query())
-	fmt.Println("!!!!")
-	formMap, err := formExtractor(r, []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"})
+	formMap, err := formExtractor(r, formList)
 	if err != nil {
 		log.Err(err)
 	}
@@ -307,7 +252,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Err(err)
 	}
 
-	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userstore, r)
+	groups, err := bs.verifier.ValidateUser(urlValues["name"][0], urlValues["password"][0], formMap["scope"][0], userstore, r)
 	if err != nil {
 		fmt.Println(groups)
 	}
