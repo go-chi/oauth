@@ -73,12 +73,16 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
 	}
-	aud := r.URL.Query()["client_id"][0]
+	formList := []string{"client_id"}
+	queryListMap, err := urlExtractor(r, formList)
+	if err != nil {
+		log.Error().Err(err).Msg(userID)
+	}
+	aud := queryListMap["client_id"][0]
 	client, err := bs.verifier.StoreClientGet(aud)
 	if err != nil || client == nil {
 		log.Info().Msg("Client not found")
