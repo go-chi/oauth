@@ -268,6 +268,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("groups")
 	fmt.Println(groups)
+	groups = []string{"ttest"}
 	var authParameter = AuthToken{
 		Iss:   formMap["client_id"][0],
 		Sub:   formMap["client_id"][0],
