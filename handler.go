@@ -25,7 +25,8 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
-
+	fmt.Println("qqqqqqqqqqqqqqqq")
+	fmt.Println(aud, grant_type, refresh_token, scope, code, redirect_uri, at)
 	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", aud, grant_type, refresh_token, scope, code, redirect_uri, at, w, r)
 
 	if err != nil {
