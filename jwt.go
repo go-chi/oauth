@@ -23,9 +23,7 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
 	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
-	fmt.Println(kc.Keys.Keys[0]["kid"])
 	signedToken, err := tokens.SignedString(kc.Pk["test"])
-	fmt.Println(signedToken)
 	if err != nil {
 		log.Err(err).Msg("")
 		fmt.Printf("failed to parse token: %e", err)
@@ -67,7 +65,7 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 
 func JWTvalid(jwtToken string, kc *rsa.PublicKey) (*jwt.Token, error) {
 	parsedToken, err := jwt.Parse(jwtToken, func(t *jwt.Token) (interface{}, error) { return kc, nil })
-	if err != nil {
+	if err != nil || parsedToken == nil {
 		return nil, err
 	}
 	return parsedToken, err
@@ -75,8 +73,8 @@ func JWTvalid(jwtToken string, kc *rsa.PublicKey) (*jwt.Token, error) {
 
 func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	parsedToken, err := JWTvalid(jwtToken, kc)
-	fmt.Println(err)
-	if err != nil && !parsedToken.Valid {
+	fmt.Println(parsedToken)
+	if parsedToken == nil || (err != nil && !parsedToken.Valid) {
 		return nil, errors.New("Token invalid")
 	}
 

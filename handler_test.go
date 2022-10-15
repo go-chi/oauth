@@ -89,47 +89,6 @@ var client = Registration{
 
 var sig, _ = uuid.FromBytes(pk.PublicKey.N.Bytes())
 
-func TestTokenIntrospect(t *testing.T) {
-	var at AuthToken
-	t.Run("Get jwt from Header", func(t *testing.T) {
-		req, _ := http.NewRequest("POST", "/oauth/introspect", nil)
-		mux := chi.NewRouter()
-		mux.Post("/oauth/introspect", bs.TokenIntrospect)
-		ts := httptest.NewTLSServer(mux)
-		groups := []string{"group1", "group2"}
-		scope := []string{"scope1", "scope2"}
-		claims := bs.verifier.CreateAtClaims("TestclientID", "username", "aud", bs.nonce, scope, groups, at, req)
-
-		access_token, _ := CreateJWT("RS256", claims, bs.Kc)
-		dd := url.Values{"token": {access_token}}
-		resp, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
-		if err != nil {
-			t.Errorf("json encoding failed %v", err)
-		}
-		obj := make(map[string]interface{})
-		ConvertIOReader(resp.Body, &obj)
-		for i, v := range obj {
-			if (i != "sub") && (i != "iat") && (i != "iss") && (i != "jti") && (i != "active") && (i != "scope") && (i != "client_id") {
-				if i == "active" && v != true {
-					t.Error(err)
-				}
-			}
-		}
-	})
-
-	t.Run("Get jwt from Header", func(t *testing.T) {
-		mux := chi.NewRouter()
-		mux.Post("/oauth/introspect", bs.TokenIntrospect)
-		ts := httptest.NewTLSServer(mux)
-		dd := url.Values{"token": {"test", "test2"}}
-		_, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
-		if err != nil {
-			t.Errorf("json encoding failed %v", err)
-		}
-
-	})
-
-}
 func assertResponseBody[k comparable](t testing.TB, got, want k) {
 	t.Helper()
 	if got != want {

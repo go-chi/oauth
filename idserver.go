@@ -193,7 +193,7 @@ func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType To
 
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
-	refreshToken := refreshToken("token.ID", username, tokenType, scope)
+	refreshToken := refreshToken(aud, username, tokenType, scope)
 
 	return token, refreshToken, idtoken, nil
 }
