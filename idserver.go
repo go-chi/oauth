@@ -31,7 +31,7 @@ type Cookie struct {
 
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-
+	r.ParseForm()
 	fmt.Println(r.Form)
 	fmt.Println(r.URL.Query())
 	fmt.Println("r.Form")
