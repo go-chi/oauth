@@ -51,7 +51,7 @@ func TestGenerateRefreshTokenGrant(t *testing.T) {}
 func TestGenerateIdTokensByUsername(t *testing.T) {
 	var at = AuthToken{}
 	r := new(http.Request)
-	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", "", UserToken, "user111", "openid", []string{"group1"}, at, r)
+	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", "", UserToken, "user111", "openid", "", []string{"group1"}, at, r)
 
 	if idtoken == "nil" {
 		fmt.Println(idtoken)

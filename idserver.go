@@ -41,6 +41,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 	fmt.Println(ii, err)
 	fmt.Println(grantType)
 	fmt.Println(ii["nonce"])
+	nonce := r.FormValue("nonce")
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
@@ -53,7 +54,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}
@@ -92,7 +93,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		}
 		Secret = r.FormValue("secret")
 		redirect_uri = r.FormValue("redirect_uri")
-		nonce := r.FormValue("nonce")
+
 		state := r.FormValue("state")
 		//client_id := r.FormValue("client_id")
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
@@ -139,7 +140,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			log.Err(err)
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
@@ -187,8 +188,8 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
-	claims := bs.verifier.CreateClaims(username, aud, bs.nonce, groups, at, r)
+func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope, nonce string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
+	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, at, r)
 
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
