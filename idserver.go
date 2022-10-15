@@ -40,6 +40,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 	ii, err := ParseJWT(authcode, &bs.Kc.Pk["test"].PublicKey)
 	fmt.Println(ii, err)
 	fmt.Println(grantType)
+	fmt.Println(ii["nonce"])
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
@@ -95,6 +96,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		state := r.FormValue("state")
 		//client_id := r.FormValue("client_id")
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
+		nonce = parsedJwt["nonce"].([]interface{})[0].(string)
 		fmt.Println(aud)
 		at = AuthToken{
 			//iss:   client_id,
