@@ -117,13 +117,13 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 		fmt.Println("location")
 		fmt.Println(access_token)
 		fmt.Println(redirect_uri)
-		if slices.Contains(scope, "openid") {
-			fmt.Println("opopopo")
-			location := redirect_uri + "?code=" + access_token + "&state=" + state
-			fmt.Println(location)
-			w.Header().Add("Location", location)
-			http.Redirect(w, r, location, 302)
-		}
+		//if slices.Contains(scope, "openid") {
+		fmt.Println("opopopo")
+		location := redirect_uri + "?code=" + access_token + "&state=" + state
+		fmt.Println(location)
+		w.Header().Add("Location", location)
+		http.Redirect(w, r, location, 302)
+		//}
 	case "id_token token": //insecure
 		location := redirect_uri + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
