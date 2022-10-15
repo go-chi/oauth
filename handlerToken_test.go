@@ -14,30 +14,52 @@ func TestTokenEndpoint(t *testing.T) {
 	if err != nil {
 		t.Errorf("json encoding failed %v", err)
 	}
-	clientId := "clientID"
-	token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "", []string{"group1"}, at, req)
-	if err != nil {
-		t.Errorf("json encoding failed %v", err)
-	}
-	if token != "" {
-		t.Errorf("json encoding failed %v", err)
-	}
-	if refreshToken.TokenID != clientId {
-		t.Errorf("json encoding failed %v", err)
-	}
-	if idtoken != "" {
-		t.Errorf("json encoding failed %v", err)
-	}
-
-	t.Error(token)
 	q := req.URL.Query()
 	q.Add("grant_type", "authorization_code")
 	q.Add("code", "")
 	q.Add("redirect_uri", "http://localhost:8080")
 
-	rw := httptest.NewRecorder()
-	bs.TokenEndpoint(rw, req)
+	clientId := "clientID"
+	token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "", []string{"group1"}, at, req)
 
+	t.Run("TokenEndPoint Test 1", func(t *testing.T) {
+		assertNoError(t, err)
+	})
+	t.Run("TokenEndPoint Test 2", func(t *testing.T) {
+		assertEmptyString(t, token)
+	})
+	t.Run("TokenEndPoint Test 3", func(t *testing.T) {
+		assertEmptyString(t, idtoken)
+	})
+	t.Run("TokenEndPoint Test 4", func(t *testing.T) {
+		assertString(t, refreshToken.TokenID, clientId)
+	})
+	t.Run("TokenEndPoint Test 5", func(t *testing.T) {
+		//token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "", []string{"group1"}, at, req)
+
+		assertString(t, refreshToken.TokenID, clientId)
+	})
+}
+
+func assertNoError(t testing.TB, got interface{}) {
+	t.Helper()
+	if got != nil {
+		t.Errorf("expected no Error got %v", got)
+	}
+}
+
+func assertEmptyString(t testing.TB, got string) {
+	t.Helper()
+	if got == "" {
+		t.Errorf("expected string but got %v", got)
+	}
+}
+
+func assertString(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got: %v, expected: %v", got, want)
+	}
 }
 
 func TestTokenIntrospect(t *testing.T) {
