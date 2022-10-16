@@ -90,9 +90,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	} else if ok && userID != "" {
 		RedirectAccess(bs, w, r)
 	} else {
-
 		err := bs.verifier.SignInMethod(aud, w, r)
 		fmt.Println(err)
-
 	}
 }
