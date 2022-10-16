@@ -155,7 +155,7 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, string, error) {
+func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", "false", nil
 }
 

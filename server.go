@@ -39,7 +39,7 @@ type CredentialsVerifier interface {
 	CreateAtClaims(username, client_id, aud, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
 	ValidateJwt(token string) (bool, error)
 
-	GetConnectionTarget(r *http.Request) (string, string, error)
+	GetConnectionTarget(r *http.Request) (string, *AuthTarget, error)
 
 	UserLookup(username string, scope []string) (map[string]string, []string, error)
 	SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error)

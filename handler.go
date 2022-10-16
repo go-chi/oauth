@@ -208,6 +208,6 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	renderJSON(w, jsonPayload, rc)
 }
-func (bs *BearerServer) GetConnectionTarget(r *http.Request) (string, string, error) {
+func (bs *BearerServer) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", "false", nil
 }

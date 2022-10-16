@@ -219,7 +219,7 @@ func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string
 	return nil, nil, nil
 }
 
-func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, string, error) {
+func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", "false", nil
 }
 
