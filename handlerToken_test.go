@@ -1,6 +1,10 @@
 package oauth
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -20,7 +24,7 @@ func TestTokenEndpoint(t *testing.T) {
 	q.Add("redirect_uri", "http://localhost:8080")
 
 	clientId := "clientID"
-	token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "", []string{"group1"}, at, req)
+	token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "test", []string{"group1"}, at, req)
 
 	t.Run("TokenEndPoint Test 1", func(t *testing.T) {
 		assertNoError(t, err)
@@ -34,11 +38,7 @@ func TestTokenEndpoint(t *testing.T) {
 	t.Run("TokenEndPoint Test 4", func(t *testing.T) {
 		assertString(t, refreshToken.TokenID, clientId)
 	})
-	t.Run("TokenEndPoint Test 5", func(t *testing.T) {
-		//token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "", []string{"group1"}, at, req)
 
-		assertString(t, refreshToken.TokenID, clientId)
-	})
 }
 
 func TestTokenIntrospect(t *testing.T) {
@@ -79,6 +79,31 @@ func TestTokenIntrospect(t *testing.T) {
 			t.Errorf("json encoding failed %v", err)
 		}
 
+	})
+
+}
+
+func TestTokenRevocation(t *testing.T) {
+	get := map[string]string{"token": "", "refresh_token": "", "access_token": ""}
+	empJSON, err := json.Marshal(get)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	req, err := http.NewRequest("POST", "/oauth/revoke", bytes.NewBuffer(empJSON))
+	if err != nil {
+		t.Errorf("json encoding failed %v", err)
+	}
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:password123456")))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rw := httptest.NewRecorder()
+	bs.TokenRevocation(rw, req)
+	got := rw.Code
+	want := 200
+
+	t.Run("TokenEndPoint Test 1", func(t *testing.T) {
+		assertResponseCode(t, want, got)
 	})
 
 }

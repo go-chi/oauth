@@ -106,5 +106,5 @@ func (bs *BearerServer) TokenRevocation(w http.ResponseWriter, r *http.Request) 
 			log.Error().Msg("failed")
 		}
 	}
-
+	renderJSON(w, nil, 200)
 }

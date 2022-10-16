@@ -3,7 +3,6 @@ package oauth
 import (
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -61,17 +60,4 @@ func TestFormExtractor(t *testing.T) {
 		assertFormError(t, err)
 	})
 
-}
-
-func assertCorrectMessage(t testing.TB, got, want map[string][]string) {
-	t.Helper()
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Not equal maps, got %q want %q", got, want)
-	}
-}
-func assertFormError(t testing.TB, got error) {
-	t.Helper()
-	if got == nil {
-		t.Errorf("response body is wrong, got %q ", got)
-	}
 }
