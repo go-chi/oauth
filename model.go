@@ -251,3 +251,10 @@ type K struct {
 	Ke string `json:"ke"`
 	Le string
 }
+type Federation struct {
+	auth  string
+	store string
+}
+type AuthTarget struct {
+	participant map[string]Federation
+}
