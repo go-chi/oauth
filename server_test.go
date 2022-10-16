@@ -155,8 +155,8 @@ func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
 	return false, nil
 }
 
-func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *auth.AuthTarget, error) {
-	return "false", "false", nil
+func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
+	return "false", &AuthTarget{}, nil
 }
 
 func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error) {
