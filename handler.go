@@ -125,42 +125,29 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Err(err).Msg("Parsing Form failed")
+		log.Error().Err(err).Msg("Parsing Form failed")
 	}
-	fmt.Println(r.URL.Query())
-	fmt.Println(r.Form)
-	fmt.Println(r.Header)
-	fmt.Println("####$$$$###")
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
-	//urlValues, err := urlExtractor(r, formList)
-	if err != nil {
-
-	}
-	if err != nil {
-		log.Err(err).Msg("Url Value not present")
-	}
 	formMap, err := formExtractor(r, formList)
 	if err != nil {
-		log.Err(err).Msg("Form Value not present")
+		log.Error().Err(err).Msg("Form Value not present")
 	}
 
-	userstoreName, _, err := bs.verifier.GetConnectionTarget(r)
+	userStoreName, _, err := bs.verifier.GetConnectionTarget(r)
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Failed getting conncetion target")
 	}
 
 	_, err = bs.verifier.SessionSave(w, r, formMap["name"][0], "user_session")
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Failed saving session")
 	}
 
-	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userstoreName, r)
+	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userStoreName, r)
 	if err != nil {
-		fmt.Println(groups)
+		log.Error().Err(err).Msg("Failed validating user getting groups")
 	}
-	fmt.Println("groups")
-	fmt.Println(groups)
-	groups = []string{"ttest"}
+
 	var authParameter = AuthToken{
 		Iss:   formMap["client_id"][0],
 		Sub:   formMap["client_id"][0],
@@ -188,18 +175,25 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 
-	hh, err := ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
+	parsedToken, err := ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Parsing Form failed")
 	}
-	fmt.Println(hh)
+	userInterface := parsedToken["sub"].(string)
+
+	//get userdata
+	groups, err := bs.verifier.ValidateUser(userInterface, "password", "scope", "userStoreName", r)
+	if err != nil {
+		log.Error().Err(err).Msg("Parsing Form failed")
+	}
+	fmt.Println(groups)
 	jsonPayload, rc, contentType, err := UserData()
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	w.Header().Set("Content-Type", contentType)
 

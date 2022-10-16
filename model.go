@@ -69,6 +69,8 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+//idToken
+
 type MyCustomClaimss struct {
 	Iss       string   `json:"iss"`
 	Sub       string   `json:"sub"`
@@ -76,6 +78,31 @@ type MyCustomClaimss struct {
 	Client_id string   `json:"client_id"`
 	Scope     []string `json:"scope"`
 	jwt.RegisteredClaims
+}
+
+type UserInfo struct {
+	Sub                   string   `json:"sub"`
+	Name                  string   `json:"name"`
+	Given_name            string   `json:"given_name"`
+	Family_name           string   `json:"family_name"`
+	Middle_name           string   `json:"middle_name"`
+	Nickname              string   `json:"nickname"`
+	Preferred_username    string   `json:"preferred_username"`
+	Profile               string   `json:"profile"`
+	Picture               string   `json:"picture"`
+	Website               string   `json:"website"`
+	Email                 string   `json:"email"`
+	Email_verified        string   `json:"email_verified"`
+	Gender                string   `json:"gender"`
+	Birthdate             string   `json:"birthdate"`
+	Zoneinfo              string   `json:"zoneinfo"`
+	Locale                string   `json:"locale"`
+	Phone_number          string   `json:"phone_number"`
+	Phone_number_verified string   `json:"phone_number_verified"`
+	Address               []string `json:"address"`
+	Updated_at            string   `json:"updated_at"`
+	Nonce                 string   `json:"nonce"`
+	Groups                []string `json:"groups"`
 }
 
 type IntroSpectReturn struct {

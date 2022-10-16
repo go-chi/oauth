@@ -73,7 +73,6 @@ func JWTvalid(jwtToken string, kc *rsa.PublicKey) (*jwt.Token, error) {
 
 func ParseJWT(jwtToken string, kc *rsa.PublicKey) (jwt.MapClaims, error) {
 	parsedToken, err := JWTvalid(jwtToken, kc)
-	fmt.Println(parsedToken)
 	if parsedToken == nil || (err != nil && !parsedToken.Valid) {
 		return nil, errors.New("Token invalid")
 	}

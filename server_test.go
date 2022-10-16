@@ -95,6 +95,11 @@ func (TestUserVerifier) ValidateUser(username, password, scope, connection strin
 	}
 }
 
+func (TestUserVerifier) GetUserData(username, password, scope, connection string, r *http.Request) (map[string]string, error) {
+	// Add something to the request context, so we can access it in the claims and props funcs.
+	return nil, nil
+}
+
 // Validate clientID and secret returning an error if the client credentials are wrong
 func (TestUserVerifier) ValidateClient(clientID, clientSecret string) error {
 	// Add something to the request context, so we can access it in the claims and props funcs.
