@@ -73,6 +73,10 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	/* authH := r.Header.Get("Authorization")
 	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
