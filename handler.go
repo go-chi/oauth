@@ -38,11 +38,14 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
+			jsonMap := Registration{}
+			//e, err := ihttp.
+			//ParseBody(r.Body, jsonMap)
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
 			}
-			var jsonMap Registration
+
 			err = json.Unmarshal(body, &jsonMap)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
