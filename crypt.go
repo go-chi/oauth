@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gofrs/uuid"
@@ -28,4 +30,11 @@ func (bs *BearerServer) ReturnKeys(w http.ResponseWriter, r *http.Request) {
 func PrivateKeyCreate(bitLength int) (privatekey *rsa.PrivateKey, err error) {
 	privatekey, err = rsa.GenerateKey(rand.Reader, bitLength)
 	return
+}
+func ConvertIOReader[k any](buff io.Reader, target k) {
+	decoder := json.NewDecoder(buff)
+	err := decoder.Decode(&target)
+	if err != nil {
+		panic(err)
+	}
 }

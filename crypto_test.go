@@ -1,8 +1,6 @@
 package oauth
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -52,12 +50,5 @@ func TestGenJWKS(t *testing.T) {
 	}
 	if len(keys) != 6 {
 		t.Error()
-	}
-}
-func ConvertIOReader[k any](buff io.Reader, target k) {
-	decoder := json.NewDecoder(buff)
-	err := decoder.Decode(&target)
-	if err != nil {
-		panic(err)
 	}
 }
