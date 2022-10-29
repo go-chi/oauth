@@ -81,6 +81,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	queryListMap, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
+		return
 	}
 	aud := queryListMap["client_id"][0]
 	client, err := bs.verifier.StoreClientGet(aud)
