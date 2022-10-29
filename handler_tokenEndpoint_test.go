@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	gohelper "github.com/christhirst/gohelper/json"
+	gohelper "github.com/christhirst/gohelper/ijson"
 )
 
 var tetests = []struct {

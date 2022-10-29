@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	gohelper "github.com/christhirst/gohelper/json"
+	gohelper "github.com/christhirst/gohelper/ijson"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
