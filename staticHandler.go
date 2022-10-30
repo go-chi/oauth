@@ -84,7 +84,10 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aud := queryListMap["client_id"][0]
+	fmt.Print("uuu")
 	client, err := bs.verifier.StoreClientGet(aud)
+	fmt.Print(err)
+	fmt.Print(client)
 	if err != nil || client == nil {
 		log.Info().Msg("Client not found")
 		http.Redirect(w, r, "http://ClientNotFound", 401)
