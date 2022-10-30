@@ -279,9 +279,9 @@ type K struct {
 	Le string
 }
 type Federation struct {
-	auth  string
-	store string
+	Auth  string
+	Store string
 }
 type AuthTarget struct {
-	participant map[string]Federation
+	Participant map[string]Federation
 }
