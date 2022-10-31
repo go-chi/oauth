@@ -329,7 +329,7 @@ func TestKeyEndpointDelete(t *testing.T) {
 
 		assertCorrectMessage(t, got, got)
 	})
-	t.Error()
+
 }
 
 func TestRegistrationGets(t *testing.T) {
