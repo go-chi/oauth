@@ -83,6 +83,8 @@ func getFormData(formValues []string, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
+	fmt.Println("eeeee")
+	fmt.Println(r.Form)
 	for key, values := range r.Form { // range over map
 		for _, value := range values { // range over []string
 			fmt.Println(key, value)
