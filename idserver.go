@@ -32,15 +32,11 @@ type Cookie struct {
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	r.ParseForm()
-	fmt.Println(r.Form)
-	fmt.Println(r.URL.Query())
-	fmt.Println("r.Form")
-	fmt.Println(r.FormValue("code"))
 	authcode := r.FormValue("code")
-	ii, err := ParseJWT(authcode, &bs.Kc.Pk["test"].PublicKey)
-	fmt.Println(ii, err)
-	fmt.Println(grantType)
-	fmt.Println(ii["nonce"])
+	_, err := ParseJWT(authcode, &bs.Kc.Pk["test"].PublicKey)
+	if err != nil {
+		log.Error().Err(err).Msg("Validating JWT failed")
+	}
 	nonce := r.FormValue("nonce")
 	var resp *TokenResponse
 	switch grantType {
@@ -48,7 +44,6 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		credential := r.FormValue("name")
 		secret := r.FormValue("password")
 		authTarget, userstore, _ := bs.verifier.GetConnectionTarget(r)
-		fmt.Println(authTarget, userstore)
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, authTarget, r)
 		if err != nil {
 			return "Not authorized", http.StatusUnauthorized, err
@@ -134,7 +129,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			log.Err(err)
 		}
 		userStoreName, userstore, err := bs.verifier.GetConnectionTarget(r)
-		fmt.Println(userStoreName, userstore)
+
 		groups, err := bs.verifier.ValidateUser(credential, secret, scope, userStoreName, r)
 		if err != nil {
 			log.Err(err)

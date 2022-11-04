@@ -3,7 +3,6 @@ package oauth
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -54,7 +53,7 @@ func TestGenerateIdTokensByUsername(t *testing.T) {
 	token, refresh, idtoken, err := _sut.generateIdTokens("RS256", "", UserToken, "user111", "openid", "", []string{"group1"}, at, r)
 
 	if idtoken == "nil" {
-		fmt.Println(idtoken)
+		log.Warn().Msgf("Idtoken is: %s", idtoken)
 	}
 
 	if err == nil {

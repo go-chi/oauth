@@ -27,7 +27,7 @@ func TestCreateJWT(t *testing.T) {
 		}
 		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		pub := &bs.Kc.Pk["test"].PublicKey
-		fmt.Println(pub)
+
 		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
 		if err != nil {
 			t.Error(err)

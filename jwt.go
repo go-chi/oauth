@@ -29,7 +29,6 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 		fmt.Printf("failed to parse token: %e", err)
 	}
 	ss, err := ParseJWT(signedToken, &kc.Pk["test"].PublicKey)
-	fmt.Println(ss)
 	if err != nil {
 		fmt.Printf("failed to parse token: %e", err)
 	}

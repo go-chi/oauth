@@ -83,8 +83,6 @@ func getFormData(formValues []string, r *http.Request) {
 	if err != nil {
 		log.Err(err)
 	}
-	fmt.Println("eeeee")
-	fmt.Println(r.Form)
 	for key, values := range r.Form { // range over map
 		for _, value := range values { // range over []string
 			fmt.Println(key, value)
@@ -116,9 +114,7 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 	case "code":
 		fmt.Println(222)
 		//if slices.Contains(scope, "openid") {
-		fmt.Println(scope)
 		location := redirect_uri + "?code=" + access_token + "&state=" + state
-		fmt.Println(location)
 		w.Header().Add("Location", location)
 		http.Redirect(w, r, location, 302)
 		//}
@@ -129,7 +125,6 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 		fmt.Println(333)
 		if slices.Contains(scope, "openid") {
 			location := redirect_uri + "?code=" + access_token + "&state=" + state
-			fmt.Println(location)
 			w.Header().Add("Location", location)
 			http.Redirect(w, r, location, 302)
 		}
@@ -138,12 +133,12 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 		w.Header().Add("Location", location)
 		//"code id_token token"
 	case "code token id_token": //insecure
-		fmt.Println("ssss")
+
 		location := redirect_uri + "&code=" + access_token + "&access_token=" + access_token + "&token_type=" + "token_type" + "&id_token=" + id_token + "&state=" + state
 		w.Header().Add("Location", location)
 		http.Redirect(w, r, location, 302)
 	default:
-		fmt.Println("default")
+		log.Error().Err(errors.New("invalid response type")).Msg("response_type not present")
 	}
 	//todo: OAuth client credentials flow; OAuth device flow
 

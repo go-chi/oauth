@@ -101,7 +101,6 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST":
-			fmt.Println("+++++++!+++++++++++")
 			var keys map[string]string
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
@@ -111,7 +110,6 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
-			fmt.Println(keys)
 			err = bs.verifier.StoreKey(keys)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
@@ -122,9 +120,6 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
 			//keyDeleteKeyPair(bs.Kc, kid)
-			fmt.Println("!!")
-			fmt.Println(kid)
-			fmt.Println(path)
 			bs.verifier.StoreKeyDelete([]string{kid})
 		}
 	}

@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 type TokenSecureFormatter interface {
@@ -35,7 +34,6 @@ func (tp *TokenProvider) CryptRefreshToken(t *RefreshToken) (token string, err e
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(tp)
 	return tp.crypt(bToken)
 }
 
@@ -64,8 +62,6 @@ func (tp *TokenProvider) DecryptRefreshTokens(refreshToken string) (refresh *Ref
 }
 
 func (tp *TokenProvider) crypt(token []byte) (string, error) {
-	fmt.Println("ppp")
-	fmt.Println(tp)
 	ctoken, err := tp.secureFormatter.CryptToken(token)
 	if err != nil {
 		return "", err

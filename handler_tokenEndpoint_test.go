@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -62,7 +61,6 @@ func TestTokenEndpointPW(t *testing.T) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("#" + string(jsonStr))
 
 			// convert json to struct
 			s := TokenResponse{}

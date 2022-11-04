@@ -506,6 +506,6 @@ func TestUserInfo(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(tsa)
-	t.Error()
+	//t.Error()
 
 }

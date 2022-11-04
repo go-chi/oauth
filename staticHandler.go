@@ -84,8 +84,10 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aud := queryListMap["client_id"][0]
-	fmt.Print("uuu")
 	client, err := bs.verifier.StoreClientGet(aud)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed getting client data")
+	}
 	fmt.Print(err)
 	fmt.Print(client)
 	if err != nil || client == nil {
@@ -95,6 +97,8 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		RedirectAccess(bs, w, r)
 	} else {
 		err := bs.verifier.SignInMethod(aud, w, r)
-		fmt.Println(err)
+		if err != nil {
+			log.Error().Err(err).Msg("Signin method failed")
+		}
 	}
 }

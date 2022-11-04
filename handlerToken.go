@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -10,7 +9,6 @@ import (
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	var at AuthToken
-	fmt.Println("zzzz")
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
 	scope := r.FormValue("scope")
