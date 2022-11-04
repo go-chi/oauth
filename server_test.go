@@ -37,7 +37,7 @@ func (*TestUserVerifier) StoreClient(clientname string, clientData Registration,
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
 
-	return respInterface, nil
+	return nil, nil
 }
 
 func (*TestUserVerifier) StoreClientDelete(clientId []string) error {

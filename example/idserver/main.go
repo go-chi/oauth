@@ -235,7 +235,7 @@ func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cook
 	return "", true, nil
 }
 
-func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (map[string]interface{}, error) {
+func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registration, methode string) (*oauth.Registration, error) {
 
 	var respInterface map[string]interface{}
 	inrec, err := json.Marshal(client)
@@ -246,7 +246,7 @@ func (*TestUserVerifier) StoreClient(clientname string, client oauth.Registratio
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file")
 	}
-	return respInterface, nil
+	return nil, nil
 }
 
 func (*TestUserVerifier) StoreClientGet(client string) (*oauth.Registration, error) {
