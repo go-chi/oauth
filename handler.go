@@ -115,7 +115,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 		case "DELETE":
-			path := r.URL.Path
+			//path := r.URL.Path
 			/* base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
