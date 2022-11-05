@@ -178,6 +178,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.Body)
+	fmt.Println(r.Header)
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
