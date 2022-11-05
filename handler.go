@@ -180,11 +180,13 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.Body)
 	fmt.Println(r.Header)
+
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
+	//split token with "." then decode base64 then extract clientID then get kid
 	//oo := getKey()
 	kid := "test"
 	var pk *rsa.PublicKey
