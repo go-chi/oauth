@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -182,13 +183,22 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
+	//oo := getKey()
+	kid := "test"
+	var pk *rsa.PublicKey
+	if bs.Kc.Pk[kid] != nil {
+		log.Error().Err(err).Msgf("Key not available: ", kid)
+	} else {
+		pk = &bs.Kc.Pk["test"].PublicKey
+	}
 
 	var parsedToken jwt.MapClaims
 	if len(token) > 0 {
 		renderJSON(w, "Access denied", 501)
 		return
 	} else {
-		parsedToken, err = ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
+
+		parsedToken, err = ParseJWT(token[1], pk)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
