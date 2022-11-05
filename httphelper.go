@@ -39,19 +39,9 @@ func formExtractor(r *http.Request, formList []string) (map[string][]string, err
 	for _, v := range formList {
 		if x := r.Form[v]; len(r.Form[v]) > 0 {
 			formMap[v] = x
+		} else {
+			return nil, errors.New("One postForm Value not present: " + v)
 		}
-	}
-
-	if len(formList) == len(formMap) {
-		return formMap, nil
-	} else {
-		var notPresent string
-		for _, v := range formList {
-			if len(r.Form[v]) == 0 {
-				notPresent = v
-			}
-		}
-		return nil, errors.New("One postForm Value not present: " + notPresent)
 	}
 
 }
@@ -63,7 +53,7 @@ func urlExtractor(r *http.Request, formList []string) (queryListMap map[string][
 		}
 	}
 
-	if len(formList) == len(queryListMap) {
+	if len(formList) <= len(queryListMap) {
 		err = nil
 		return
 	} else {
