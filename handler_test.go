@@ -485,6 +485,7 @@ func TestUserInfo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Header.Add("Authorization", "Bearer Gp7b5hiURKpWzEXgMJP38EnYimgxlBC1PpS2zGXUqe")
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(bs.UserInfo)

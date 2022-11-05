@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
@@ -182,10 +183,17 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 
-	parsedToken, err := ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
-	if err != nil {
-		log.Error().Err(err).Msg("Parsing Form failed")
+	var parsedToken jwt.MapClaims
+	if len(token) > 0 {
+		renderJSON(w, "Access denied", 501)
+		return
+	} else {
+		parsedToken, err = ParseJWT(token[1], &bs.Kc.Pk["test"].PublicKey)
+		if err != nil {
+			log.Error().Err(err).Msg("Parsing Form failed")
+		}
 	}
+
 	userInterface := parsedToken["sub"].(string)
 
 	//get userdata

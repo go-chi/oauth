@@ -35,7 +35,6 @@ func TestCreateJWT(t *testing.T) {
 		if !token.Valid {
 			t.Error(token.Valid)
 		}
-
 	}
 
 	t.Run("Registration Test 1", func(t *testing.T) {
