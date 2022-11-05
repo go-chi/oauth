@@ -77,7 +77,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
 	}
-	formList := []string{"client_id"}
+	formList := []string{"client_id", "nonce", "redirect_uri", "response_type", "scope", "state"}
 	queryListMap, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg(userID)
