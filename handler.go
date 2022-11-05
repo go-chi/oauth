@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"crypto/rsa"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -188,6 +189,11 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	token := strings.Split(r.Header.Get("Authorization"), " ")
 	//split token with "." then decode base64 then extract clientID then get kid
 	//oo := getKey()
+	ttoken := strings.Split(token[1], ".")
+	sDes, _ := b64.StdEncoding.DecodeString(ttoken[0])
+	sDec, _ := b64.StdEncoding.DecodeString(ttoken[1])
+	fmt.Println(sDes)
+	fmt.Println(sDec)
 	kid := "test"
 	var pk *rsa.PublicKey
 	if bs.Kc.Pk[kid] != nil {
