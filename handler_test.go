@@ -485,7 +485,7 @@ func TestUserInfo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Header.Add("Authorization", "Bearer Gp7b5hiURKpWzEXgMJP38EnYimgxlBC1PpS2zGXUqe")
+	req.Header.Add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJhbGljZSIsImVtYWlsIjoiYWxpY2VAd29uZGVybGFuZC5uZXQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IkFsaWNlIEFkYW1zIiwiYXVkIjoiMDAwMTIzIiwiaXNzIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL2MyaWQiLCJmYW1pbHlfbmFtZSI6IkFkYW1zIiwiaWF0IjoxNDEzOTg1NDAyLCJncm91cHMiOlsiYWRtaW4iLCJhdWRpdCJdfQ.FJv9UnxvQxYvlc2F_v657SIyZkjQ382Bc108O--UFh3cvkjxiO5P2sJyvcqfuGrlzgvU7gCKzTIqqrV74EcHwGb_xyBUPOKuIJGaDKirBdnPbIXMDGpSqmBQes4tc6L8pkhZfRENIlmkP-KphI3wPd4jtko2HXAdDFVjzK-FPic")
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(bs.UserInfo)

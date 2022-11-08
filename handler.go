@@ -2,7 +2,7 @@ package oauth
 
 import (
 	"crypto/rsa"
-	b64 "encoding/base64"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -178,57 +178,59 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
 }
 
-func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Body)
-	fmt.Println(r.Header)
+type JWT struct {
+	Alg string `json:"alg,omitempty"`
+	Kid string `json:"kid,omitempty"`
+}
 
+func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
-	token := strings.Split(r.Header.Get("Authorization"), " ")
-	//split token with "." then decode base64 then extract clientID then get kid
-	//oo := getKey()
-	ttoken := strings.Split(token[1], ".")
-	sDes, _ := b64.StdEncoding.DecodeString(ttoken[0])
-	sDec, _ := b64.StdEncoding.DecodeString(ttoken[1])
-	fmt.Println(sDes)
-	fmt.Println(sDec)
-	kid := "test"
+	headerEntry := strings.Split(r.Header.Get("Authorization"), " ")
+	jwtToken := headerEntry[1]
+	jwtSplit := strings.Split(jwtToken, ".")
+	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
+
+	jwtParsed := JWT{}
+	err = json.Unmarshal(jwtHeader, &jwtParsed)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	_, ok := bs.Kc.Pk[jwtParsed.Kid]
+
 	var pk *rsa.PublicKey
-	if bs.Kc.Pk[kid] != nil {
-		log.Error().Err(err).Msgf("Key not available: ", kid)
+	if !ok {
+		log.Error().Err(err).Msgf("Key not available: %s", jwtParsed.Kid)
 	} else {
-		pk = &bs.Kc.Pk["test"].PublicKey
+		pk = &bs.Kc.Pk[jwtParsed.Kid].PublicKey
 	}
 
-	var parsedToken jwt.MapClaims
-	if len(token) > 0 {
-		renderJSON(w, "Access denied", 501)
-		return
-	} else {
+	if ok {
+		parsedToken, err := JWTvalid(jwtToken, pk)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		ee := parsedToken.Claims.(jwt.MapClaims)
+		username := ee["sub"].(string)
 
-		parsedToken, err = ParseJWT(token[1], pk)
+		//get userdata
+		groups, err := bs.verifier.ValidateUser(username, "password", "scope", "userStoreName", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
+		fmt.Println(groups)
+		jsonPayload, rc, contentType, err := UserData()
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to create id_token")
+		}
+		w.Header().Set("Content-Type", contentType)
+		renderJSON(w, jsonPayload, rc)
+		return
 	}
 
-	userInterface := parsedToken["sub"].(string)
-
-	//get userdata
-	groups, err := bs.verifier.ValidateUser(userInterface, "password", "scope", "userStoreName", r)
-	if err != nil {
-		log.Error().Err(err).Msg("Parsing Form failed")
-	}
-	fmt.Println(groups)
-	jsonPayload, rc, contentType, err := UserData()
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to create id_token")
-	}
-	w.Header().Set("Content-Type", contentType)
-
-	renderJSON(w, jsonPayload, rc)
+	renderJSON(w, nil, http.StatusForbidden)
 }
 func (bs *BearerServer) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", &AuthTarget{}, nil
