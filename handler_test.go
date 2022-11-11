@@ -83,6 +83,7 @@ var theTests = []struct {
 
 var client = Registration{
 	Client_id:      "testclient1",
+	Client_secret:  "test_secret",
 	Redirect_uris:  []string{"http://test.de"},
 	Response_types: "POST",
 }
@@ -114,6 +115,7 @@ func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
 	mux.HandleFunc("/oauth/clients/{id}", bs.Registration)
 	mux.HandleFunc("/oauth/clients", bs.Registration)
+	t.Error(client)
 	ts := httptest.NewTLSServer(mux)
 	defer ts.Close()
 
