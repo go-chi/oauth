@@ -189,6 +189,9 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	headerEntry := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(headerEntry) < 2 {
+		renderJSON(w, nil, http.StatusForbidden)
+	}
 	jwtToken := headerEntry[1]
 	jwtSplit := strings.Split(jwtToken, ".")
 	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
