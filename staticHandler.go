@@ -89,7 +89,6 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed getting client data")
 	}
-	fmt.Print(client)
 	if err != nil || client == nil {
 		log.Info().Msgf("Client not found: %s", aud)
 		http.Redirect(w, r, "http://ClientNotFound", 401)

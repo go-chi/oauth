@@ -38,7 +38,7 @@ func TestFormExtractor(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		got, err := formExtractor(req, formList)
+		got, _, err := formExtractor(req, formList)
 		if err != nil {
 			t.Error(err)
 		}
@@ -53,7 +53,7 @@ func TestFormExtractor(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		got, err := formExtractor(req, formList)
+		got, _, err := formExtractor(req, formList)
 		if got != nil {
 			t.Error(got)
 		}

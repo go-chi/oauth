@@ -134,7 +134,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Parsing Form failed")
 	}
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
-	formMap, err := formExtractor(r, formList)
+	formMap, _, err := formExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msgf("Form Value not present %s")
 	}
