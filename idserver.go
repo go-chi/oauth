@@ -2,9 +2,12 @@ package oauth
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -31,12 +34,32 @@ type Cookie struct {
 
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	r.ParseForm()
-	authcode := r.FormValue("code")
-	_, err := ParseJWT(authcode, &bs.Kc.Pk["test"].PublicKey)
+	/* err := r.ParseForm()
 	if err != nil {
-		log.Error().Err(err).Msg("Validating JWT failed")
+		log.Error().Err(err).Msg("Parsing form failed")
 	}
+	authcode := r.FormValue("code") */
+	var credential string
+	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
+	if err != nil {
+		log.Err(err)
+	}
+	if err == nil {
+		token := strings.Split(code, ".")[1]
+		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
+
+		jwtParsed := MyCustomClaims{}
+		err = json.Unmarshal(dIdToken, &jwtParsed)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		fmt.Println("#####")
+		fmt.Println(jwtParsed.Subject)
+		fmt.Println("#####")
+		credential = jwtParsed.Subject
+	}
+
+	fmt.Println(code)
 	nonce := r.FormValue("nonce")
 	var resp *TokenResponse
 	switch grantType {
@@ -83,18 +106,15 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 
 	//--------------------------->to Function and RedirectAccess -->takes that func
 	case AuthCodeGrant:
-		parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
-		if err != nil {
-			log.Err(err)
-		}
-		//Secret = r.FormValue("secret")
-		redirect_uri = r.FormValue("redirect_uri")
+		/*
+			//Secret = r.FormValue("secret")
+			redirect_uri = r.FormValue("redirect_uri")
 
-		state := r.FormValue("state")
-		//client_id := r.FormValue("client_id")
+			state := r.FormValue("state")
+			//client_id := r.FormValue("client_id") */
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
 		fmt.Println(parsedJwt)
-		credential := parsedJwt["sub"].([]interface{})[0].(string)
+		//credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce = parsedJwt["nonce"].(string)
 		fmt.Println(aud)
 		at = AuthToken{
@@ -103,7 +123,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			Aud:   aud,
 			Nonce: nonce,
 			//exp:       scope,
-			Iat: state,
+			Iat: "state",
 			//auth_time: response_type,
 			//acr:       scope,
 			//azp:       state,
