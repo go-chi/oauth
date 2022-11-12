@@ -34,6 +34,9 @@ type Cookie struct {
 
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	//msg := sessionManager.GetString(r.Context(), "message")
+	//io.WriteString(w, msg)
+
 	/* err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Parsing form failed")
