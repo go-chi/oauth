@@ -36,7 +36,6 @@ func (bs *BearerServer) Jwk(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, nil, 200)
 }
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
-
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
 		log.Err(err)
@@ -50,7 +49,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(userID)
 	var authParameter = AuthToken{
 		Iss:       "iss",
-		Sub:       "sub",
+		Sub:       userID,
 		Aud:       urlValues["client_id"][0],
 		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		Iat:       "",
