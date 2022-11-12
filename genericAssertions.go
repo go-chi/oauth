@@ -51,3 +51,10 @@ func assertFormError(t testing.TB, got error) {
 		t.Errorf("response body is wrong, got %q ", got)
 	}
 }
+
+func assertGeneric[k comparable](t testing.TB, got, want k) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got: %v, expected: %v", got, want)
+	}
+}

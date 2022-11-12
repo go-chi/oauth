@@ -47,17 +47,18 @@ func TestFormExtractor(t *testing.T) {
 
 	t.Run("Registration Test 3", func(t *testing.T) {
 		formAddList(&form, formMap)
-		form.Del("scope")
+		want := []string{"scope"}
+		form.Del(want[0])
 		req, err := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		if err != nil {
 			t.Error(err)
 		}
-		got, _, err := formExtractor(req, formList)
-		if got != nil {
-			t.Error(got)
+		_, got, err := formExtractor(req, formList)
+		if err != nil {
+			t.Error(err)
 		}
-		assertFormError(t, err)
+		assertGeneric(t, got[0], want[0])
 	})
 
 }

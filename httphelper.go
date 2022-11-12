@@ -54,7 +54,6 @@ func urlExtractor(r *http.Request, formList []string) (queryListMap map[string][
 			queryListMap[i] = v
 		}
 	}
-
 	if len(formList) <= len(queryListMap) {
 		err = nil
 		return

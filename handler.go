@@ -136,7 +136,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
 	formMap, _, err := formExtractor(r, formList)
 	if err != nil {
-		log.Error().Err(err).Msgf("Form Value not present %s")
+		log.Error().Err(err).Msg("Form Value not present")
 	}
 
 	userStoreName, _, err := bs.verifier.GetConnectionTarget(r)
