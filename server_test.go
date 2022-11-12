@@ -196,10 +196,10 @@ func (*TestUserVerifier) StoreClientsGet() (map[string]*Registration, error) {
 }
 
 func (*TestUserVerifier) StoreClientGet(client string) (*Registration, error) {
-	fmt.Println("eweere")
 	ee := Registration{
 		Client_id:     "testClientID",
 		Client_secret: "testClientSecret",
+		Kid:           "testKid",
 		Redirect_uris: []string{
 			"https://client.example.org/callback",
 			"https://client.example.org/callback2",
@@ -209,7 +209,7 @@ func (*TestUserVerifier) StoreClientGet(client string) (*Registration, error) {
 		Id_token_signed_response_alg: "rs256",
 		Subject_type:                 "test",
 		Application_type:             "web",
-		Client_name:                  "MyCoolApp",
+		Client_name:                  client,
 		Logo_uri:                     "https://client.example.org/logo.png",
 		Token_endpoint_auth_method:   "client_secret_basic",
 		Contacts:                     []string{"admin@example.org"},

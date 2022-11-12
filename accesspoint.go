@@ -20,6 +20,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	queryListMap, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
+		renderJSON(w, "Form value is missing", http.StatusForbidden)
 		return
 	}
 	//getting the client data
@@ -27,6 +28,8 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	client, err := bs.verifier.StoreClientGet(aud)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed getting client data")
+		renderJSON(w, "Client not found", http.StatusForbidden)
+		return
 	}
 	//redirect to error page || Logged in || to login page
 	if err != nil || client == nil {
