@@ -87,7 +87,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		if err != nil {
 			log.Err(err)
 		}
-		Secret = r.FormValue("secret")
+		//Secret = r.FormValue("secret")
 		redirect_uri = r.FormValue("redirect_uri")
 
 		state := r.FormValue("state")
@@ -122,17 +122,18 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 		*/
-		credential := r.FormValue("name")
-		secret := r.FormValue("password")
+		//credential := r.FormValue("name")
 
-		_, err = bs.verifier.SessionSave(w, r, credential, "user_session")
+		/* _, err = bs.verifier.SessionSave(w, r, credential, "user_session")
 		if err != nil {
 			log.Err(err)
-		}
+		} */
+		credential, _, err := bs.verifier.SessionGet(w, r, "user_session")
+
 		userStoreName, AuthTarget, err := bs.verifier.GetConnectionTarget(r)
 		fmt.Println(AuthTarget)
 
-		groups, err := bs.verifier.ValidateUser(credential, secret, scope, userStoreName, r)
+		groups, err := bs.verifier.ValidateUser(credential, "secret", scope, userStoreName, r)
 		if err != nil {
 			log.Err(err)
 		}
