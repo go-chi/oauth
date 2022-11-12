@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -46,10 +45,12 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
-	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope", "nonce", "scopes"}
+	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope", "nonce"}
 	urlValues, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
+		renderJSON(w, "Form value is missing", http.StatusForbidden)
+		return
 	}
 
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
@@ -58,7 +59,6 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		userID = r.Form.Get("name")
 	}
 
-	fmt.Println(userID)
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       userID,
@@ -70,7 +70,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Scope:     []string{"scope1", "scope2"},
 		Nonce:     urlValues["nonce"][0],
 	}
-	_, groups, err := bs.verifier.UserLookup(userID, urlValues["scopes"])
+	_, groups, err := bs.verifier.UserLookup(userID, urlValues["scope"])
 	if err != nil {
 		log.Err(err).Msg("")
 	}

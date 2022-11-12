@@ -169,7 +169,7 @@ func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cook
 	if err == nil && cookies.Value == "testing" {
 		fmt.Println(cookies)
 	}
-	return "", true, nil
+	return "testUser", true, nil
 }
 
 func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
