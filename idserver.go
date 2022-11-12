@@ -93,6 +93,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		state := r.FormValue("state")
 		//client_id := r.FormValue("client_id")
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
+		credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce = parsedJwt["nonce"].(string)
 		fmt.Println(aud)
 		at = AuthToken{
@@ -128,7 +129,6 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		if err != nil {
 			log.Err(err)
 		} */
-		credential, _, err := bs.verifier.SessionGet(w, r, "user_session")
 
 		userStoreName, AuthTarget, err := bs.verifier.GetConnectionTarget(r)
 		fmt.Println(AuthTarget)
