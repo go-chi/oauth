@@ -93,6 +93,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		state := r.FormValue("state")
 		//client_id := r.FormValue("client_id")
 		aud := parsedJwt["aud"].([]interface{})[0].(string)
+		fmt.Println(parsedJwt)
 		credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce = parsedJwt["nonce"].(string)
 		fmt.Println(aud)
