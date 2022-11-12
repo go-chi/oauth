@@ -30,17 +30,18 @@ func qAddList(r *http.Request, uvm map[string][]string) {
 	r.URL.RawQuery = q.Encode()
 }
 
-func formExtractor(r *http.Request, formList []string) (formMap map[string][]string, err error) {
+func formExtractor(r *http.Request, formList []string) (formMap map[string][]string, notPresent []string, err error) {
 	err = r.ParseForm()
 	if err != nil {
-		log.Err(err).Msg("Token is invalid")
+		log.Err(err).Msg("Parsing form failed")
 	}
+	notPresent = []string{}
 	formMap = map[string][]string{}
 	for _, v := range formList {
 		if x := r.Form[v]; len(r.Form[v]) > 0 {
 			formMap[v] = x
 		} else {
-			return nil, errors.New("One postForm Value not present: " + v)
+			notPresent = append(notPresent, v)
 		}
 	}
 	return

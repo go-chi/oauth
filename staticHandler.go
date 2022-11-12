@@ -36,14 +36,16 @@ func (bs *BearerServer) Jwk(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, nil, 200)
 }
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
-	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
-	if err != nil {
-		log.Err(err)
-	}
 	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope", "nonce", "scopes"}
 	urlValues, err := urlExtractor(r, formList)
 	if err != nil {
-		log.Err(err)
+		log.Error().Err(err).Msg("Form value not present")
+	}
+
+	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
+	if err != nil {
+		log.Err(err).Msgf("Unable to get session for User: %s", userID)
+		userID = r.Form.Get("name")
 	}
 
 	fmt.Println(userID)
@@ -74,12 +76,12 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
-		log.Error().Err(err).Msg(userID)
+		log.Error().Err(err).Msgf("No session present for: %s", userID)
 	}
 	formList := []string{"client_id", "nonce", "redirect_uri", "response_type", "scope", "state"}
 	queryListMap, err := urlExtractor(r, formList)
 	if err != nil {
-		log.Error().Err(err).Msg(userID)
+		log.Error().Err(err).Msgf("Form value not present %s", userID)
 		return
 	}
 	aud := queryListMap["client_id"][0]
@@ -89,7 +91,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Print(client)
 	if err != nil || client == nil {
-		log.Info().Msg("Client not found")
+		log.Info().Msgf("Client not found: %s", aud)
 		http.Redirect(w, r, "http://ClientNotFound", 401)
 	} else if ok && userID != "" {
 		RedirectAccess(bs, w, r)
