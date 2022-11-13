@@ -82,14 +82,14 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 
 		//credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce := parsedJwt["nonce"].(string)
-		fmt.Println(aud)
+		fmt.Println(nonce)
 		at = AuthToken{
 			//iss:   client_id,
-			Sub: sub,
-			Aud: aud,
-			//Nonce: nonce,
+			Sub:   sub,
+			Aud:   aud,
+			Nonce: nonce,
 			//exp:       scope,
-			Iat: "state",
+			//Iat: "state",
 			//auth_time: response_type,
 			//acr:       scope,
 			//azp:       state,
