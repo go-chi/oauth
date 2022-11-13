@@ -47,6 +47,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	if err != nil {
 		log.Err(err)
 	}
+	var sub string
 	if err == nil {
 		token := strings.Split(code, ".")[1]
 		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
@@ -61,6 +62,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 		fmt.Println("#####")
 		fmt.Println(jwtParsed.Aud)
 		aud = jwtParsed.Aud
+		sub = jwtParsed.Sub
 		credential = jwtParsed.Subject
 	}
 
@@ -69,45 +71,6 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
-		credential := r.FormValue("name")
-		secret := r.FormValue("password")
-		authTarget, authTarget2, _ := bs.verifier.GetConnectionTarget(r)
-		fmt.Println(authTarget2)
-		groups, err := bs.verifier.ValidateUser(credential, secret, scope, authTarget, r)
-		if err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
-
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
-		if err != nil {
-			return "Token generation failed, check claims", http.StatusInternalServerError, err
-		}
-
-		/* if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
-			return "Storing Token ID failed", http.StatusInternalServerError, err
-		}
-		*/
-
-		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
-			return "Token generation failed, check security provider", http.StatusInternalServerError, err
-		}
-	/* case ClientCredentialsGrant:
-	if err := bs.verifier.ValidateClient(credential, secret, scope, r); err != nil {
-		return "Not authorized", http.StatusUnauthorized, err
-	}
-
-	token, refresh, err := bs.generateTokens(ClientToken, credential, scope, r)
-	if err != nil {
-		return "Token generation failed, check claims", http.StatusInternalServerError, err
-	}
-
-	if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
-		return "Storing Token ID failed", http.StatusInternalServerError, err
-	}
-
-	if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
-		return "Token generation failed, check security provider", http.StatusInternalServerError, err
-	} */
 
 	//--------------------------->to Function and RedirectAccess -->takes that func
 	case AuthCodeGrant:
@@ -123,7 +86,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 		fmt.Println(aud)
 		at = AuthToken{
 			//iss:   client_id,
-			//sub:   client_id,
+			Sub:   sub,
 			Aud:   aud,
 			Nonce: nonce,
 			//exp:       scope,
