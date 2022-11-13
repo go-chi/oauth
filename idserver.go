@@ -63,7 +63,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 		fmt.Println(jwtParsed.Aud)
 		aud = jwtParsed.Aud
 		sub = jwtParsed.Sub
-		credential = jwtParsed.Subject
+		credential = jwtParsed.Sub
 	}
 
 	fmt.Println(code)
