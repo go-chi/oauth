@@ -150,7 +150,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	var authParameter = AuthToken{
 		Iss:   formMap["client_id"][0],
 		Sub:   formMap["client_id"][0],
-		Aud:   formMap["name"][0],
+		Aud:   formMap["client_id"],
 		Nonce: formMap["nonce"][0],
 		//exp:       exp,
 		//iat:       iat,
@@ -159,7 +159,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       azp,
 	}
 
-	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"][0], formMap["nonce"][0], groups, authParameter, r)
+	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"], formMap["nonce"][0], groups, authParameter, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create access_token")

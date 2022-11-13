@@ -62,7 +62,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       userID,
-		Aud:       urlValues["client_id"][0],
+		Aud:       urlValues["client_id"],
 		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		Iat:       "",
 		Jti:       "",
@@ -75,7 +75,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		log.Err(err).Msg("")
 	}
 
-	claims := bs.verifier.CreateClaims(userID, urlValues["client_id"][0], urlValues["nonce"][0], groups, authParameter, r)
+	claims := bs.verifier.CreateClaims(userID, urlValues["client_id"], urlValues["nonce"][0], groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 

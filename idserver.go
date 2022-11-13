@@ -33,7 +33,7 @@ type Cookie struct {
 }
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	//msg := sessionManager.GetString(r.Context(), "message")
 	//io.WriteString(w, msg)
 
@@ -211,12 +211,12 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 	return refreshToken
 }
 
-func (bs *BearerServer) generateIdTokens(method string, aud string, tokenType TokenType, username, scope, nonce string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
+func (bs *BearerServer) generateIdTokens(method string, aud []string, tokenType TokenType, username, scope, nonce string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
 	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, at, r)
 
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
-	refreshToken := refreshToken(aud, username, tokenType, scope)
+	refreshToken := refreshToken(aud[0], username, tokenType, scope)
 
 	return token, refreshToken, idtoken, nil
 }

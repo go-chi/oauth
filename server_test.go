@@ -51,11 +51,11 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
-func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims {
 
 	return MyCustomClaims{}
 }
-func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
+func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := MyCustomClaimss{
@@ -69,7 +69,7 @@ func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, s
 			Issuer:    baseURL + "",
 			Subject:   "somebody",
 			ID:        "1",
-			Audience:  []string{at.Aud},
+			Audience:  at.Aud,
 		}}
 
 	return claims

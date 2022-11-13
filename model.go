@@ -74,7 +74,7 @@ type MyCustomClaims struct {
 type MyCustomClaimss struct {
 	Iss       string   `json:"iss"`
 	Sub       string   `json:"sub"`
-	Aud       string   `json:"aud"`
+	Aud       []string `json:"aud"`
 	Client_id string   `json:"client_id"`
 	Scope     []string `json:"scope"`
 	jwt.RegisteredClaims
@@ -131,7 +131,7 @@ type IDtoken struct {
 	TokenType    TokenType         `json:"type"`
 	Issuer       string            `json:"issuer"`
 	Subject      string            `json:"subject"`
-	Audience     string            `json:"audience"`
+	Aud          []string          `json:"aud"`
 	Expiration   time.Duration     `json:"expiration"`
 }
 
@@ -150,7 +150,7 @@ type AuthToken struct {
 	jwt.RegisteredClaims
 	Iss       string           `json:"iss"`
 	Sub       string           `json:"sub"`
-	Aud       string           `json:"aud"`
+	Aud       []string         `json:"aud"`
 	Nonce     string           `json:"nonce"`
 	Exp       *jwt.NumericDate `json:"exp"`
 	Iat       string           `json:"iat"`

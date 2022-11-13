@@ -23,7 +23,7 @@ func TestTokenEndpoint(t *testing.T) {
 	q.Add("code", "")
 	q.Add("redirect_uri", "http://localhost:8080")
 
-	clientId := "clientID"
+	clientId := []string{"clientID"}
 	token, refreshToken, idtoken, err := bs.generateIdTokens("RS256", clientId, UserToken, "user111", "openid", "test", []string{"group1"}, at, req)
 
 	t.Run("TokenEndPoint Test 1", func(t *testing.T) {
@@ -36,7 +36,7 @@ func TestTokenEndpoint(t *testing.T) {
 		assertEmptyString(t, idtoken)
 	})
 	t.Run("TokenEndPoint Test 4", func(t *testing.T) {
-		assertString(t, refreshToken.TokenID, clientId)
+		assertString(t, refreshToken.TokenID, clientId[0])
 	})
 
 }
@@ -50,7 +50,8 @@ func TestTokenIntrospect(t *testing.T) {
 		ts := httptest.NewTLSServer(mux)
 		groups := []string{"group1", "group2"}
 		scope := []string{"scope1", "scope2"}
-		claims := bs.verifier.CreateAtClaims("TestclientID", "username", "aud", bs.nonce, scope, groups, at, req)
+		aud := []string{"scope1"}
+		claims := bs.verifier.CreateAtClaims("TestclientID", "username", aud, bs.nonce, scope, groups, at, req)
 
 		access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 		dd := url.Values{"token": {access_token}}

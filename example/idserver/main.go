@@ -117,7 +117,7 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 }
 
 // delete request for hostname
-func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
+func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 
@@ -134,13 +134,13 @@ func (TestUserVerifier) CreateClaims(username, aud, nonce string, groups []strin
 			Issuer:    baseURL + "",
 			Subject:   "somebody",
 			ID:        "1",
-			Audience:  []string{at.Aud},
+			Audience:  at.Aud,
 		},
 	}
 	return claims
 }
 
-func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
+func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 
@@ -153,7 +153,7 @@ func (TestUserVerifier) CreateAtClaims(client_id, username, aud, nonce string, s
 			Issuer:    baseURL + "",
 			Subject:   "somebody",
 			ID:        "1",
-			Audience:  []string{at.Aud},
+			Audience:  at.Aud,
 		},
 	}
 	return claims
