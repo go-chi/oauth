@@ -52,8 +52,26 @@ func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 }
 
 func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims {
+	scheme := "https://"
+	baseURL := scheme + r.Host
 
-	return MyCustomClaims{}
+	claims := MyCustomClaims{
+		Foo:    "bars",
+		Nonce:  nonce,
+		Groups: groups,
+
+		RegisteredClaims: jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    baseURL + "",
+			Subject:   "somebody",
+			ID:        "1",
+			Audience:  at.Aud,
+		},
+	}
+	return claims
 }
 func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
 	scheme := "https://"
