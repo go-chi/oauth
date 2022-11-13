@@ -96,11 +96,14 @@ func assertResponseBody[k comparable](t testing.TB, got, want k) {
 		t.Errorf("expected %v but got %v", got, want)
 	}
 }
-func executeRequest(req *http.Request, mux *chi.Mux) *httptest.ResponseRecorder {
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	return rr
-}
+
+/*
+	 func executeRequest(req *http.Request, mux *chi.Mux) *httptest.ResponseRecorder {
+		rr := httptest.NewRecorder()
+		mux.ServeHTTP(rr, req)
+		return rr
+	}
+*/
 func createRequest[K any](c K, t *testing.T) bytes.Buffer {
 	t.Helper()
 	var buf bytes.Buffer
