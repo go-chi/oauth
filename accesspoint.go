@@ -66,7 +66,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		Iat:       "",
 		Jti:       "",
-		Client_id: "Testclient_id",
+		Client_id: urlValues["client_id"][0],
 		Scope:     []string{"scope1", "scope2"},
 		Nonce:     urlValues["nonce"][0],
 	}

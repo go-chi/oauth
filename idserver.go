@@ -51,7 +51,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		token := strings.Split(code, ".")[1]
 		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
 
-		jwtParsed := MyCustomClaims{}
+		jwtParsed := MyCustomClaimss{}
 		err = json.Unmarshal(dIdToken, &jwtParsed)
 		if err != nil {
 			fmt.Println("error:", err)
@@ -59,6 +59,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 		fmt.Println("#####")
 		fmt.Println(jwtParsed.Subject)
 		fmt.Println("#####")
+		fmt.Println(jwtParsed.Aud)
+		aud = jwtParsed.Aud
 		credential = jwtParsed.Subject
 	}
 
@@ -115,8 +117,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method, aud string, grantType Gr
 
 			state := r.FormValue("state")
 			//client_id := r.FormValue("client_id") */
-		aud := parsedJwt["aud"].([]interface{})[0].(string)
-		fmt.Println(parsedJwt)
+
 		//credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce = parsedJwt["nonce"].(string)
 		fmt.Println(aud)
