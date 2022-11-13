@@ -3,6 +3,7 @@ package oauth
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -37,4 +38,17 @@ func ConvertIOReader[k any](buff io.Reader, target k) {
 	if err != nil {
 		panic(err)
 	}
+}
+func ParseBody[t any](b io.ReadCloser, jsonTarget t) (t, error) {
+	body, err := io.ReadAll(b)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to read body")
+	}
+	err = json.Unmarshal(body, &jsonTarget)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to Unmarshal file o")
+	}
+	fmt.Println("eee")
+	fmt.Println(jsonTarget)
+	return jsonTarget, err
 }

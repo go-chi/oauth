@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	gohelper "github.com/christhirst/gohelper/ijson"
+	"github.com/christhirst/gohelper/ijson"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
@@ -115,13 +115,15 @@ func TestRegistrationGet(t *testing.T) {
 	mux := chi.NewRouter()
 	mux.HandleFunc("/oauth/clients/{id}", bs.Registration)
 	mux.HandleFunc("/oauth/clients", bs.Registration)
-	t.Error(client)
-	ts := httptest.NewTLSServer(mux)
+
+	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
 	for _, e := range theTests {
 		if e.method == "GET" {
 			resp, err := ts.Client().Get(ts.URL + e.url)
+			jsonMap := &Registration{}
+			ParseBody(resp.Body, jsonMap)
 			if err != nil {
 				t.Log(err)
 			}
@@ -145,7 +147,7 @@ func TestRegistrationGet(t *testing.T) {
 			assertResponseBody(t, resp.StatusCode, e.expectedStatusCode)
 		}
 	}
-
+	//t.Error()
 }
 
 func TestRegistrationPost(t *testing.T) {
@@ -172,7 +174,7 @@ func TestRegistrationPost(t *testing.T) {
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(httpRecorder, req)
 		bodybytes := httpRecorder.Body
-		jmap, err := gohelper.StructToJson(bodybytes)
+		jmap, err := ijson.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {
 			log.Fatal(err)
@@ -266,7 +268,7 @@ func TestKeyEndpointPost(t *testing.T) {
 		//call ServeHTTP method and pass  Request and ResponseRecorder.
 		handler.ServeHTTP(httpRecorder, req)
 		bodybytes := httpRecorder.Body
-		jmap, err := gohelper.StructToJson(bodybytes)
+		jmap, err := ijson.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {
 			log.Fatal(err)
@@ -365,7 +367,7 @@ func TestRegistrationGets(t *testing.T) {
 		handler.ServeHTTP(rr, req)
 		bodybytes := rr.Body
 
-		jmap, err := gohelper.StructToJson(bodybytes)
+		jmap, err := ijson.StructToJson(bodybytes)
 		//bodyBytes, err := io.ReadAll(rr.Body)
 		if err != nil {
 			log.Fatal(err)

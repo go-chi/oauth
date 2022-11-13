@@ -9,23 +9,23 @@ import (
 	"net/http"
 	"strings"
 
+	gohelper "github.com/christhirst/gohelper/ihttp"
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/exp/slices"
 )
 
 var refresh_token, redirect_uri, Secret, code string
 var at AuthToken
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
-	authH := r.Header.Get("Authorization")
-	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	/* authH := r.Header.Get("Authorization")
+	//groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
-	}
-	iamAdmin := slices.Contains(groups, "group1")
-	iamAdmin = true
+	} */
+	//iamAdmin := slices.Contains(groups, "group1")
+	iamAdmin := true
 	if iamAdmin {
 		switch r.Method {
 		case "GET":
@@ -42,33 +42,22 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, clientConfig, rc)
 		case "POST", "PUT":
-			jsonMap := Registration{}
-			//e, err := ihttp.
-			//ParseBody(r.Body, jsonMap)
-			ConvertIOReader(r.Body, jsonMap)
-			/* body, err := io.ReadAll(r.Body)
+			jsonMap := &Registration{}
+			_, err := gohelper.ParseBody(r, jsonMap)
 			if err != nil {
-				log.Error().Err(err).Msg("Unable to read body")
+				log.Err(err)
 			}
-
-			err = json.Unmarshal(body, &jsonMap)
-			if err != nil {
-				log.Error().Err(err).Msg("Unable to Unmarshal file")
-			} */
-			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, jsonMap, r.Method)
+			fmt.Println(jsonMap)
+			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, *jsonMap, r.Method)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
 			}
 			renderJSON(w, regResp, 200)
 		case "DELETE":
-			body, err := io.ReadAll(r.Body)
+			jsonMap := Registration{}
+			_, err := gohelper.ParseBody(r, jsonMap)
 			if err != nil {
-				log.Error().Err(err).Msg("Unable to read body")
-			}
-			var jsonMap Registration
-			err = json.Unmarshal(body, &jsonMap)
-			if err != nil {
-				log.Error().Err(err).Msg("Unable to Unmarshal file")
+				log.Err(err)
 			}
 			err = bs.verifier.StoreClientDelete([]string{jsonMap.Client_name})
 			if err != nil {
