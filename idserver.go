@@ -43,7 +43,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	}
 	authcode := r.FormValue("code") */
 	var credential string
-	_, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
+	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
 		log.Err(err)
 	}
@@ -58,9 +58,8 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			fmt.Println("error:", err)
 		}
 		fmt.Println("#####")
-		fmt.Println(jwtParsed.Sub)
+		fmt.Println(jwtParsed)
 		fmt.Println("#####")
-		fmt.Println(jwtParsed.Aud)
 		aud = jwtParsed.Aud
 		sub = jwtParsed.Sub
 		credential = jwtParsed.Sub
@@ -82,7 +81,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//client_id := r.FormValue("client_id") */
 
 		//credential := parsedJwt["sub"].([]interface{})[0].(string)
-		//nonce = parsedJwt["nonce"].(string)
+		nonce := parsedJwt["nonce"].(string)
 		fmt.Println(aud)
 		at = AuthToken{
 			//iss:   client_id,
@@ -126,7 +125,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			log.Err(err)
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, "nonce", groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
 
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
