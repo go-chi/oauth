@@ -234,6 +234,10 @@ func (*TestUserVerifier) SignInMethod(clientId string, w http.ResponseWriter, r 
 	return nil
 }
 
+func (*TestUserVerifier) SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error) {
+	return true, nil
+}
+
 func TestGenerateTokensByUsername(t *testing.T) {
 	r := new(http.Request)
 	token, refresh, err := _sut.generateTokens(UserToken, "user111", "", r)

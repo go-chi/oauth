@@ -273,3 +273,6 @@ func (*TestUserVerifier) StoreKey(map[string]string) error {
 }
 func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error)
 func (*TestUserVerifier) SignInMethod(string, http.ResponseWriter, *http.Request) error
+func (*TestUserVerifier) SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error) {
+	return true, nil
+}

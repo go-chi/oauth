@@ -57,6 +57,7 @@ type CredentialsVerifier interface {
 	StoreKeysGet() (map[string]rsa.PrivateKey, error)
 
 	SignInMethod(clientId string, w http.ResponseWriter, r *http.Request) error
+	SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error)
 }
 
 // AuthorizationCodeVerifier defines the interface of the Authorization Code verifier

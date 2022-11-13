@@ -25,6 +25,9 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	} */
 	//iamAdmin := slices.Contains(groups, "group1")
+	ww, _ := bs.verifier.SignAdminInMethod("", w, r)
+	print(ww)
+
 	iamAdmin := true
 	if iamAdmin {
 		switch r.Method {
