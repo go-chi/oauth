@@ -67,7 +67,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	}
 
 	fmt.Println(code)
-	nonce := r.FormValue("nonce")
+	//nonce := r.FormValue("nonce")
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
@@ -82,13 +82,13 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//client_id := r.FormValue("client_id") */
 
 		//credential := parsedJwt["sub"].([]interface{})[0].(string)
-		nonce = parsedJwt["nonce"].(string)
+		//nonce = parsedJwt["nonce"].(string)
 		fmt.Println(aud)
 		at = AuthToken{
 			//iss:   client_id,
-			Sub:   sub,
-			Aud:   aud,
-			Nonce: nonce,
+			Sub: sub,
+			Aud: aud,
+			//Nonce: nonce,
 			//exp:       scope,
 			Iat: "state",
 			//auth_time: response_type,
