@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -13,6 +14,10 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	grant_type := GrantType(r.FormValue("grant_type"))
 	scope := r.FormValue("scope")
 	aud := r.FormValue("client_id")
+	if aud == "" {
+		log.Error().Msg("Audience not present")
+	}
+	fmt.Println("HERE THE AUDIANCE")
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
