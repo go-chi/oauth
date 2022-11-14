@@ -75,7 +75,41 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Request) {
-
+	if true {
+		switch r.Method {
+		case "GET":
+			var clientConfig interface{}
+			var err error
+			clientConfig, err = bs.verifier.StoreKeysGet()
+			rc := 200
+			if err != nil {
+				log.Err(err)
+				rc = 500
+			}
+			renderJSON(w, clientConfig, rc)
+		case "POST":
+			var keys map[string]string
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to read body")
+			}
+			err = json.Unmarshal(body, &keys)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+			//err = bs.verifier.
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
+		case "DELETE":
+			//path := r.URL.Path
+			/* base := strings.LastIndex(path, "/")
+			clientID := path[base+1:]  */
+			kid := chi.URLParam(r, "kid")
+			//keyDeleteKeyPair(bs.Kc, kid)
+			bs.verifier.StoreKeyDelete([]string{kid})
+		}
+	}
 }
 
 func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
