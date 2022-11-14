@@ -49,11 +49,12 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			_, err := gohelper.ParseBody(r, jsonMap)
 			if err != nil {
 				log.Err(err)
+				renderJSON(w, "Failed parsing client config", 422)
 			}
-			fmt.Println(jsonMap)
 			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, *jsonMap, r.Method)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
+				renderJSON(w, "Failed parsing client config", 422)
 			}
 			renderJSON(w, regResp, 200)
 		case "DELETE":
