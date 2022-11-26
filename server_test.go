@@ -44,9 +44,11 @@ func (*TestUserVerifier) StoreClientDelete(clientId []string) error {
 	return nil
 }
 
-func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
-	return nil, nil, nil
-}
+/*
+	 func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
+		return nil, nil, nil
+	}
+*/
 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
 }
@@ -169,9 +171,9 @@ func (TestUserVerifier) ExtractJWTtoUserGroup(jwt string) ([]string, error) {
 }
 
 // Optionally store the token ID generated for the user
-func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error {
+/* func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
-}
+} */
 
 func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", &AuthTarget{}, nil

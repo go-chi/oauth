@@ -33,7 +33,7 @@ type CredentialsVerifier interface {
 	// Optionally validate previously stored tokenID during refresh request
 	ExtractJWTtoUserGroup(jwt string) ([]string, error)
 	// Optionally store the tokenID generated for the user
-	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
+	//StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
 	AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
@@ -42,7 +42,7 @@ type CredentialsVerifier interface {
 
 	GetConnectionTarget(r *http.Request) (string, *AuthTarget, error)
 
-	UserLookup(username string, scope []string) (map[string]string, []string, error)
+	//UserLookup(username string, scope []string) (map[string]string, []string, error)
 	SessionGet(w http.ResponseWriter, r *http.Request, cookieID string) (string, bool, error)
 	SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error)
 

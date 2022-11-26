@@ -211,13 +211,13 @@ func (*TestUserVerifier) ExtractJWTtoUserGroup(jwt string) ([]string, error) {
 }
 
 // StoreTokenID saves the token id generated for the user
-func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
+/* func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
-}
+} */
 
-func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
+/* func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
 	return nil, nil, nil
-}
+} */
 
 func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *oauth.AuthTarget, error) {
 	return "false", &oauth.AuthTarget{}, nil
