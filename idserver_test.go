@@ -12,6 +12,7 @@ import (
 
 func TestGenerateIdToken4Password(t *testing.T) {
 	var at = AuthToken{}
+
 	resp, code, err := _sut.GenerateIdTokenResponse("RS256", at.Aud, PasswordGrant, "refreshToken", "scope", "eyJhbGciOiJSUzI1NiIsImtpZCI6IjJhZGMzNTk3LThmOWUtNDI5OS05Zjg3LWY5NGM2NzM1YzY4YyIsInR5cCI6IkpXVCJ9.eyJmb28iOiJjbiIsIm5vbmNlIjoiZHdpZ2h0IiwiZ3JvdXBzIjpudWxsLCJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoiZHdpZ2h0IiwiYXVkIjpbInRlc3RfY2xpZW50SWQiXSwiZXhwIjoxNjY4Mzc0MzY5LCJuYmYiOjE2NjgyODc5NjcsImlhdCI6MTY2ODI4Nzk2OSwianRpIjoiMSJ9.bOFpngRoS65q2blTqUEa7cAJ7KVijNU3yh7ayCdcmF3rPLcx47xO33zdOFYvbYW4dtNJQZrk2TWb9kFT_oqidXWmlxWDTD1adP3Rbny1Pi5JkzBi8GCYHU17hhX1sV4VQZHD1pdwv9lyJY_JOsqFI5hYxBGgmpDBaHN8xnxDJdPr9VTM6filhKyG8Eaq08j5BZXsw4EW-f0j3KFCITtAPtgK6PXBLH4294FoiL_jbYp97Eh9FbbZrbxfx1c8yIqIqDsXRTsf6z8dZ0BZhLc0xYIy6PgoxdrnR4htTTU99gDw2v2l76_v2txMn72DvYa-N-jnbtFEz0uB-LVAd_Qvuw", "redirectURI", at, *new(http.ResponseWriter), new(http.Request))
 	if err != nil {
 		log.Err(err)
