@@ -214,9 +214,7 @@ func (*TestUserVerifier) ExtractJWTtoUserGroup(jwt string) ([]string, error) {
 func (*TestUserVerifier) StoreTokenID(tokenType oauth.TokenType, credential, tokenID, refreshTokenID string) error {
 	return nil
 }
-func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
-	return false, nil
-}
+
 func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string]string, []string, error) {
 	return nil, nil, nil
 }

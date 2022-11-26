@@ -173,11 +173,6 @@ func (TestUserVerifier) StoreTokenID(tokenType TokenType, credential, tokenID, r
 	return nil
 }
 
-func (*TestUserVerifier) ValidateJwt(token string) (bool, error) {
-	fmt.Println("dee")
-	return false, nil
-}
-
 func (*TestUserVerifier) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {
 	return "false", &AuthTarget{}, nil
 }
