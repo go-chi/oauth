@@ -103,7 +103,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 }
 
 // UserCredentials manages password grant type requests
-func (bs *BearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) {
+/* func (bs *BearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -121,10 +121,10 @@ func (bs *BearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) 
 	refreshToken := r.FormValue("refresh_token")
 	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), username, password, refreshToken, scope, "", "", r)
 	renderJSON(w, resp, statusCode)
-}
+} */
 
 // ClientCredentials manages client credentials grant type requests
-func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request) {
+/* func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
 	// grant_type client_credentials variables
 	clientID := r.FormValue("client_id")
@@ -143,10 +143,10 @@ func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request
 	refreshToken := r.FormValue("refresh_token")
 	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
 	renderJSON(w, resp, statusCode)
-}
+} */
 
 // AuthorizationCode manages authorization code grant type requests for the phase two of the authorization process
-func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request) {
+/* func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
 	// grant_type client_credentials variables
 	clientID := r.FormValue("client_id")
@@ -162,13 +162,13 @@ func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request
 			return
 		}
 	}
-	/* connection, err := bs.verifier.GetConnectionTarget(w, r)
+	connection, err := bs.verifier.GetConnectionTarget(w, r)
 	if err != nil {
 		log.Err(err)
-	} */
+	}
 	resp, status := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, "", scope, code, redirectURI, r)
 	renderJSON(w, resp, status)
-}
+} */
 
 // Generate token response
 func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential string, secret string, refreshToken string, scope string, code string, redirectURI string, r *http.Request) (interface{}, int) {
