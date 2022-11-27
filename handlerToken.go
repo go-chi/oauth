@@ -9,9 +9,6 @@ import (
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(r.Header)
-	fmt.Println("Header")
 	var at AuthToken
 	getFormData([]string{""}, r)
 	grant_type := GrantType(r.FormValue("grant_type"))
