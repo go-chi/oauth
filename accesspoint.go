@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -55,10 +56,12 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
 	if err != nil {
-		log.Err(err).Msgf("Unable to get session for User: %s", userID)
 		userID = r.Form.Get("name")
+		log.Err(err).Msgf("Unable to get session for User: %s", userID)
 	}
 
+	fmt.Println(r.Host)
+	fmt.Println("iss")
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       userID,
