@@ -34,14 +34,6 @@ type Cookie struct {
 
 // Generate token response
 func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	//msg := sessionManager.GetString(r.Context(), "message")
-	//io.WriteString(w, msg)
-
-	/* err := r.ParseForm()
-	if err != nil {
-		log.Error().Err(err).Msg("Parsing form failed")
-	}
-	authcode := r.FormValue("code") */
 	var credential string
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
@@ -51,7 +43,6 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	if err == nil {
 		token := strings.Split(code, ".")[1]
 		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
-
 		jwtParsed := MyCustomClaimss{}
 		err = json.Unmarshal(dIdToken, &jwtParsed)
 		if err != nil {
@@ -66,21 +57,10 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	}
 
 	fmt.Println(code)
-	//nonce := r.FormValue("nonce")
 	var resp *TokenResponse
 	switch grantType {
-	case PasswordGrant:
-
 	//--------------------------->to Function and RedirectAccess -->takes that func
 	case AuthCodeGrant:
-		/*
-			//Secret = r.FormValue("secret")
-			redirect_uri = r.FormValue("redirect_uri")
-
-			state := r.FormValue("state")
-			//client_id := r.FormValue("client_id") */
-
-		//credential := parsedJwt["sub"].([]interface{})[0].(string)
 		nonce := parsedJwt["nonce"].(string)
 		fmt.Println(nonce)
 		at = AuthToken{
@@ -95,72 +75,64 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//azp:       state,
 		}
 
-		/* if err := bs.verifier.ValidateClient(client_id, secret, scope, r); err != nil {
+		if err := bs.verifier.ValidateClient("client_id", "secret"); err != nil {
 			return "Not authorized", http.StatusOK, err
-		} */
-		refresh_token = r.FormValue("refresh_token")
+		}
 
-		/* codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
-		if !ok {
-			return "Not authorized, grant type not supported", http.StatusUnauthorized, nil
-		}
-		sub, err := ParseJWT(code, bs.Kc)
-		user, err := codeVerifier.ValidateCode(sub, credential, secret, code, redirectURI, r)
-		if err != nil {
-			return "Not authorized", http.StatusUnauthorized, err
-		}
+		/*
+			user, err := codeVerifier.ValidateCode(sub, credential, secret, code, redirectURI, r)
+			if err != nil {
+				return "Not authorized", http.StatusUnauthorized, err
+			}
 		*/
-		//credential := r.FormValue("name")
-
-		/* _, err = bs.verifier.SessionSave(w, r, credential, "user_session")
-		if err != nil {
-			log.Err(err)
-		} */
 
 		userStoreName, AuthTarget, err := bs.verifier.GetConnectionTarget(r)
+		if err != nil {
+			log.Err(err).Msg("Failed getting connection target")
+		}
 		fmt.Println(AuthTarget)
 
 		groups, err := bs.verifier.ValidateUser(credential, "secret", scope, userStoreName, r)
 		if err != nil {
-			log.Err(err)
+			log.Err(err).Msg("Failed getting groups")
 		}
 
 		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
-
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}
-		//err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
+
+		/* err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError, err
-		}
+		} */
 
 		if resp, err = bs.cryptIdTokens(token, refresh, idtoken, r); err != nil {
 			return "Token generation failed, check security provider", http.StatusInternalServerError, err
 		}
-	/* case RefreshTokenGrant:
-	refresh, err := bs.provider.DecryptRefreshTokens(refreshToken)
-	if err != nil {
-		return "Not authorized", http.StatusUnauthorized, err
-	}
+	case RefreshTokenGrant:
+		refresh, err := bs.provider.DecryptRefreshTokens(refreshToken)
+		if err != nil {
+			return "Not authorized", http.StatusUnauthorized, err
+		}
 
-	if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
-		return "Not authorized invalid token", http.StatusUnauthorized, err
-	}
+		/* if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
+			return "Not authorized invalid token", http.StatusUnauthorized, err
+		} */
 
-	token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
-	if err != nil {
-		return "Token generation failed", http.StatusInternalServerError, err
-	}
+		token, refresh, err := bs.generateTokens(refresh.TokenType, refresh.Credential, refresh.Scope, r)
+		if err != nil {
+			return "Token generation failed", http.StatusInternalServerError, err
+		}
 
-	err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
-	if err != nil {
-		return "Storing Token ID failed", http.StatusInternalServerError, err
-	}
+		err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
+		if err != nil {
+			return "Storing Token ID failed", http.StatusInternalServerError, err
+		}
 
-	if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
-		return "Token generation failed", http.StatusInternalServerError, err
-	} */
+		if resp, err = bs.cryptTokens(token, refresh, r); err != nil {
+			return "Token generation failed", http.StatusInternalServerError, err
+		}
 	default:
 		return "Invalid grant_type", http.StatusBadRequest, nil
 	}
