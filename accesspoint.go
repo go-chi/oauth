@@ -62,10 +62,11 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(r.Host)
 	fmt.Println("iss")
+	clientId := urlValues["client_id"]
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       userID,
-		Aud:       urlValues["client_id"],
+		Aud:       clientId,
 		Exp:       jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		Iat:       "",
 		Jti:       "",
