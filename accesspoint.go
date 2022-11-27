@@ -72,7 +72,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	}
 	_, groups, err := bs.verifier.UserLookup(userID, urlValues["scope"])
 	if err != nil {
-		log.Err(err).Msg("")
+		log.Err(err).Str("Userlookup", "failed").Msgf("Failed getting Groups from userstore, Group length: %d", len(groups))
 	}
 
 	claims := bs.verifier.CreateClaims(userID, urlValues["client_id"], urlValues["nonce"][0], groups, authParameter, r)
