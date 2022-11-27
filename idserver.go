@@ -40,6 +40,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 		log.Err(err)
 	}
 	var sub string
+	var client_id string
 	if err == nil {
 		token := strings.Split(code, ".")[1]
 		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
@@ -53,6 +54,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 		fmt.Println("#####")
 		aud = jwtParsed.Aud
 		sub = jwtParsed.Sub
+		client_id = jwtParsed.Client_id
 		credential = jwtParsed.Sub
 	}
 
@@ -75,7 +77,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//azp:       state,
 		}
 
-		if err := bs.verifier.ValidateClient(aud, "secret"); err != nil {
+		if err := bs.verifier.ValidateClient(client_id, "secret"); err != nil {
 			return "Not authorized", http.StatusOK, err
 		}
 
