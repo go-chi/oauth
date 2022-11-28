@@ -34,7 +34,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	//redirect to error page || Logged in || to login page
 	if err != nil || client == nil {
 		log.Info().Msgf("Client not found: %s", aud)
-		http.Redirect(w, r, "http://ClientNotFound", 401)
+		http.Redirect(w, r, "https://ClientNotFound", 401)
 	} else if ok && userID != "" {
 		RedirectAccess(bs, w, r)
 	} else {

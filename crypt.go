@@ -48,7 +48,6 @@ func ParseBody[t any](b io.ReadCloser, jsonTarget t) (t, error) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to Unmarshal file o")
 	}
-	fmt.Println("eee")
 	fmt.Println(jsonTarget)
 	return jsonTarget, err
 }
