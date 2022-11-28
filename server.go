@@ -103,49 +103,6 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 		Clients:   clients}
 }
 
-// UserCredentials manages password grant type requests
-/* func (bs *BearerServer) UserCredentials(w http.ResponseWriter, r *http.Request) {
-	grantType := r.FormValue("grant_type")
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	scope := r.FormValue("scope")
-	if username == "" || password == "" {
-		// get username and password from basic authorization header
-		var err error
-		username, password, err = GetBasicAuthentication(r)
-		if err != nil {
-			renderJSON(w, "Not authorized", http.StatusUnauthorized)
-			return
-		}
-	}
-
-	refreshToken := r.FormValue("refresh_token")
-	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), username, password, refreshToken, scope, "", "", r)
-	renderJSON(w, resp, statusCode)
-} */
-
-// ClientCredentials manages client credentials grant type requests
-/* func (bs *BearerServer) ClientCredentials(w http.ResponseWriter, r *http.Request) {
-	grantType := r.FormValue("grant_type")
-	// grant_type client_credentials variables
-	clientID := r.FormValue("client_id")
-	clientSecret := r.FormValue("client_secret")
-
-	if clientID == "" || clientSecret == "" {
-		// get clientID and secret from basic authorization header
-		var err error
-		clientID, clientSecret, err = GetBasicAuthentication(r)
-		if err != nil {
-			renderJSON(w, "Not authorized", http.StatusUnauthorized)
-			return
-		}
-	}
-	scope := r.FormValue("scope")
-	refreshToken := r.FormValue("refresh_token")
-	resp, statusCode := bs.generateTokenResponse(GrantType(grantType), clientID, clientSecret, refreshToken, scope, "", "", r)
-	renderJSON(w, resp, statusCode)
-} */
-
 // AuthorizationCode manages authorization code grant type requests for the phase two of the authorization process
 /* func (bs *BearerServer) AuthorizationCode(w http.ResponseWriter, r *http.Request) {
 	grantType := r.FormValue("grant_type")
