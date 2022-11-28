@@ -112,7 +112,10 @@ func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Reques
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
 			//keyDeleteKeyPair(bs.Kc, kid)
-			bs.verifier.StoreKeyDelete([]string{kid})
+			err := bs.verifier.StoreKeyDelete([]string{kid})
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
 		}
 	}
 }
@@ -156,7 +159,10 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
 			//keyDeleteKeyPair(bs.Kc, kid)
-			bs.verifier.StoreKeyDelete([]string{kid})
+			err := bs.verifier.StoreKeyDelete([]string{kid})
+			if err != nil {
+				log.Error().Err(err).Msg("Unable to Unmarshal file")
+			}
 		}
 	}
 }
