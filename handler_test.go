@@ -150,7 +150,7 @@ func TestRegistrationGet(t *testing.T) {
 			assertResponseBody(t, resp.StatusCode, e.expectedStatusCode)
 		}
 	}
-	//t.Error()
+	t.Error()
 }
 
 func TestRegistrationPost(t *testing.T) {

@@ -37,6 +37,20 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			path := r.URL.Path
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]
+			if path[:base+1] == "/oauth/" && clientID == "clients" {
+				clients, err := bs.verifier.StoreClientsGet()
+				if err != nil {
+					log.Error().Err(err).Msg("Unable to read body")
+				}
+				fmt.Println("")
+				fmt.Println("!!!!")
+				fmt.Println(clients)
+				fmt.Println("####")
+				renderJSON(w, clients, 200)
+			} else if path[:base+1] == "/oauth/clients/" {
+				//fmt.Println(clientID)
+			}
+
 			clientConfig, err = bs.verifier.StoreClientGet(clientID)
 			rc := 200
 			if err != nil {
