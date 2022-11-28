@@ -83,13 +83,6 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Not authorized", http.StatusOK, nil
 		} */
 
-		/*
-			user, err := codeVerifier.ValidateCode(sub, credential, secret, code, redirectURI, r)
-			if err != nil {
-				return "Not authorized", http.StatusUnauthorized, err
-			}
-		*/
-
 		userStoreName, AuthTarget, err := bs.verifier.GetConnectionTarget(r)
 		if err != nil {
 			log.Err(err).Msg("Failed getting connection target")
