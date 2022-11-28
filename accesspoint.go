@@ -55,7 +55,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if client, err := bs.verifier.StoreClientGet(urlValues["client_id"][0]); err != nil {
-		fmt.Println(client)
+		log.Error().Err(err).Msgf("Failed getting Client: %s", client)
 	}
 
 	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
