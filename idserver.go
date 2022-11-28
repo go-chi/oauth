@@ -59,6 +59,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	}
 
 	fmt.Println(code)
+	fmt.Println(client_id)
 	var resp *TokenResponse
 	switch grantType {
 	//--------------------------->to Function and RedirectAccess -->takes that func
