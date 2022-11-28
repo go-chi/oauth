@@ -77,10 +77,10 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//azp:       state,
 		}
 
-		if err := bs.verifier.ValidateClient(client_id, "test_secret"); err != nil {
+		/* if err := bs.verifier.ValidateClient(client_id, "test_secret"); err != nil {
 			log.Error().Err(err).Msg("Unable to validate client")
 			return "Not authorized", http.StatusOK, nil
-		}
+		} */
 
 		/*
 			user, err := codeVerifier.ValidateCode(sub, credential, secret, code, redirectURI, r)

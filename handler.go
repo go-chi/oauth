@@ -25,8 +25,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	} */
 	//iamAdmin := slices.Contains(groups, "group1")
-	ww, _ := bs.verifier.SignAdminInMethod("", w, r)
-	print(ww)
+	//ww, _ := bs.verifier.SignAdminInMethod("", w, r)
 
 	iamAdmin := true
 	if iamAdmin {
@@ -40,15 +39,15 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			if path[:base+1] == "/oauth/" && clientID == "clients" {
 				clients, err := bs.verifier.StoreClientsGet()
 				if err != nil {
-					log.Error().Err(err).Msg("Unable to read body")
+					log.Error().Err(err).Msg("Unable to get clients")
 				}
-				fmt.Println("")
-				fmt.Println("!!!!")
-				fmt.Println(clients)
-				fmt.Println("####")
 				renderJSON(w, clients, 200)
 			} else if path[:base+1] == "/oauth/clients/" {
-				//fmt.Println(clientID)
+				client, err := bs.verifier.StoreClientGet(clientID)
+				if err != nil {
+					log.Error().Err(err).Msgf("Unable to get client %s", client)
+				}
+				renderJSON(w, client, 200)
 			}
 
 			clientConfig, err = bs.verifier.StoreClientGet(clientID)
