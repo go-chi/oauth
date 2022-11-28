@@ -32,7 +32,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			var clientConfig interface{}
-			var err error
 			path := r.URL.Path
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]
@@ -49,14 +48,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 				}
 				renderJSON(w, client, 200)
 			}
-
-			clientConfig, err = bs.verifier.StoreClientGet(clientID)
-			rc := 200
-			if err != nil {
-				log.Err(err)
-				rc = 500
-			}
-			renderJSON(w, clientConfig, rc)
+			renderJSON(w, clientConfig, 401)
 		case "POST", "PUT":
 			jsonMap := &Registration{}
 			_, err := gohelper.ParseBody(r, jsonMap)
@@ -170,11 +162,6 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Error().Err(err).Msg("Parsing Form failed")
-	}
-
 	formList := []string{"name", "password", "client_id", "response_type", "redirect_uri", "scope", "nonce", "state"}
 	formMap, _, err := formExtractor(r, formList)
 	if err != nil {
