@@ -15,7 +15,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var refresh_token, redirect_uri, Secret string
+var refresh_token, redirect_uri string
 var at AuthToken
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
