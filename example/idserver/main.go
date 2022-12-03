@@ -112,9 +112,9 @@ func registerAPI(r *chi.Mux) {
 type TestUserVerifier struct {
 }
 
-func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
+/* func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
 	return map[string]string{}, nil
-}
+} */
 
 // delete request for hostname
 func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaims {
@@ -140,7 +140,7 @@ func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string
 	return claims
 }
 
-func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
+/* func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at oauth.AuthToken, r *http.Request) oauth.MyCustomClaimss {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 
@@ -157,7 +157,7 @@ func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string,
 		},
 	}
 	return claims
-}
+} */
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
 func (*TestUserVerifier) ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error) {

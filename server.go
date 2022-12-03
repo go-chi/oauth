@@ -36,10 +36,10 @@ type CredentialsVerifier interface {
 	// Optionally store the tokenID generated for the user
 	StoreTokenID(tokenType TokenType, credential, tokenID, refreshTokenID string) error
 	// Provide additional claims to the idtoken
-	AddIdClaims() (map[string]string, error)
+	//AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
 	CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
-	CreateAtClaims(username, client_id string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
+	//CreateAtClaims(username, client_id string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
 
 	GetConnectionTarget(r *http.Request) (string, *AuthTarget, error)
 

@@ -48,10 +48,11 @@ func (*TestUserVerifier) UserLookup(username string, scope []string) (map[string
 	return nil, nil, nil
 }
 
-func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
-	return map[string]string{}, nil
-}
-
+/*
+	 func (TestUserVerifier) AddIdClaims() (map[string]string, error) {
+		return map[string]string{}, nil
+	}
+*/
 func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims {
 	scheme := "https://"
 	baseURL := scheme + r.Host
@@ -74,7 +75,8 @@ func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string
 	}
 	return claims
 }
-func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
+
+/* func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss {
 	scheme := "https://"
 	baseURL := scheme + r.Host
 	claims := MyCustomClaimss{
@@ -92,7 +94,7 @@ func (TestUserVerifier) CreateAtClaims(client_id, username string, aud []string,
 		}}
 
 	return claims
-}
+} */
 
 // Validate username and password returning an error if the user credentials are wrong
 func (TestUserVerifier) ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error) {

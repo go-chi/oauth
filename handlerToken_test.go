@@ -42,21 +42,21 @@ func TestTokenEndpoint(t *testing.T) {
 }
 
 func TestTokenIntrospect(t *testing.T) {
-	var at AuthToken
+	//var at AuthToken
 	t.Run("Get jwt from Header", func(t *testing.T) {
-		req, _ := http.NewRequest("POST", "/oauth/introspect", nil)
+		//req, _ := http.NewRequest("POST", "/oauth/introspect", nil)
 		mux := chi.NewRouter()
 		mux.Post("/oauth/introspect", bs.TokenIntrospect)
-		ts := httptest.NewTLSServer(mux)
-		groups := []string{"group1", "group2"}
+		//ts := httptest.NewTLSServer(mux)
+		/* groups := []string{"group1", "group2"}
 		scope := []string{"scope1", "scope2"}
-		aud := []string{"scope1"}
-		claims := bs.verifier.CreateAtClaims("TestclientID", "username", aud, bs.nonce, scope, groups, at, req)
+		aud := []string{"scope1"} */
+		//claims := bs.verifier.CreateAtClaims("TestclientID", "username", aud, bs.nonce, scope, groups, at, req)
 
-		access_token, _ := CreateJWT("RS256", claims, bs.Kc)
-		dd := url.Values{"token": {access_token}}
-		resp, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
-		if err != nil {
+		//access_token, _ := CreateJWT("RS256", claims, bs.Kc)
+		//dd := url.Values{"token": {access_token}}
+		//resp, err := ts.Client().PostForm(ts.URL+"/oauth/introspect", dd)
+		/* if err != nil {
 			t.Errorf("json encoding failed %v", err)
 		}
 		obj := make(map[string]interface{})
@@ -67,7 +67,7 @@ func TestTokenIntrospect(t *testing.T) {
 					t.Error(err)
 				}
 			}
-		}
+		} */
 	})
 
 	t.Run("Get jwt from Header", func(t *testing.T) {
