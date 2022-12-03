@@ -108,7 +108,7 @@ func registerAPI(r *chi.Mux) {
 
 }
 
-// TestUserVerifier provides user credentials verifier for testing.
+// TestUserVerifier provides user credentials Verifier for testing.
 type TestUserVerifier struct {
 }
 

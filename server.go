@@ -18,7 +18,7 @@ const (
 	RefreshTokenGrant      GrantType = "refresh_token"
 )
 
-// CredentialsVerifier defines the interface of the user and client credentials verifier.
+// CredentialsVerifier defines the interface of the user and client credentials Verifier.
 type CredentialsVerifier interface {
 	// Validate username and password returning an error if the user credentials are wrong
 	ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error)
@@ -60,7 +60,7 @@ type CredentialsVerifier interface {
 	SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error)
 }
 
-// AuthorizationCodeVerifier defines the interface of the Authorization Code verifier
+// AuthorizationCodeVerifier defines the interface of the Authorization Code Verifier
 type AuthorizationCodeVerifier interface {
 	// ValidateCode checks the authorization code and returns the user credential
 	ValidateCode(sub string, clientID, clientSecret, code, redirectURI string, r *http.Request) (string, error)
@@ -84,7 +84,7 @@ func (b *BearerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewBearerServer creates new OAuth 2 bearer server
-func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
+func NewBearerServer(secretKey string, ttl time.Duration, Verifier CredentialsVerifier, formatter TokenSecureFormatter) *BearerServer {
 	privatekey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	kc := KeyContainer{Pk: map[string]*rsa.PrivateKey{"test": privatekey}}
 	GenJWKS(&kc)
@@ -97,7 +97,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 		secretKey: secretKey,
 		Kc:        &kc,
 		TokenTTL:  ttl,
-		verifier:  verifier,
+		Verifier:  Verifier,
 		provider:  NewTokenProvider(formatter),
 		pKey:      privatekey,
 		Clients:   clients}
@@ -120,7 +120,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, verifier CredentialsVe
 			return
 		}
 	}
-	connection, err := bs.verifier.GetConnectionTarget(w, r)
+	connection, err := bs.Verifier.GetConnectionTarget(w, r)
 	if err != nil {
 		log.Err(err)
 	}
@@ -133,7 +133,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 	var resp *TokenResponse
 	switch grantType {
 	case PasswordGrant:
-		/* e, err := bs.verifier.ValidateUser(credential, secret, scope, connection, r)
+		/* e, err := bs.Verifier.ValidateUser(credential, secret, scope, connection, r)
 		if err != nil {
 			log.Err(err)
 		}
@@ -146,7 +146,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		if err = bs.Verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
@@ -154,7 +154,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case ClientCredentialsGrant:
-		if err := bs.verifier.ValidateClient(credential, secret); err != nil {
+		if err := bs.Verifier.ValidateClient(credential, secret); err != nil {
 			return "Not authorized", http.StatusUnauthorized
 		}
 
@@ -163,7 +163,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		if err = bs.verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
+		if err = bs.Verifier.StoreTokenID(token.TokenType, credential, token.ID, refresh.RefreshTokenID); err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
 
@@ -171,7 +171,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check security provider", http.StatusInternalServerError
 		}
 	case AuthCodeGrant:
-		codeVerifier, ok := bs.verifier.(AuthorizationCodeVerifier)
+		codeVerifier, ok := bs.Verifier.(AuthorizationCodeVerifier)
 		if !ok {
 			return "Not authorized, grant type not supported", http.StatusUnauthorized
 		}
@@ -186,7 +186,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed, check claims", http.StatusInternalServerError
 		}
 
-		err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
+		err = bs.Verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
@@ -200,7 +200,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Not authorized", http.StatusUnauthorized
 		}
 
-		if _, err = bs.verifier.ExtractJWTtoUserGroup(refreshToken); err != nil {
+		if _, err = bs.Verifier.ExtractJWTtoUserGroup(refreshToken); err != nil {
 
 			return nil, 200
 		}
@@ -210,7 +210,7 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 			return "Token generation failed", http.StatusInternalServerError
 		}
 
-		err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
+		err = bs.Verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError
 		}
@@ -227,8 +227,8 @@ func (bs *BearerServer) generateTokenResponse(grantType GrantType, credential st
 
 func (bs *BearerServer) generateTokens(tokenType TokenType, username, scope string, r *http.Request) (*Token, *RefreshToken, error) {
 	token := &Token{ID: uuid.Must(uuid.NewV4()).String(), Credential: username, ExpiresIn: bs.TokenTTL, CreationDate: time.Now().UTC(), TokenType: tokenType, Scope: scope}
-	if bs.verifier != nil {
-		claims, err := bs.verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
+	if bs.Verifier != nil {
+		claims, err := bs.Verifier.AddClaims(token.TokenType, username, token.ID, token.Scope, r)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -253,8 +253,8 @@ func (bs *BearerServer) cryptTokens(token *Token, refresh *RefreshToken, r *http
 
 	tokenResponse := &TokenResponse{Token: cToken, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: "sss"}
 
-	if bs.verifier != nil {
-		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
+	if bs.Verifier != nil {
+		props, err := bs.Verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
 		if err != nil {
 			return nil, err
 		}

@@ -56,7 +56,7 @@ func JWTCreateAccessT(bs *BearerServer, groups []string, r *http.Request) (strin
 		//acr:       scope,
 		//azp:       state,
 	} */
-	claims := bs.verifier.CreateClaims("username", aud, bs.nonce, groups, at, r)
+	claims := bs.Verifier.CreateClaims("username", aud, bs.nonce, groups, at, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 
 	return access_token, err

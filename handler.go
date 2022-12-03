@@ -20,12 +20,12 @@ var at AuthToken
 
 func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	/* authH := r.Header.Get("Authorization")
-	//groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	//groups, err := bs.Verifier.ExtractJWTtoUserGroup(authH)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	} */
 	//iamAdmin := slices.Contains(groups, "group1")
-	//ww, _ := bs.verifier.SignAdminInMethod("", w, r)
+	//ww, _ := bs.Verifier.SignAdminInMethod("", w, r)
 
 	iamAdmin := true
 	if iamAdmin {
@@ -36,13 +36,13 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]
 			if path[:base+1] == "/oauth/" && clientID == "clients" {
-				clients, err := bs.verifier.StoreClientsGet()
+				clients, err := bs.Verifier.StoreClientsGet()
 				if err != nil {
 					log.Error().Err(err).Msg("Unable to get clients")
 				}
 				renderJSON(w, clients, 200)
 			} else if path[:base+1] == "/oauth/clients/" {
-				client, err := bs.verifier.StoreClientGet(clientID)
+				client, err := bs.Verifier.StoreClientGet(clientID)
 				if err != nil {
 					log.Error().Err(err).Msgf("Unable to get client %s", client)
 				}
@@ -56,7 +56,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 				log.Err(err)
 				renderJSON(w, "Failed parsing client config", 422)
 			}
-			regResp, err := bs.verifier.StoreClient(jsonMap.Client_name, *jsonMap, r.Method)
+			regResp, err := bs.Verifier.StoreClient(jsonMap.Client_name, *jsonMap, r.Method)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to read body")
 				renderJSON(w, "Failed parsing client config", 422)
@@ -68,7 +68,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Err(err)
 			}
-			err = bs.verifier.StoreClientDelete([]string{jsonMap.Client_name})
+			err = bs.Verifier.StoreClientDelete([]string{jsonMap.Client_name})
 			if err != nil {
 				renderJSON(w, jsonMap, 500)
 			}
@@ -85,7 +85,7 @@ func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Reques
 		case "GET":
 			var clientConfig interface{}
 			var err error
-			clientConfig, err = bs.verifier.StoreKeysGet()
+			clientConfig, err = bs.Verifier.StoreKeysGet()
 			rc := 200
 			if err != nil {
 				log.Err(err)
@@ -102,7 +102,7 @@ func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Reques
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
-			//err = bs.verifier.
+			//err = bs.Verifier.
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
@@ -112,7 +112,7 @@ func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Reques
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
 			//keyDeleteKeyPair(bs.Kc, kid)
-			err := bs.verifier.StoreKeyDelete([]string{kid})
+			err := bs.Verifier.StoreKeyDelete([]string{kid})
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
@@ -122,7 +122,7 @@ func (bs *BearerServer) ConnectionTargetEp(w http.ResponseWriter, r *http.Reques
 
 func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	/* authH := r.Header.Get("Authorization")
-	groups, err := bs.verifier.ExtractJWTtoUserGroup(authH)
+	groups, err := bs.Verifier.ExtractJWTtoUserGroup(authH)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
@@ -132,7 +132,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 		case "GET":
 			var clientConfig interface{}
 			var err error
-			clientConfig, err = bs.verifier.StoreKeysGet()
+			clientConfig, err = bs.Verifier.StoreKeysGet()
 			rc := 200
 			if err != nil {
 				log.Err(err)
@@ -149,7 +149,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
-			err = bs.verifier.StoreKey(keys)
+			err = bs.Verifier.StoreKey(keys)
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
@@ -159,7 +159,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
 			//keyDeleteKeyPair(bs.Kc, kid)
-			err := bs.verifier.StoreKeyDelete([]string{kid})
+			err := bs.Verifier.StoreKeyDelete([]string{kid})
 			if err != nil {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
@@ -174,17 +174,17 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Form Value not present")
 	}
 
-	userStoreName, _, err := bs.verifier.GetConnectionTarget(r)
+	userStoreName, _, err := bs.Verifier.GetConnectionTarget(r)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed getting conncetion target")
 	}
 
-	_, err = bs.verifier.SessionSave(w, r, formMap["name"][0], "user_session")
+	_, err = bs.Verifier.SessionSave(w, r, formMap["name"][0], "user_session")
 	if err != nil {
 		log.Error().Err(err).Msg("Failed saving session")
 	}
 
-	groups, err := bs.verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userStoreName, r)
+	groups, err := bs.Verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userStoreName, r)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed validating user getting groups")
 	}
@@ -201,7 +201,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       azp,
 	}
 
-	claims := bs.verifier.CreateClaims(formMap["name"][0], formMap["client_id"], formMap["nonce"][0], groups, authParameter, r)
+	claims := bs.Verifier.CreateClaims(formMap["name"][0], formMap["client_id"], formMap["nonce"][0], groups, authParameter, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create access_token")
@@ -254,7 +254,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		username := ee["sub"].(string)
 
 		//get userdata
-		groups, err := bs.verifier.ValidateUser(username, "password", "scope", "userStoreName", r)
+		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", "userStoreName", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}

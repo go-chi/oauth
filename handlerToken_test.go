@@ -51,7 +51,7 @@ func TestTokenIntrospect(t *testing.T) {
 		/* groups := []string{"group1", "group2"}
 		scope := []string{"scope1", "scope2"}
 		aud := []string{"scope1"} */
-		//claims := bs.verifier.CreateAtClaims("TestclientID", "username", aud, bs.nonce, scope, groups, at, req)
+		//claims := bs.Verifier.CreateAtClaims("TestclientID", "username", aud, bs.nonce, scope, groups, at, req)
 
 		//access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 		//dd := url.Values{"token": {access_token}}

@@ -83,7 +83,7 @@ func getFormData(formValues []string, r *http.Request) {
 }
 
 func Unauthorized(bs *BearerServer, client_id string) (bool, error) {
-	client, err := bs.verifier.StoreClientGet(client_id)
+	client, err := bs.Verifier.StoreClientGet(client_id)
 	if client != nil {
 		return false, err
 	}

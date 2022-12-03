@@ -11,7 +11,7 @@ import (
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	//getting the session
-	userID, ok, err := bs.verifier.SessionGet(w, r, "user_session")
+	userID, ok, err := bs.Verifier.SessionGet(w, r, "user_session")
 	if err != nil {
 		log.Error().Err(err).Msgf("No session present for: %s", userID)
 	}
@@ -25,7 +25,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	//getting the client data
 	aud := queryListMap["client_id"][0]
-	client, err := bs.verifier.StoreClientGet(aud)
+	client, err := bs.Verifier.StoreClientGet(aud)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed getting client data")
 		renderJSON(w, "Client not found", http.StatusForbidden)
@@ -38,7 +38,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	} else if ok && userID != "" {
 		RedirectAccess(bs, w, r)
 	} else {
-		err := bs.verifier.SignInMethod(aud, w, r)
+		err := bs.Verifier.SignInMethod(aud, w, r)
 		if err != nil {
 			log.Error().Err(err).Msg("Signin method failed")
 		}
@@ -54,11 +54,11 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if client, err := bs.verifier.StoreClientGet(urlValues["client_id"][0]); err != nil {
+	if client, err := bs.Verifier.StoreClientGet(urlValues["client_id"][0]); err != nil {
 		log.Error().Err(err).Msgf("Failed getting Client: %s", client)
 	}
 
-	userID, _, err := bs.verifier.SessionGet(w, r, "user_session")
+	userID, _, err := bs.Verifier.SessionGet(w, r, "user_session")
 	if err != nil {
 		userID = r.Form.Get("name")
 		log.Err(err).Msgf("Unable to get session for User: %s", userID)
@@ -78,12 +78,12 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Scope:     []string{"scope1", "scope2"},
 		Nonce:     urlValues["nonce"][0],
 	}
-	_, groups, err := bs.verifier.UserLookup(userID, urlValues["scope"])
+	_, groups, err := bs.Verifier.UserLookup(userID, urlValues["scope"])
 	if err != nil {
 		log.Err(err).Str("Userlookup", "failed").Msgf("Failed getting Groups from userstore, Group length: %d", len(groups))
 	}
 
-	claims := bs.verifier.CreateClaims(userID, urlValues["client_id"], urlValues["nonce"][0], groups, authParameter, r)
+	claims := bs.Verifier.CreateClaims(userID, urlValues["client_id"], urlValues["nonce"][0], groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 

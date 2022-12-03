@@ -78,18 +78,18 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			//azp:       state,
 		}
 
-		/* if err := bs.verifier.ValidateClient(client_id, "test_secret"); err != nil {
+		/* if err := bs.Verifier.ValidateClient(client_id, "test_secret"); err != nil {
 			log.Error().Err(err).Msg("Unable to validate client")
 			return "Not authorized", http.StatusOK, nil
 		} */
 
-		userStoreName, AuthTarget, err := bs.verifier.GetConnectionTarget(r)
+		userStoreName, AuthTarget, err := bs.Verifier.GetConnectionTarget(r)
 		if err != nil {
 			log.Err(err).Msg("Failed getting connection target")
 		}
 		fmt.Println(AuthTarget)
 
-		groups, err := bs.verifier.ValidateUser(credential, "secret", scope, userStoreName, r)
+		groups, err := bs.Verifier.ValidateUser(credential, "secret", scope, userStoreName, r)
 		if err != nil {
 			log.Err(err).Msg("Failed getting groups")
 		}
@@ -99,7 +99,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}
 
-		/* err = bs.verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
+		/* err = bs.Verifier.StoreTokenID(token.TokenType, user, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError, err
 		} */
@@ -113,7 +113,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Not authorized", http.StatusUnauthorized, err
 		}
 
-		/* if _, err = bs.verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
+		/* if _, err = bs.Verifier.ValidateTokenID(refresh.TokenType, refresh.Credential, refresh.TokenID, refresh.RefreshTokenID); err != nil {
 			return "Not authorized invalid token", http.StatusUnauthorized, err
 		} */
 
@@ -122,7 +122,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Token generation failed", http.StatusInternalServerError, err
 		}
 
-		err = bs.verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
+		err = bs.Verifier.StoreTokenID(token.TokenType, refresh.Credential, token.ID, refresh.RefreshTokenID)
 		if err != nil {
 			return "Storing Token ID failed", http.StatusInternalServerError, err
 		}
@@ -143,7 +143,7 @@ func refreshToken(tokenId string, username string, tokenType TokenType, scope st
 }
 
 func (bs *BearerServer) generateIdTokens(method string, aud []string, tokenType TokenType, username, scope, nonce string, groups []string, at AuthToken, r *http.Request) (string, *RefreshToken, string, error) {
-	claims := bs.verifier.CreateClaims(username, aud, nonce, groups, at, r)
+	claims := bs.Verifier.CreateClaims(username, aud, nonce, groups, at, r)
 
 	token, _ := CreateJWT(method, claims, bs.Kc)
 	idtoken, _ := CreateJWT(method, claims, bs.Kc)
@@ -159,8 +159,8 @@ func (bs *BearerServer) cryptIdTokens(token string, refresh *RefreshToken, idTok
 	}
 	tokenResponse := &TokenResponse{Token: token, RefreshToken: cRefreshToken, TokenType: BearerToken, ExpiresIn: (int64)(bs.TokenTTL / time.Second), IDtoken: idToken}
 
-	/* if bs.verifier != nil {
-		props, err := bs.verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
+	/* if bs.Verifier != nil {
+		props, err := bs.Verifier.AddProperties(token.TokenType, token.Credential, token.ID, token.Scope, r)
 		if err != nil {
 			return nil, err
 		}
