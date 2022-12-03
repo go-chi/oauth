@@ -70,7 +70,7 @@ type AuthorizationCodeVerifier interface {
 type BearerServer struct {
 	secretKey string
 	TokenTTL  time.Duration
-	verifier  CredentialsVerifier
+	Verifier  CredentialsVerifier
 	provider  *TokenProvider
 	pKey      *rsa.PrivateKey
 	Kc        *KeyContainer
