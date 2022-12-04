@@ -265,12 +265,14 @@ func (*TestUserVerifier) StoreClientsGet() (map[string]*oauth.Registration, erro
 func (*TestUserVerifier) StoreClientDelete(clientId []string) error {
 	return nil
 }
-func (*TestUserVerifier) StoreKeyDelete(kid []string) error
+func (*TestUserVerifier) StoreKeyDelete(kid []string) error { return nil }
 func (*TestUserVerifier) StoreKey(map[string]string) error {
 	return nil
 }
-func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error)
-func (*TestUserVerifier) SignInMethod(string, http.ResponseWriter, *http.Request) error
+func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error) {
+	return nil, nil
+}
+func (*TestUserVerifier) SignInMethod(string, http.ResponseWriter, *http.Request) error { return nil }
 func (*TestUserVerifier) SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
 }

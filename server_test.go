@@ -231,10 +231,10 @@ func (*TestUserVerifier) StoreClientGet(client string) (*Registration, error) {
 		Contacts:                     []string{"admin@example.org"},
 		Registration_access_token:    "testRegToken",
 	}
-	/*
-		var respInterface *Registration
-		inrec, _ := json.Marshal(ee)
-		json.Unmarshal(inrec, &respInterface) */
+
+	//	var respInterface *Registration
+	//	inrec, _ := json.Marshal(ee)
+	//	json.Unmarshal(inrec, &respInterface)
 	return &ee, nil
 }
 
