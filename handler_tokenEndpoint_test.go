@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	gohelper "github.com/christhirst/gohelper/ijson"
+	"github.com/christhirst/gohelper/ijson"
 )
 
 var tetests = []struct {
@@ -52,7 +52,7 @@ func TestTokenEndpointPW(t *testing.T) {
 			//call ServeHTTP method and pass  Request and ResponseRecorder.
 			handler.ServeHTTP(rr, req)
 			bodybytes := rr.Body
-			jmap, err := gohelper.StructToJson(bodybytes)
+			jmap, err := ijson.StructToJson(bodybytes)
 			if err != nil {
 				log.Fatal(err)
 			}

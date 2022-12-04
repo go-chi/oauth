@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	gohelper "github.com/christhirst/gohelper/ihttp"
+	"github.com/christhirst/gohelper/ihttp"
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
@@ -51,7 +51,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			renderJSON(w, clientConfig, 401)
 		case "POST", "PUT":
 			jsonMap := &Registration{}
-			_, err := gohelper.ParseBody(r, jsonMap)
+			_, err := ihttp.ParseBody(r, jsonMap)
 			if err != nil {
 				log.Err(err)
 				renderJSON(w, "Failed parsing client config", 422)
@@ -64,7 +64,7 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			renderJSON(w, regResp, 200)
 		case "DELETE":
 			jsonMap := Registration{}
-			_, err := gohelper.ParseBody(r, jsonMap)
+			_, err := ihttp.ParseBody(r, jsonMap)
 			if err != nil {
 				log.Err(err)
 			}
