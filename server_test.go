@@ -246,6 +246,11 @@ func (*TestUserVerifier) StoreKey(keyString map[string]string) error {
 	return nil
 }
 func (*TestUserVerifier) StoreKeysGet() (map[string]rsa.PrivateKey, error) { return nil, nil }
+
+func (*TestUserVerifier) StoreKeysAppend(jwks []map[string]string) []map[string]string {
+	return jwks
+}
+
 func (*TestUserVerifier) SignInMethod(clientId string, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

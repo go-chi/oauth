@@ -55,6 +55,7 @@ type CredentialsVerifier interface {
 	StoreKeyDelete(kid []string) error
 	StoreKey(keyString map[string]string) error
 	StoreKeysGet() (map[string]rsa.PrivateKey, error)
+	StoreKeysAppend(jwks []map[string]string) []map[string]string
 
 	SignInMethod(clientId string, w http.ResponseWriter, r *http.Request) error
 	SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error)
