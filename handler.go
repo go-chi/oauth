@@ -130,6 +130,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 	if true {
 		switch r.Method {
 		case "GET":
+			fmt.Println("uuu")
 			var clientConfig interface{}
 			var err error
 			clientConfig, err = bs.Verifier.StoreKeysGet()
