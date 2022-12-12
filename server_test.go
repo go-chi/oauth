@@ -21,6 +21,11 @@ var _sut = NewBearerServer(
 	nil,
 )
 
+func TestNewBearerServer(t *testing.T) {
+	fmt.Println(_sut)
+	//t.Error()
+}
+
 // TestUserVerifier provides user credentials Verifier for testing.
 type TestUserVerifier struct {
 }

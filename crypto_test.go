@@ -6,6 +6,21 @@ import (
 	"testing"
 )
 
+func TestGenJWKS(t *testing.T) {
+	ii := bs.Kc.Keys.Keys
+	GenJWKS(bs.Kc)
+	var keys []string
+
+	for _, v := range ii {
+		for ii := range v {
+			keys = append(keys, ii)
+		}
+	}
+	if len(keys) != 6 {
+		t.Error()
+	}
+}
+
 func TestReturnKeys(t *testing.T) {
 	//pass request to handler with nil as parameter
 	req, err := http.NewRequest("GET", "/keys", nil)
@@ -26,6 +41,7 @@ func TestReturnKeys(t *testing.T) {
 	}
 	var tsa Keys
 	ConvertIOReader(rr.Body, &tsa)
+	t.Error(tsa.Keys)
 	for _, v := range tsa.Keys {
 		for ii := range v {
 			if (ii != "alg") && (ii != "e") && (ii != "n") && (ii != "kid") && (ii != "kty") && (ii != "use") {
@@ -36,19 +52,4 @@ func TestReturnKeys(t *testing.T) {
 		}
 	}
 
-}
-
-func TestGenJWKS(t *testing.T) {
-	ii := bs.Kc.Keys.Keys
-	GenJWKS(bs.Kc)
-	var keys []string
-
-	for _, v := range ii {
-		for ii := range v {
-			keys = append(keys, ii)
-		}
-	}
-	if len(keys) != 6 {
-		t.Error()
-	}
 }
