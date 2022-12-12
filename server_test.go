@@ -193,14 +193,6 @@ func (*TestUserVerifier) SessionGet(w http.ResponseWriter, r *http.Request, cook
 	return "testUser", true, nil
 }
 
-func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
-	cookies, err := r.Cookie(cookieID)
-	if err == nil && cookies.Value == "testing" {
-		fmt.Println(cookies)
-	}
-	return "", nil
-}
-
 func (*TestUserVerifier) StoreClientsGet() (map[string]*Registration, error) {
 
 	var Cjson = Registration{Client_id: "testid", Registration_access_token: "eeee", Client_name: "ee", Logo_uri: "",
@@ -214,6 +206,14 @@ func (*TestUserVerifier) StoreClientsGet() (map[string]*Registration, error) {
 		log.Err(err)
 	}
 	return nil, nil
+}
+
+func (*TestUserVerifier) SessionSave(w http.ResponseWriter, r *http.Request, userID, cookieID string) (string, error) {
+	cookies, err := r.Cookie(cookieID)
+	if err == nil && cookies.Value == "testing" {
+		fmt.Println(cookies)
+	}
+	return "", nil
 }
 
 func (*TestUserVerifier) StoreClientGet(client string) (*Registration, error) {

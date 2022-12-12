@@ -20,13 +20,12 @@ func TestSignIn(t *testing.T) {
 		rw := httptest.NewRecorder()
 		handler := http.HandlerFunc(bs.SignIn)
 		handler.ServeHTTP(rw, req)
-		fmt.Println(len(rw.Body.String()))
 
 		if rw.Code != want {
 			t.Error(rw.Body.String())
 		}
 	}
-	t.Run("Registration Test 1", func(t *testing.T) {
+	t.Run("Sign in Test no client_id", func(t *testing.T) {
 		formMap := map[string][]string{"nonce": {"testnonce"},
 			"redirect_uri": {"http://localhost:8080"}, "response_type": {"code"}, "scope": {"testscope"},
 			"state": {"teststate"}}
@@ -35,11 +34,11 @@ func TestSignIn(t *testing.T) {
 		assertCorrectMessage(t, formMap, want)
 	})
 
-	t.Run("Registration Test 1", func(t *testing.T) {
+	t.Run("Registration Test 2", func(t *testing.T) {
 		formMap := map[string][]string{"client_id": {"test_client"}, "nonce": {"testnonce"},
 			"redirect_uri": {"http://localhost:8080"}, "response_type": {"code"}, "scope": {"testscope"},
 			"state": {"teststate"}}
-		want := http.StatusOK
+		want := http.StatusFound
 
 		assertCorrectMessage(t, formMap, want)
 	})
