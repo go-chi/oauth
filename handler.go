@@ -174,6 +174,10 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Form Value not present")
 	}
+	nonce := "code"
+	if _, ok := formMap["nonce"]; ok {
+		nonce = formMap["nonce"][0]
+	}
 
 	userStoreName, _, err := bs.Verifier.GetConnectionTarget(r)
 	if err != nil {
@@ -194,7 +198,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		Iss:   formMap["client_id"][0],
 		Sub:   formMap["client_id"][0],
 		Aud:   formMap["client_id"],
-		Nonce: formMap["nonce"][0],
+		Nonce: nonce,
 		//exp:       exp,
 		//iat:       iat,
 		//auth_time: auth_time,
@@ -202,7 +206,7 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		//azp:       azp,
 	}
 
-	claims := bs.Verifier.CreateClaims(formMap["name"][0], formMap["client_id"], formMap["nonce"][0], groups, authParameter, r)
+	claims := bs.Verifier.CreateClaims(formMap["name"][0], formMap["client_id"], nonce, groups, authParameter, r)
 	access_token, err := CreateJWT("RS256", claims, bs.Kc)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create access_token")
