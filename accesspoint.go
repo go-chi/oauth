@@ -67,6 +67,11 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.Host)
 	fmt.Println("iss")
 	clientId := urlValues["client_id"]
+	nonce := "code"
+	if _, ok := urlValues["nonce"]; ok {
+		nonce = urlValues["nonce"][0]
+	}
+
 	var authParameter = AuthToken{
 		Iss:       "iss",
 		Sub:       userID,
@@ -76,14 +81,14 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		Jti:       "",
 		Client_id: urlValues["client_id"][0],
 		Scope:     []string{"scope1", "scope2"},
-		Nonce:     urlValues["nonce"][0],
+		Nonce:     nonce,
 	}
 	_, groups, err := bs.Verifier.UserLookup(userID, urlValues["scope"])
 	if err != nil {
 		log.Err(err).Str("Userlookup", "failed").Msgf("Failed getting Groups from userstore, Group length: %d", len(groups))
 	}
 
-	claims := bs.Verifier.CreateClaims(userID, urlValues["client_id"], urlValues["nonce"][0], groups, authParameter, r)
+	claims := bs.Verifier.CreateClaims(userID, urlValues["client_id"], nonce, groups, authParameter, r)
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
