@@ -16,7 +16,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msgf("No session present for: %s", userID)
 	}
 	//getting the form fields
-	formList := []string{"client_id", "nonce", "redirect_uri", "response_type", "scope", "state"}
+	formList := []string{"client_id", "redirect_uri", "response_type", "scope", "state"}
 	queryListMap, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
@@ -46,7 +46,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
-	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope", "nonce"}
+	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope"}
 	urlValues, err := urlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
