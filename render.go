@@ -3,6 +3,7 @@ package oauth
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -12,12 +13,17 @@ func renderJSON(w http.ResponseWriter, v interface{}, statusCode int) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(true)
-	if err := enc.Encode(v); err != nil {
+	b, err := json.MarshalIndent(v, "", "\t")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	/* if err := enc.Encode(v); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
+	} */
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 
-	_, _ = w.Write(buf.Bytes())
+	_, _ = w.Write(b)
 }
