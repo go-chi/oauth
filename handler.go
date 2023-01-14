@@ -36,10 +36,15 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			clientID := path[base+1:]
 			if path[:base+1] == "/oauth/" && clientID == "clients" {
 				clients, err := bs.Verifier.StoreClientsGet()
+				clientsList := []Registration{}
+				for _, v := range clients {
+					clientsList = append(clientsList, *v)
+				}
+
 				if err != nil {
 					log.Error().Err(err).Msg("Unable to get clients")
 				}
-				renderJSON(w, clients, 200)
+				renderJSON(w, clientsList, 200)
 			} else if path[:base+1] == "/oauth/clients/" {
 				client, err := bs.Verifier.StoreClientGet(clientID)
 				if err != nil {
