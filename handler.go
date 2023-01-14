@@ -31,7 +31,6 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 	if iamAdmin {
 		switch r.Method {
 		case "GET":
-			var clientConfig interface{}
 			path := r.URL.Path
 			base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]
@@ -47,8 +46,11 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 					log.Error().Err(err).Msgf("Unable to get client %s", client)
 				}
 				renderJSON(w, client, 200)
+			} else {
+				var clientConfig interface{}
+				renderJSON(w, clientConfig, 401)
 			}
-			renderJSON(w, clientConfig, 401)
+
 		case "POST", "PUT":
 			jsonMap := &Registration{}
 			_, err := ihttp.ParseBody(r, jsonMap)
