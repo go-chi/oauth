@@ -248,13 +248,15 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	_, ok := bs.Kc.Pk[jwtParsed.Kid]
+	//bs.Kc.Pk[jwtParsed.Kid]
+	_, ok := bs.Kc.Pk["test"]
 
 	var pk *rsa.PublicKey
 	if !ok {
 		log.Error().Err(err).Msgf("Key not available: %s", jwtParsed.Kid)
 	} else {
-		pk = &bs.Kc.Pk[jwtParsed.Kid].PublicKey
+		//bs.Kc.Pk[jwtParsed.Kid]
+		pk = &bs.Kc.Pk["test"].PublicKey
 	}
 
 	if ok {
