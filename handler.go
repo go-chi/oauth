@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/christhirst/gohelper/ihttp"
@@ -70,16 +71,13 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, regResp, 200)
 		case "DELETE":
-			jsonMap := Registration{}
-			_, err := ihttp.ParseBody(r, jsonMap)
+			clientId :=path.Base(r.URL.Path)
+
+			err := bs.Verifier.StoreClientDelete([]string{clientId})
 			if err != nil {
-				log.Err(err)
+				renderJSON(w, "failed", 500)
 			}
-			err = bs.Verifier.StoreClientDelete([]string{jsonMap.Client_name})
-			if err != nil {
-				renderJSON(w, jsonMap, 500)
-			}
-			renderJSON(w, jsonMap, 200)
+			renderJSON(w, "deleted: " +clientId, 200)
 		default:
 			log.Error().Msg("failed")
 		}
@@ -134,6 +132,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
 	iamAdmin := slices.Contains(groups, "group1") */
+	
 	if true {
 		switch r.Method {
 		case "GET":
@@ -162,10 +161,12 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 		case "DELETE":
+			
 			//path := r.URL.Path
 			/* base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]  */
 			kid := chi.URLParam(r, "kid")
+			fmt.Println(path.Base(r.URL.Path))
 			//keyDeleteKeyPair(bs.Kc, kid)
 			err := bs.Verifier.StoreKeyDelete([]string{kid})
 			if err != nil {

@@ -321,15 +321,16 @@ func TestKeyEndpointDelete(t *testing.T) {
 
 	assertCorrectMessage := func(t testing.TB, get, want string) {
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest("DELETE", "/oauth/keys/{kid}", nil)
+		r := httptest.NewRequest("DELETE", "/oauth/keys/clientname99", nil)
 
 		rctx := chi.NewRouteContext()
-		rctx.URLParams.Add("kid", "testKid")
+		rctx.URLParams.Add("kid", "clientname99")
 
 		r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 		handlers := http.HandlerFunc(bs.KeyEndpoint)
 
 		handlers(w, r)
+		t.Error()
 	}
 	t.Run("Registration Test 1", func(t *testing.T) {
 		got := ""
