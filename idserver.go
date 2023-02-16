@@ -83,13 +83,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Not authorized", http.StatusOK, nil
 		} */
 
-		userStoreName, AuthTarget, err := bs.Verifier.GetConnectionTarget(r)
-		if err != nil {
-			log.Err(err).Msg("Failed getting connection target")
-		}
-		fmt.Println(AuthTarget)
-
-		groups, err := bs.Verifier.ValidateUser(credential, "secret", scope, userStoreName, r)
+		groups, err := bs.Verifier.ValidateUser(credential, "secret", scope, r)
 		if err != nil {
 			log.Err(err).Msg("Failed getting groups")
 		}

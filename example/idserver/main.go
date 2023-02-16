@@ -160,7 +160,7 @@ func (TestUserVerifier) CreateClaims(username string, aud []string, nonce string
 } */
 
 // ValidateUser validates username and password returning an error if the user credentials are wrong
-func (*TestUserVerifier) ValidateUser(username, password, scope, connection string, r *http.Request) ([]string, error) {
+func (*TestUserVerifier) ValidateUser(username, password, scope string, r *http.Request) ([]string, error) {
 	if username == "Aaliyah" && password == "12345" {
 		return []string{"group1", "group2", "group3", "group4"}, nil
 	}

@@ -71,13 +71,13 @@ func (bs *BearerServer) Registration(w http.ResponseWriter, r *http.Request) {
 			}
 			renderJSON(w, regResp, 200)
 		case "DELETE":
-			clientId :=path.Base(r.URL.Path)
+			clientId := path.Base(r.URL.Path)
 
 			err := bs.Verifier.StoreClientDelete([]string{clientId})
 			if err != nil {
 				renderJSON(w, "failed", 500)
 			}
-			renderJSON(w, "deleted: " +clientId, 200)
+			renderJSON(w, "deleted: "+clientId, 200)
 		default:
 			log.Error().Msg("failed")
 		}
@@ -132,7 +132,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to ExtractUser from JWT")
 	}
 	iamAdmin := slices.Contains(groups, "group1") */
-	
+
 	if true {
 		switch r.Method {
 		case "GET":
@@ -161,7 +161,7 @@ func (bs *BearerServer) KeyEndpoint(w http.ResponseWriter, r *http.Request) {
 				log.Error().Err(err).Msg("Unable to Unmarshal file")
 			}
 		case "DELETE":
-			
+
 			//path := r.URL.Path
 			/* base := strings.LastIndex(path, "/")
 			clientID := path[base+1:]  */
@@ -187,17 +187,12 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		nonce = formMap["nonce"][0]
 	}
 
-	userStoreName, _, err := bs.Verifier.GetConnectionTarget(r)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed getting conncetion target")
-	}
-
 	_, err = bs.Verifier.SessionSave(w, r, formMap["name"][0], "user_session")
 	if err != nil {
 		log.Error().Err(err).Msg("Failed saving session")
 	}
 
-	groups, err := bs.Verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], userStoreName, r)
+	groups, err := bs.Verifier.ValidateUser(formMap["name"][0], formMap["password"][0], formMap["scope"][0], r)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed validating user getting groups")
 	}
@@ -269,7 +264,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		username := ee["sub"].(string)
 
 		//get userdata
-		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", "userStoreName", r)
+		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
