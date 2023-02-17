@@ -24,7 +24,7 @@ type CredentialsVerifier interface {
 	ValidateUser(username, password, scope string, r *http.Request) ([]string, error)
 	// Get userdata and password returning an error if the user credentials are wrong
 
-	GetUserData(username, password, scope, connection string, r *http.Request) (map[string]string, error)
+	GetUserData(username, password, scope string, r *http.Request) (map[string]string, error)
 	// Validate clientID and secret returning an error if the client credentials are wrong
 	ValidateClient(clientID, clientSecret string) error
 	// Provide additional claims to the token
