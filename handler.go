@@ -265,6 +265,8 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("error:", err)
 		}
+		fmt.Println(parsedToken.Claims)
+		fmt.Println(jwt.MapClaims)
 		ee := parsedToken.Claims.(jwt.MapClaims)
 		username := ee["sub"].(string)
 
