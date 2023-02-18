@@ -12,7 +12,6 @@ import (
 
 	"github.com/christhirst/gohelper/ihttp"
 	"github.com/go-chi/chi/v5"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -232,7 +231,6 @@ func getJwtHeader(jwtToken string) (JWT, error) {
 	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
 	err := json.Unmarshal(jwtHeader, &jwtParsed)
 	if err != nil {
-		log.Error().Err(err).Msg("Parsing JWT header failed")
 		return jwtParsed, err
 	}
 	return jwtParsed, nil
@@ -268,16 +266,16 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		fmt.Println(jwtToken)
 		fmt.Println(pk)
-		parsedToken, err := JWTvalid(jwtToken, pk)
+		_, err := JWTvalid(jwtToken, pk)
 		if err != nil {
-			fmt.Println("error:", err)
+			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", JWT.Kid)
 		}
-		fmt.Println(parsedToken.Claims)
-		ee := parsedToken.Claims.(jwt.MapClaims)
-		username := ee["sub"].(string)
+		//fmt.Println(parsedToken.Claims)
+		//ee := parsedToken.Claims.(jwt.MapClaims)
+		//username := ee["sub"].(string)
 
 		//get userdata
-		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", r)
+		groups, err := bs.Verifier.ValidateUser("dwight", "password", "scope", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
