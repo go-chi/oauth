@@ -265,8 +265,9 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 
 	if ok {
 		fmt.Println(jwtToken)
-		fmt.Println(pk)
-		_, err := JWTvalid(jwtToken, pk)
+
+		ss, err := ParseJWT(jwtToken, pk)
+		fmt.Println(ss)
 		if err != nil {
 			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", JWT.Kid)
 		}

@@ -74,6 +74,7 @@ func TestJwtValidate(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
+
 	token, err := jwt.Parse(jw, jwks.Keyfunc)
 
 	if err != nil {
@@ -89,6 +90,25 @@ func TestJwtValidate(t *testing.T) {
 }
 
 func TestJwtGroup(t *testing.T) {
+	jw, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
+	if err != nil {
+		log.Fatalf("Failed to create JWT - Error:%s", err.Error())
+	}
+
+	groups, err := ExtractJWTtoUserGroup(jw, &bs.Kc.Pk["test"].PublicKey)
+	if err != nil {
+		log.Fatalf("Failed to get groups - Error:%s", err.Error())
+	}
+
+	for _, v := range groups {
+		fmt.Println(v)
+	}
+	if len(groups) < 1 {
+		t.Error()
+	}
+}
+
+func TestJWTvalid(t *testing.T) {
 	jw, err := CreateJWT(clientConfig.Method, clientConfig.Claims, bs.Kc)
 	if err != nil {
 		log.Fatalf("Failed to create JWT - Error:%s", err.Error())
