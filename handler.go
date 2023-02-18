@@ -259,6 +259,8 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ok {
+		fmt.Println(jwtToken)
+		fmt.Println(pk)
 		parsedToken, err := JWTvalid(jwtToken, pk)
 		if err != nil {
 			fmt.Println("error:", err)
