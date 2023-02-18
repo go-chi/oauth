@@ -226,33 +226,40 @@ type JWT struct {
 	Kid string `json:"kid,omitempty"`
 }
 
+func getJwtHeader(jwtToken string) (JWT, error) {
+	jwtParsed := JWT{}
+	jwtSplit := strings.Split(jwtToken, ".")
+	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
+	err := json.Unmarshal(jwtHeader, &jwtParsed)
+	if err != nil {
+		log.Error().Err(err).Msg("Parsing JWT header failed")
+		return jwtParsed, err
+	}
+	return jwtParsed, nil
+}
+
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
+		return
 	}
+
 	headerEntry := strings.Split(r.Header.Get("Authorization"), " ")
-	fmt.Println(headerEntry)
 	if len(headerEntry) < 1 {
+		log.Error().Err(err).Msg("No Authorization header")
 		renderJSON(w, nil, http.StatusForbidden)
 		return
 	}
 	jwtToken := headerEntry[1]
-	jwtSplit := strings.Split(jwtToken, ".")
-	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
+	JWT, err := getJwtHeader(jwtToken)
+	//bs.Kc.Pk[JWT.Kid]
 
-	jwtParsed := JWT{}
-	err = json.Unmarshal(jwtHeader, &jwtParsed)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
-	//bs.Kc.Pk[jwtParsed.Kid]
 	_, ok := bs.Kc.Pk["test"]
 
 	var pk *rsa.PublicKey
 	if !ok {
-		log.Error().Err(err).Msgf("Key not available: %s", jwtParsed.Kid)
+		log.Error().Err(err).Msgf("Key not available: %s", JWT.Kid)
 	} else {
 		//bs.Kc.Pk[jwtParsed.Kid]
 		pk = &bs.Kc.Pk["test"].PublicKey
@@ -266,7 +273,6 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error:", err)
 		}
 		fmt.Println(parsedToken.Claims)
-		fmt.Println(jwt.MapClaims)
 		ee := parsedToken.Claims.(jwt.MapClaims)
 		username := ee["sub"].(string)
 
