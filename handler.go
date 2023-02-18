@@ -232,6 +232,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 	headerEntry := strings.Split(r.Header.Get("Authorization"), " ")
+	fmt.Println(headerEntry)
 	if len(headerEntry) < 1 {
 		renderJSON(w, nil, http.StatusForbidden)
 		return
@@ -245,6 +246,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+
 	//bs.Kc.Pk[jwtParsed.Kid]
 	_, ok := bs.Kc.Pk["test"]
 
