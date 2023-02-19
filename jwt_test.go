@@ -74,7 +74,11 @@ func TestJwtValidate(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to get the JWKS from the given URL.\nError:%s", err.Error())
 	}
-
+	//&bs.Kc.Pk["test"].PublicKey
+	fmt.Println("####")
+	fmt.Println(bs.Kc.Pk["test"].PublicKey)
+	_, err = JWTvalid(jw, &bs.Kc.Pk["test"].PublicKey)
+	t.Error(err)
 	token, err := jwt.Parse(jw, jwks.Keyfunc)
 
 	if err != nil {

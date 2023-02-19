@@ -111,7 +111,7 @@ func (TestUserVerifier) ValidateUser(username, password, scope string, r *http.R
 	return []string{}, errors.New("")
 }
 
-func (TestUserVerifier) GetUserData(username, password, scope string, r *http.Request) (map[string]string, error) {
+func (TestUserVerifier) GetUserData(username, scope string, r *http.Request) (map[string]string, error) {
 	// Add something to the request context, so we can access it in the claims and props funcs.
 	return nil, nil
 }

@@ -272,11 +272,12 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", JWT.Kid)
 		}
 		//fmt.Println(parsedToken.Claims)
-		//ee := parsedToken.Claims.(jwt.MapClaims)
-		//username := ee["sub"].(string)
+		ee := ss
+		username := ee["sub"].(string)
 
 		//get userdata
-		groups, err := bs.Verifier.ValidateUser("dwight", "password", "scope", r)
+		bs.Verifier.GetUserData(username, "scope", r)
+		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
