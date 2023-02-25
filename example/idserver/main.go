@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	ll "log"
 	"net/http"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jcmturner/gokrb5/v8/keytab"
 	"github.com/rs/zerolog/log"
 )
 
@@ -281,3 +283,4 @@ func (*TestUserVerifier) SignInMethod(string, http.ResponseWriter, *http.Request
 func (*TestUserVerifier) SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
 }
+func (*TestUserVerifier) SignInMethodK(h http.Handler, kt *keytab.Keytab, l *ll.Logger, spn string, bs *oauth.BearerServer) http.Handler

@@ -3,10 +3,12 @@ package oauth
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/jcmturner/gokrb5/v8/keytab"
 )
 
 type GrantType string
@@ -57,6 +59,7 @@ type CredentialsVerifier interface {
 	StoreKeysGet() (map[string]rsa.PrivateKey, error)
 	StoreKeysAppend(jwks []map[string]string) []map[string]string
 
+	SignInMethodK(h http.Handler, kt *keytab.Keytab, l *log.Logger, spn string, bs *BearerServer) http.Handler
 	SignInMethod(clientId string, w http.ResponseWriter, r *http.Request) error
 	SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error)
 }

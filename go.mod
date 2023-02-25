@@ -9,12 +9,16 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.1
+	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/rs/zerolog v1.28.0
 	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
 )
 
 require (
+	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
+	github.com/jcmturner/gofork v1.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
+	golang.org/x/crypto v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )

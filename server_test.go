@@ -6,11 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	ll "log"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jcmturner/gokrb5/v8/keytab"
 	"github.com/rs/zerolog/log"
 )
 
@@ -252,6 +254,10 @@ func (*TestUserVerifier) SignInMethod(clientId string, w http.ResponseWriter, r 
 
 func (*TestUserVerifier) SignAdminInMethod(clientId string, w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
+}
+
+func (*TestUserVerifier) SignInMethodK(http.Handler, *keytab.Keytab, *ll.Logger, string, *BearerServer) http.Handler {
+	return nil
 }
 
 func TestGenerateTokensByUsername(t *testing.T) {
