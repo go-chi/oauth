@@ -21,7 +21,7 @@ func TestFormExtractor(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		got, err := urlExtractor(req, formList)
+		got, err := UrlExtractor(req, formList)
 		if err != nil {
 			t.Error(err)
 		}
