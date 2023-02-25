@@ -18,7 +18,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	//getting the form fields
 	formList := []string{"client_id", "redirect_uri", "response_type", "scope", "state"}
-	queryListMap, err := urlExtractor(r, formList)
+	queryListMap, err := UrlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
 		renderJSON(w, "Form value is missing", http.StatusForbidden)
@@ -51,7 +51,7 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 
 func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	formList := []string{"state", "client_id", "response_type", "redirect_uri", "scope"}
-	urlValues, err := urlExtractor(r, formList)
+	urlValues, err := UrlExtractor(r, formList)
 	if err != nil {
 		log.Error().Err(err).Msg("Form value not present")
 		renderJSON(w, "Form value is missing", http.StatusForbidden)
