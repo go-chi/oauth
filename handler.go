@@ -243,8 +243,9 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	headerEntry := strings.Split(r.Header.Get("Authorization"), " ")
-	if len(headerEntry) < 1 {
+	authToken := r.Header.Get("Authorization")
+	headerEntry := strings.Split(authToken, " ")
+	if len(headerEntry) < 2 || authToken == "" {
 		log.Error().Err(err).Msg("No Authorization header")
 		renderJSON(w, nil, http.StatusForbidden)
 		return
