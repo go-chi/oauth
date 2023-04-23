@@ -274,6 +274,8 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		}
 		//fmt.Println(parsedToken.Claims)
 		ee := ss
+		// BUG  panic: interface conversion: interface {} is nil, not string
+		// 9:45PM ERR JWT validation failed for kid: 051c42ab-a832-4f94-81a4-45feefa73fec error="Token invalid"
 		username := ee["sub"].(string)
 
 		//get userdata
