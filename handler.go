@@ -225,7 +225,7 @@ type JWT struct {
 	Kid string `json:"kid,omitempty"`
 }
 
-func getJwtHeader(jwtToken string) (JWT, error) {
+func GetJwtHeader(jwtToken string) (JWT, error) {
 	jwtParsed := JWT{}
 	jwtSplit := strings.Split(jwtToken, ".")
 	jwtHeader, _ := base64.RawStdEncoding.DecodeString(jwtSplit[0])
@@ -251,7 +251,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jwtToken := headerEntry[1]
-	JWT, err := getJwtHeader(jwtToken)
+	JWT, err := GetJwtHeader(jwtToken)
 	//bs.Kc.Pk[JWT.Kid]
 
 	_, ok := bs.Kc.Pk["test"]
