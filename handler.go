@@ -253,7 +253,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	jwtToken := headerEntry[1]
 	JWT, err := GetJwtHeader(jwtToken)
 	//bs.Kc.Pk[JWT.Kid]
-
+	fmt.Println(bs.Kc.Keys.Keys)
 	_, ok := bs.Kc.Pk["test"]
 
 	var pk *rsa.PublicKey
