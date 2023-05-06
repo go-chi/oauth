@@ -1,7 +1,7 @@
 github.com/MicahParks/keyfunc v1.1.0 h1:9NcnRwS0ciuVeVNi+vTdYVMTmk62OID7VlG6y9BgLK0=
 github.com/MicahParks/keyfunc v1.1.0/go.mod h1:a4yfunv77gZ0RgTNw7tOYS+bjtHk5565e+1dPz+YJI8=
-github.com/christhirst/gohelper v0.0.6 h1:rtn/ULE/mNN3sgB9gIExrKfEd/0fifMWaSFn3hQngOo=
-github.com/christhirst/gohelper v0.0.6/go.mod h1:Pvp2b4dl7hiyXRdnoHPk3RybnXJ3ONbwXq8FPjmTK0o=
+github.com/christhirst/gohelper v0.0.8 h1:UWkxIPL0Q32ef53ABuEB54mGQgVmcqnNhcxKRUjhpNY=
+github.com/christhirst/gohelper v0.0.8/go.mod h1:Pvp2b4dl7hiyXRdnoHPk3RybnXJ3ONbwXq8FPjmTK0o=
 github.com/coreos/go-systemd/v22 v22.3.3-0.20220203105225-a9a7ef127534/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -236,23 +237,30 @@ func GetJwtHeader(jwtToken string) (JWT, error) {
 	return jwtParsed, nil
 }
 
+func getHeader(header string, w http.ResponseWriter, r *http.Request) (jwt string, err error) {
+	authToken := r.Header.Get(header)
+	headerEntry := strings.Split(authToken, " ")
+	if len(headerEntry) < 2 || authToken == "" {
+		log.Error().Err(nil).Msg("No Authorization header")
+		renderJSON(w, nil, http.StatusForbidden)
+		jwt = ""
+		err = errors.New("No authorization header")
+		return
+	}
+	jwt = headerEntry[1]
+	err = nil
+	return
+}
+
 func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to create id_token")
+		log.Error().Err(err).Msg("Unable to parse form")
 		return
 	}
 
-	authToken := r.Header.Get("Authorization")
-	headerEntry := strings.Split(authToken, " ")
-	if len(headerEntry) < 2 || authToken == "" {
-		log.Error().Err(err).Msg("No Authorization header")
-		renderJSON(w, nil, http.StatusForbidden)
-		return
-	}
-	jwtToken := headerEntry[1]
+	jwtToken, err := getHeader("Authorization", w, r)
 	JWT, err := GetJwtHeader(jwtToken)
-	//bs.Kc.Pk[JWT.Kid]
 
 	_, ok := bs.Kc.Pk["test"]
 
@@ -299,7 +307,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, jsonPayload, rc)
 		return
 	}
-
+	fmt.Println("ssws")
 	renderJSON(w, nil, http.StatusForbidden)
 }
 func (bs *BearerServer) GetConnectionTarget(r *http.Request) (string, *AuthTarget, error) {

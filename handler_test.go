@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/christhirst/gohelper/iasserts"
 	"github.com/christhirst/gohelper/ijson"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
@@ -528,5 +529,27 @@ func TestUserInfo(t *testing.T) {
 	}
 	fmt.Println(tsa)
 	//t.Error()
+
+}
+
+func TestGetHeaderAuth(t *testing.T) {
+
+	t.Run("Registration Test 2", func(t *testing.T) {
+		req, err := http.NewRequest("GET", "/userinfo", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		want := "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJzdWIiOiJhbGljZSIsImVtYWlsIjoiYWxpY2VAd29uZGVybGFuZC5uZXQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IkFsaWNlIEFkYW1zIiwiYXVkIjoiMDAwMTIzIiwiaXNzIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL2MyaWQiLCJmYW1pbHlfbmFtZSI6IkFkYW1zIiwiaWF0IjoxNDEzOTg1NDAyLCJncm91cHMiOlsiYWRtaW4iLCJhdWRpdCJdfQ.FJv9UnxvQxYvlc2F_v657SIyZkjQ382Bc108O--UFh3cvkjxiO5P2sJyvcqfuGrlzgvU7gCKzTIqqrV74EcHwGb_xyBUPOKuIJGaDKirBdnPbIXMDGpSqmBQes4tc6L8pkhZfRENIlmkP-KphI3wPd4jtko2HXAdDFVjzK-FPic"
+		req.Header.Add("Authorization", "Bearer "+want)
+		rr := httptest.NewRecorder()
+		got, err := getHeader("Authorization", rr, req)
+
+		if err != nil {
+			t.Error()
+		}
+		iasserts.AssertString(t, got, want)
+		//.AssertString(t, got, want)
+	})
 
 }
