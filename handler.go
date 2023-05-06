@@ -284,6 +284,12 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
 		}
+		groups, err = bs.Verifier.ExtractJWTtoUserGroup()
+		//.Allcon.AllConns[authTarget].Conns[ldapCon].LdapGetMemberOf(baseDN, sizeLimit, filterLDAP)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed getting groups for: %s", username)
+			fmt.Println("eee")
+		}
 		fmt.Println(groups)
 		jsonPayload, rc, contentType, err := UserData()
 		if err != nil {
