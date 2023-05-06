@@ -22,10 +22,9 @@ func GenKid() (string, error) {
 func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, error) {
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
-	tokens.Header["kid"] = kc.Keys.Keys[0]["test"]
 	fmt.Println(kc.Keys.Keys)
 	fmt.Println("####")
-	//tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
+	tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
 	signedToken, err := tokens.SignedString(kc.Pk["test"])
 	if err != nil {
 		log.Err(err).Msg("")
