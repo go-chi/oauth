@@ -47,6 +47,7 @@ func TestCreateJWT(t *testing.T) {
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
+	t.Error()
 
 }
 

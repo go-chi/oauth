@@ -23,6 +23,8 @@ func CreateJWT(method string, claims jwt.Claims, kc *KeyContainer) (string, erro
 	rt := jwt.GetSigningMethod(method)
 	tokens := jwt.NewWithClaims(rt, claims)
 	tokens.Header["kid"] = kc.Keys.Keys[0]["test"]
+	fmt.Println(kc.Keys.Keys[0]["kid"])
+	fmt.Println("####")
 	//tokens.Header["kid"] = kc.Keys.Keys[0]["kid"]
 	signedToken, err := tokens.SignedString(kc.Pk["test"])
 	if err != nil {
