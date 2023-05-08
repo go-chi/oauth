@@ -493,7 +493,7 @@ func TestGetBearerToken(t *testing.T) {
 		accessToken := "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIwOTAyMjEyLTZjNmMtNDUyYi1iNGIzLTJkMDA0MTFhNjczMyIsInR5cCI6IkpXVCJ9.eyJmb28iOiJjbiIsIm5vbmNlIjoiY29kZSIsImdyb3VwcyI6WyIiXSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODI4MCIsInN1YiI6ImR3aWdodCIsImF1ZCI6WyJjbGllbnRuYW1lMyJdLCJleHAiOjE2NzY2NjU1MDMsIm5iZiI6MTY3NjU3OTEwMSwiaWF0IjoxNjc2NTc5MTAzLCJqdGkiOiIxIn0.RnTzphSAbXyO-IRFPf_MrdYsTxvLTmRR6GTVxnARQ-HCDYUAsJpVjMoBk0JvvbZs_tsseruF1vJY6qYycX2iNkY-9ehCzuNcB_uAE1nVdZWT7AeCkJAtCve3qq2xW7QbDeAK-UHue12tsXPeXS-Safi_iLKWHkl1MokqjAnmpL0oVC5jfKoG-UKzMOpxHnMrN4KjljW8JjFrJlH7hDJw8_mG2p1g_fNUJZ3EMRCBacCUUmG-Vi-Br7fu491FgNlHwybZTFPD7cr2I10m73JkQ2ZB1cAoIg2GEbQ2fp-UzljB1RncMCvGo1ieckbkxgtxEb3JMUsKd0-_rkSh74Ciow"
 		got, err := GetJwtHeader(accessToken)
 		if err != nil {
-			t.Error()
+			t.Error(err)
 		}
 		want := JWT{Alg: "RS256", Kid: "20902212-6c6c-452b-b4b3-2d00411a6733"}
 		assertGeneric(t, got, want)
@@ -534,7 +534,7 @@ func TestUserInfo(t *testing.T) {
 
 func TestGetHeaderAuth(t *testing.T) {
 
-	t.Run("Registration Test 2", func(t *testing.T) {
+	t.Run("Authheader Success", func(t *testing.T) {
 		req, err := http.NewRequest("GET", "/userinfo", nil)
 		if err != nil {
 			t.Fatal(err)
@@ -546,6 +546,24 @@ func TestGetHeaderAuth(t *testing.T) {
 		got, err := getHeader("Authorization", rr, req)
 
 		if err != nil {
+			t.Error()
+		}
+		iasserts.AssertString(t, got, want)
+		//.AssertString(t, got, want)
+	})
+
+	t.Run("Authheader fail", func(t *testing.T) {
+		req, err := http.NewRequest("GET", "/userinfo", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		want := ""
+		req.Header.Add("Authorization", "Bearer")
+		rr := httptest.NewRecorder()
+		got, err := getHeader("Authorization", rr, req)
+
+		if err == nil {
 			t.Error()
 		}
 		iasserts.AssertString(t, got, want)

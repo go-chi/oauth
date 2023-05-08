@@ -25,7 +25,6 @@ func TestCreateJWT(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		//token, err := jwt.Parse(signedToken, jwks.Keyfunc)
 		pub := &bs.Kc.Pk["test"].PublicKey
 
 		token, err := jwt.Parse(signedToken, func(t *jwt.Token) (interface{}, error) { return pub, nil })
@@ -47,8 +46,6 @@ func TestCreateJWT(t *testing.T) {
 		want := map[string]interface{}{"name": "tester"}
 		assertCorrectMessage(t, got, want)
 	})
-	t.Error()
-
 }
 
 func TestJwtValidate(t *testing.T) {
@@ -77,9 +74,9 @@ func TestJwtValidate(t *testing.T) {
 	}
 	//&bs.Kc.Pk["test"].PublicKey
 	fmt.Println("####")
-	fmt.Println(bs.Kc.Pk["test"].PublicKey)
+
 	_, err = JWTvalid(jw, &bs.Kc.Pk["test"].PublicKey)
-	t.Error(err)
+
 	token, err := jwt.Parse(jw, jwks.Keyfunc)
 
 	if err != nil {

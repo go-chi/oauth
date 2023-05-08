@@ -260,13 +260,13 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwtToken, err := getHeader("Authorization", w, r)
-	JWT, err := GetJwtHeader(jwtToken)
+	jwtHeader, err := GetJwtHeader(jwtToken)
 
 	_, ok := bs.Kc.Pk["test"]
 
 	var pk *rsa.PublicKey
 	if !ok {
-		log.Error().Err(err).Msgf("Key not available: %s", JWT.Kid)
+		log.Error().Err(err).Msgf("Key not available: %s", jwtHeader.Kid)
 	} else {
 		//bs.Kc.Pk[jwtParsed.Kid]
 		pk = &bs.Kc.Pk["test"].PublicKey
@@ -278,7 +278,7 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		ss, err := ParseJWT(jwtToken, pk)
 		fmt.Println(ss)
 		if err != nil {
-			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", JWT.Kid)
+			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", jwtHeader.Kid)
 		}
 		//fmt.Println(parsedToken.Claims)
 		ee := ss
