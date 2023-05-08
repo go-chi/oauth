@@ -135,7 +135,7 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 
 }
 
-func UserData() (map[string]interface{}, int, string, error) {
+func UserData(userData map[string]string) (map[string]interface{}, int, string, error) {
 	/* w.WriteHeader(401) // Unauthorized
 	w.WriteHeader(403) // Forbidden
 	w.WriteHeader(500) // Internal Server Error */

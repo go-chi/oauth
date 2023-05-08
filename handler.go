@@ -258,13 +258,19 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to parse form")
 		return
 	}
-
 	jwtToken, err := getHeader("Authorization", w, r)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to get jwt-authtoken")
+		return
+	}
 	jwtHeader, err := GetJwtHeader(jwtToken)
-
-	_, ok := bs.Kc.Pk["test"]
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to get jwt-header")
+		return
+	}
 
 	var pk *rsa.PublicKey
+	_, ok := bs.Kc.Pk["test"]
 	if !ok {
 		log.Error().Err(err).Msgf("Key not available: %s", jwtHeader.Kid)
 	} else {
@@ -273,33 +279,27 @@ func (bs *BearerServer) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ok {
-		fmt.Println(jwtToken)
-
-		ss, err := ParseJWT(jwtToken, pk)
-		fmt.Println(ss)
+		jwtParsed, err := ParseJWT(jwtToken, pk)
 		if err != nil {
 			log.Error().Err(err).Msgf("JWT validation failed for kid: %s", jwtHeader.Kid)
 		}
-		//fmt.Println(parsedToken.Claims)
-		ee := ss
 		// BUG  panic: interface conversion: interface {} is nil, not string
 		// 9:45PM ERR JWT validation failed for kid: 051c42ab-a832-4f94-81a4-45feefa73fec error="Token invalid"
-		username := ee["sub"].(string)
+		username := jwtParsed["sub"].(string)
 
-		//get userdata
-		bs.Verifier.GetUserData(username, "scope", r)
-		groups, err := bs.Verifier.ValidateUser(username, "password", "scope", r)
+		allUserInfos, err := bs.Verifier.GetUserData(username, "scope", r)
+		/* groups, err := bs.Verifier.ValidateUser(username, "password", "scope", r)
 		if err != nil {
 			log.Error().Err(err).Msg("Parsing Form failed")
-		}
-		groups, err = bs.Verifier.ExtractJWTtoUserGroup("")
+		} */
+		/* groups, err = bs.Verifier.ExtractJWTtoUserGroup("")
 		//.Allcon.AllConns[authTarget].Conns[ldapCon].LdapGetMemberOf(baseDN, sizeLimit, filterLDAP)
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed getting groups for: %s", username)
 			fmt.Println("eee")
-		}
-		fmt.Println(groups)
-		jsonPayload, rc, contentType, err := UserData()
+		} */
+		//fmt.Println(groups)
+		jsonPayload, rc, contentType, err := UserData(allUserInfos)
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to create id_token")
 		}
