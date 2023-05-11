@@ -55,7 +55,7 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, "Form value is missing", http.StatusForbidden)
 		return
 	}
-
+	fmt.Println(urlValues["client_id"][0])
 	if client, err := bs.Verifier.StoreClientGet(urlValues["client_id"][0]); err != nil {
 		log.Error().Err(err).Msgf("Failed getting Client: %s", client)
 	}
