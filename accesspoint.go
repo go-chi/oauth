@@ -10,7 +10,6 @@ import (
 )
 
 func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("++++++++++++++++++++")
 	//getting the session
 	userID, ok, err := bs.Verifier.SessionGet(w, r, "user_session")
 	if err != nil {
@@ -32,14 +31,13 @@ func (bs *BearerServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, "Client not found", http.StatusForbidden)
 		return
 	}
-	fmt.Println("++++++++++++++++++++")
-	fmt.Println(err)
-	fmt.Println(client)
+
 	//redirect to error page || Logged in || to login page
 	if err != nil && client == nil {
 		log.Info().Msgf("Client not found: %s", aud)
 		http.Redirect(w, r, "https://ClientNotFound", 401)
 	} else if ok && userID != "" {
+		fmt.Println(client)
 		RedirectAccess(bs, w, r)
 	} else {
 		err := bs.Verifier.SignInMethod(aud, w, r)

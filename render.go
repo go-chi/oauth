@@ -3,8 +3,9 @@ package oauth
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 // renderJSON marshals 'v' to JSON, automatically escaping HTML, setting the
@@ -15,15 +16,14 @@ func renderJSON(w http.ResponseWriter, v interface{}, statusCode int) {
 	enc.SetEscapeHTML(true)
 	b, err := json.MarshalIndent(v, "", "\t")
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Error().Err(err).Msg("failed to marshal object to json")
 	}
 
-	/* if err := enc.Encode(v); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	} */
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 
-	_, _ = w.Write(b)
+	_, err = w.Write(b)
+	if err != nil {
+		log.Error().Err(err).Msg("render json failed")
+	}
 }

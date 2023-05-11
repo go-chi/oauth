@@ -239,6 +239,7 @@ type Mapping struct {
 
 type Registration struct {
 	Client_id                       string   `json:"client_id,omitempty"`
+	Owner                           []string `json:"Owner,omitempty"`
 	Client_secret                   string   `json:"client_secret,omitempty"`
 	Kid                             string   `json:"kid,omitempty"`
 	Redirect_uris                   []string `json:"redirect_uris,omitempty"`
