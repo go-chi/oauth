@@ -60,5 +60,6 @@ func generateRandomString(n int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+
+	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(b), nil
 }

@@ -95,7 +95,7 @@ func Forbidden(scope jwt.Claims) (bool, error) {
 	return false, nil
 }
 
-func OpenIDConnectFlows(sess CredentialsVerifier, id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
+func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
 	switch response_type {
 	case "id_token":
 		fmt.Println(111)

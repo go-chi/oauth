@@ -59,7 +59,7 @@ func TestGenerateRandomString(t *testing.T) {
 	randStr, err := generateRandomString(length)
 
 	if len(randStr) != length {
-		t.Error(len(randStr))
+		t.Error(randStr)
 	}
 
 	if err != nil {
