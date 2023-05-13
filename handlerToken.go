@@ -1,13 +1,20 @@
 package oauth
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/rs/zerolog/log"
 )
 
+var sessionManager *scs.SessionManager
+
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+	ee := sessionManager.Get(r.Context(), "code")
+	fmt.Println(ee)
+
 	var at AuthToken
 	var code string
 	getFormData([]string{""}, r)
