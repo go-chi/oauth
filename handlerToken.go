@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -9,8 +8,6 @@ import (
 
 // UserCredentials manages password grant type requests
 func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-	fmt.Println(r.Header)
 	var at AuthToken
 	var code string
 	getFormData([]string{""}, r)

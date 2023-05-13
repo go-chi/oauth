@@ -218,7 +218,8 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
-	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
+
+	OpenIDConnectFlows(bs.Verifier, id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
 }
 
 type JWT struct {

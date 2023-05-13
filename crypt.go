@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -51,4 +52,13 @@ func ParseBody[t any](b io.ReadCloser, jsonTarget t) (t, error) {
 	}
 	fmt.Println(jsonTarget)
 	return jsonTarget, err
+}
+
+func generateRandomString(n int) (string, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }

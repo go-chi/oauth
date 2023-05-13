@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/alexedwards/scs/v2 v2.5.1 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -53,3 +53,16 @@ func TestReturnKeys(t *testing.T) {
 	}
 
 }
+
+func TestGenerateRandomString(t *testing.T) {
+	length := 22
+	randStr, err := generateRandomString(length)
+
+	if len(randStr) != length {
+		t.Error(len(randStr))
+	}
+
+	if err != nil {
+		t.Error()
+	}
+}
