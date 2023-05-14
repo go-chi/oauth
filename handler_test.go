@@ -28,8 +28,7 @@ var bs = NewBearerServer(
 	&TestUserVerifier{},
 	nil,
 )
-var testclaims = MyCustomClaims{
-	Foo:    "cn",
+var testclaims = MyCustomClaimss{
 	Nonce:  "nonce",
 	Groups: []string{"testgroup1", "testgroup2"},
 	RegisteredClaims: jwt.RegisteredClaims{

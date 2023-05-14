@@ -41,7 +41,7 @@ type CredentialsVerifier interface {
 	// Provide additional claims to the idtoken
 	//AddIdClaims() (map[string]string, error)
 	// Provide additional claims to the idtoken
-	CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaims
+	CreateClaims(username string, aud []string, nonce string, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
 	//CreateAtClaims(username, client_id string, aud []string, nonce string, scope, groups []string, at AuthToken, r *http.Request) MyCustomClaimss
 
 	GetConnectionTarget(r *http.Request) (string, *AuthTarget, error)

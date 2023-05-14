@@ -74,9 +74,12 @@ type MyCustomClaims struct {
 type MyCustomClaimss struct {
 	Iss       string   `json:"iss"`
 	Sub       string   `json:"sub"`
+	Nonce     string   `json:"nonce"`
 	Aud       []string `json:"aud"`
+	Azp       string   `json:"azp"`
 	Client_id string   `json:"client_id"`
 	Scope     []string `json:"scope"`
+	Groups    []string `json:"groups"`
 	jwt.RegisteredClaims
 }
 
