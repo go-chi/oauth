@@ -2,12 +2,9 @@ package oauth
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -33,30 +30,31 @@ type Cookie struct {
 }
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	var credential string
+func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	/* var credential string
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
 		log.Err(err)
-	}
-	var sub string
-	var client_id string
-	if err == nil {
-		token := strings.Split(code, ".")[1]
-		dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
-		jwtParsed := MyCustomClaimss{}
-		err = json.Unmarshal(dIdToken, &jwtParsed)
-		if err != nil {
-			fmt.Println("error:", err)
-		}
-		fmt.Println("#####")
-		fmt.Println(jwtParsed)
-		fmt.Println("#####")
-		aud = jwtParsed.Aud
-		sub = jwtParsed.Sub
-		client_id = jwtParsed.Client_id
-		credential = jwtParsed.Sub
-	}
+	} */
+	//var sub string
+	//var client_id string
+
+	//if err == nil {
+	/* token := strings.Split(code, ".")[1]
+	dIdToken, _ := base64.RawStdEncoding.DecodeString(token)
+	jwtParsed := MyCustomClaimss{}
+	err = json.Unmarshal(dIdToken, &jwtParsed)
+	if err != nil {
+		fmt.Println("error:", err)
+	} */
+	//aud = jwtParsed.Aud
+	//sub = jwtParsed.Sub
+	//client_id = jwtParsed.Client_id
+	//credential = jwtParsed.Sub
+	//}
+
+	sub := codeCheck.User
+	client_id := codeCheck.ClientId
 
 	fmt.Println(code)
 	fmt.Println(client_id)
@@ -64,7 +62,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 	switch grantType {
 	//--------------------------->to Function and RedirectAccess -->takes that func
 	case AuthCodeGrant:
-		nonce := parsedJwt["nonce"].(string)
+		nonce := "nonce"
 		fmt.Println(nonce)
 		at = AuthToken{
 			//iss:   client_id,
@@ -83,12 +81,12 @@ func (bs *BearerServer) GenerateIdTokenResponse(method string, aud []string, gra
 			return "Not authorized", http.StatusOK, nil
 		} */
 
-		groups, err := bs.Verifier.ValidateUser(credential, "secret", scope, r)
+		groups, err := bs.Verifier.ValidateUser(sub, "secret", scope, r)
 		if err != nil {
 			log.Err(err).Msg("Failed getting groups")
 		}
 
-		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, credential, scope, nonce, groups, at, r)
+		token, refresh, idtoken, err := bs.generateIdTokens("RS256", aud, UserToken, sub, scope, nonce, groups, at, r)
 		if err != nil {
 			return "Token generation failed, check claims", http.StatusInternalServerError, err
 		}

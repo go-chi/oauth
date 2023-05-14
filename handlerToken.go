@@ -26,7 +26,7 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	d, ok := bs.Tm.GetValue(code).(CodeCheck)
 
 	fmt.Println("eeeeeee", d, ok)
-	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", []string{aud}, grant_type, refresh_token, scope, code, redirect_uri, at, w, r)
+	resp, returncode, err := bs.GenerateIdTokenResponse(d, "RS256", []string{aud}, grant_type, refresh_token, scope, code, redirect_uri, at, w, r)
 
 	if err != nil {
 		renderJSON(w, err, 200)
