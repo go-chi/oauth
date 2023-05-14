@@ -55,7 +55,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method stri
 
 	sub := codeCheck.User
 	client_id := codeCheck.ClientId
-
+	aud = append(aud, client_id)
 	fmt.Println(code)
 	fmt.Println(client_id)
 	var resp *TokenResponse
