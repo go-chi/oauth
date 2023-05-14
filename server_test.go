@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/christhirst/gohelper/iasserts"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/jcmturner/gokrb5/v8/keytab"
 	"github.com/rs/zerolog/log"
@@ -24,13 +25,19 @@ var _sut = NewBearerServer(
 )
 
 func TestNewBearerServer(t *testing.T) {
-	fmt.Println(_sut)
-	//t.Error()
+	t.Run("Sign in Test no client_id", func(t *testing.T) {
+		secretKey := "mySecretKey-10101"
+		ttl := time.Second * 60
+		Verifier := new(TestUserVerifier)
+		server := NewBearerServer(secretKey, ttl, Verifier, nil)
+		iasserts.AssertResponseCode(t, server.pKey.PublicKey.Size(), 256)
+	})
 }
 
-// TestUserVerifier provides user credentials Verifier for testing.
 type TestUserVerifier struct {
 }
+
+//func (*TestUserVerifier)CredentialsVerifier
 
 func (*TestUserVerifier) StoreClient(clientname string, clientData Registration, methode string) (*Registration, error) {
 	var respInterface map[string]interface{}
