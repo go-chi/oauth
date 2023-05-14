@@ -73,7 +73,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method stri
 			//Iat: "state",
 			//auth_time: response_type,
 			//acr:       scope,
-			//azp:       state,
+			Azp: aud[0],
 		}
 
 		/* if err := bs.Verifier.ValidateClient(client_id, "test_secret"); err != nil {
