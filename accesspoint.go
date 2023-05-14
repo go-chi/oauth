@@ -94,6 +94,15 @@ func RedirectAccess(bs *BearerServer, w http.ResponseWriter, r *http.Request) {
 	access_token, _ := CreateJWT("RS256", claims, bs.Kc)
 	id_token, _ := CreateJWT("RS256", claims, bs.Kc)
 
-	OpenIDConnectFlows("", id_token, access_token, urlValues["response_type"][0], urlValues["redirect_uri"][0],
+	code, _ := generateRandomString(22)
+
+	codeCheck := CodeCheck{
+		code:     code,
+		User:     userID,
+		ClientId: clientId[0],
+	}
+	bs.Tm.Set(code, codeCheck, 3*time.Second)
+
+	OpenIDConnectFlows(code, id_token, access_token, urlValues["response_type"][0], urlValues["redirect_uri"][0],
 		urlValues["state"][0], urlValues["scopes"], w, r)
 }
