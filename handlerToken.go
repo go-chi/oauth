@@ -27,6 +27,7 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("eeeeeee", d, ok)
 	iss := r.Host
+	fmt.Println(iss)
 	resp, returncode, err := bs.GenerateIdTokenResponse(d, "RS256", iss, []string{aud}, grant_type, refresh_token, scope, code, redirect_uri, at, w, r)
 
 	if err != nil {
