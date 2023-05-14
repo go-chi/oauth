@@ -286,3 +286,9 @@ type Federation struct {
 type AuthTarget struct {
 	Participant map[string]Federation
 }
+
+type CodeCheck struct {
+	code     string
+	User     string
+	ClientId string
+}

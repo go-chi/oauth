@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/christhirst/gohelper/ihttp"
 	"github.com/go-chi/chi/v5"
@@ -219,7 +220,16 @@ func (bs *BearerServer) GetRedirect(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Unable to create id_token")
 	}
 
-	OpenIDConnectFlows(id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
+	code, _ := generateRandomString(22)
+
+	codeCheck := CodeCheck{
+		code:     code,
+		User:     formMap["name"][0],
+		ClientId: formMap["client_id"][0],
+	}
+	bs.Tm.Set(code, codeCheck, 3*time.Second)
+
+	OpenIDConnectFlows(code, id_token, access_token, formMap["response_type"][0], formMap["redirect_uri"][0], formMap["state"][0], formMap["scope"], w, r)
 }
 
 type JWT struct {

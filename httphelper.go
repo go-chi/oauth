@@ -95,7 +95,7 @@ func Forbidden(scope jwt.Claims) (bool, error) {
 	return false, nil
 }
 
-func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
+func OpenIDConnectFlows(code, id_token, access_token, response_type, redirect_uri, state string, scope []string, w http.ResponseWriter, r *http.Request) {
 	switch response_type {
 	case "id_token":
 		fmt.Println(111)
@@ -106,7 +106,7 @@ func OpenIDConnectFlows(id_token, access_token, response_type, redirect_uri, sta
 		fmt.Println(222)
 		//TODO needs fixxing code= not ID token
 		//if slices.Contains(scope, "openid") {
-		code, _ := generateRandomString(22)
+
 		//location := redirect_uri + "?code=" + access_token + "&state=" + state
 		location := redirect_uri + "?code=" + code + "&state=" + state
 		w.Header().Add("Location", location)

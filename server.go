@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/jcmturner/gokrb5/v8/keytab"
+	"github.com/zekroTJA/timedmap"
 )
 
 type GrantType string
@@ -81,6 +82,7 @@ type BearerServer struct {
 	Signature string
 	nonce     string
 	Clients   map[string]*ClientConfig
+	Tm        *timedmap.TimedMap
 }
 
 func (b *BearerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +99,7 @@ func NewBearerServer(secretKey string, ttl time.Duration, Verifier CredentialsVe
 		formatter = NewSHA256RC4TokenSecurityProvider([]byte(secretKey))
 	}
 	clients := InitClientConfig()
+	tm := timedmap.New(5 * time.Second)
 	return &BearerServer{
 		secretKey: secretKey,
 		Kc:        &kc,
@@ -104,7 +107,9 @@ func NewBearerServer(secretKey string, ttl time.Duration, Verifier CredentialsVe
 		Verifier:  Verifier,
 		provider:  NewTokenProvider(formatter),
 		pKey:      privatekey,
-		Clients:   clients}
+		Clients:   clients,
+		Tm:        tm,
+	}
 }
 
 // AuthorizationCode manages authorization code grant type requests for the phase two of the authorization process

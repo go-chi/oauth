@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -22,7 +23,9 @@ func (bs *BearerServer) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("code") != "" {
 		code = r.FormValue("code")
 	}
+	d, ok := bs.Tm.GetValue(code).(CodeCheck)
 
+	fmt.Println("eeeeeee", d, ok)
 	resp, returncode, err := bs.GenerateIdTokenResponse("RS256", []string{aud}, grant_type, refresh_token, scope, code, redirect_uri, at, w, r)
 
 	if err != nil {
