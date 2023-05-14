@@ -30,7 +30,7 @@ type Cookie struct {
 }
 
 // Generate token response
-func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method, iss string, aud []string, grantType GrantType, refreshToken string, scope string, code string, redirectURI string, at AuthToken, w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	/* var credential string
 	parsedJwt, err := ParseJWT(code, &bs.Kc.Pk["test"].PublicKey)
 	if err != nil {
@@ -65,7 +65,7 @@ func (bs *BearerServer) GenerateIdTokenResponse(codeCheck CodeCheck, method stri
 		nonce := "nonce"
 		fmt.Println(nonce)
 		at = AuthToken{
-			//iss:   client_id,
+			Iss:   iss,
 			Sub:   sub,
 			Aud:   aud,
 			Nonce: nonce,
