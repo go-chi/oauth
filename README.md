@@ -33,6 +33,28 @@ Authorization Server crypts the token using the Token Formatter and Authorizatio
 This library contains a default implementation of the formatter interface called _SHA256RC4TokenSecureFormatter_ based on the algorithms SHA256 and RC4.
 Programmers can develop their Token Formatter implementing the interface _TokenSecureFormatter_ and this is really recommended before publishing the API in a production environment. 
 
+There are additional Token Formatters using several algorithms
+* _AES128GCMTokenSecureFormatter_
+* _AES256GCMTokenSecureFormatter_
+* _RSATokenSecureFormatter_
+* _JWTHS256TokenSecureFormatter_
+
+Benchmark
+```
+go test -bench=. -benchtime 5s
+goos: linux
+goarch: amd64
+pkg: github.com/go-chi/oauth
+cpu: Intel(R) Xeon(R) CPU E5-2630 v4 @ 2.20GHz
+BenchmarkRC4-4            534931             12012 ns/op
+BenchmarkSHA256-4         383150             13230 ns/op
+BenchmarkAES128GCM-4      724194              7403 ns/op
+BenchmarkAES256GCM-4      870612              7387 ns/op
+BenchmarkRSA-4              1882           3093425 ns/op
+BenchmarkJWTHS256-4       564812             10076 ns/op
+PASS
+ok      github.com/go-chi/oauth 38.633s
+```
 ## Credentials Verifier
 The interface _CredentialsVerifier_ defines the hooks called during the token generation process.
 The methods are called in this order:
@@ -56,16 +78,24 @@ func main() {
     r.Use(middleware.Logger)
     r.Use(middleware.Recoverer)
 
-    s := oauth.NewOAuthBearerServer(
-        "mySecretKey-10101",
-	time.Second*120,
-	&TestUserVerifier{},
-	nil)
+	s := oauth.NewBearerServer(
+		"mySecretKey-10101",
+		time.Second*120,
+		&TestUserVerifier{},
+    nil)
 	
     r.Post("/token", s.UserCredentials)
     r.Post("/auth", s.ClientCredentials)
     http.ListenAndServe(":8080", r)
 }
+```
+If you want to use [AES256 GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) cipher, initialize the server with the corresponding formatter
+```Go
+	s := oauth.NewBearerServer(
+		"testkeytestkeytestkeytestkey1234", // needs to be exactly 32 byte for AES256
+		time.Second*120,
+		&TestUserVerifier{},
+		oauth.NewAES256GCMTokenSecurityProvider([]byte("testkeytestkeytestkeytestkey1234")))
 ```
 See [/test/authserver/main.go](https://github.com/go-chi/oauth/blob/master/test/authserver/main.go) for the full example.
 
@@ -79,6 +109,11 @@ This snippet shows how to use the middleware
 	r.Get("/customers", GetCustomers)
 	r.Get("/customers/{id}/orders", GetOrders)
     }
+```
+If you want to use [AES256 GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) cipher, initialize the server with the corresponding formatter
+```Go
+    // Key must be exactly 32 byte for AES256
+    r.Use(oauth.Authorize("testkeytestkeytestkeytestkey1234", oauth.NewAES256GCMTokenSecurityProvider([]byte("testkeytestkeytestkeytestkey1234"))))
 ```
 See [/test/resourceserver/main.go](https://github.com/go-chi/oauth/blob/master/test/resourceserver/main.go) for the full example.
 
